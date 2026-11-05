@@ -14,7 +14,7 @@ try {
     const item = g.grab.items.find((i: any) => i.obj === cube);
     const pl = g.player;
     let bad = 0, minY = 9, lo = [9, 9], hi = [-9, -9];
-    const bounds = (x: number, y: number, z: number) => y > 0.05 && x > -1 && x < 9 && z > -1 && z < 7;
+    const bounds = (x: number, y: number, z: number) => y > 0.05 && x > -1 && x < 13 && z > -1 && z < 8.5; // room 12 x 7.5 (blender/layout.py)
     for (let i = 0; i < 200; i++) {
       pl.teleport(0.7 + Math.random() * 1.1, 0, 2.5 + Math.random() * 2.5, Math.random() * 360);
       pl.pitch = -1.3 + Math.random() * 1.6; // the blockout is open-topped: no upward tosses over the walls
