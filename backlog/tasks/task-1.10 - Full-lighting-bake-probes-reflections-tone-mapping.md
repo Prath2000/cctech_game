@@ -4,12 +4,14 @@ title: Full lighting bake, probes, reflections, tone mapping
 status: To Do
 assignee: []
 created_date: '2026-11-05T10:22:00Z'
+updated_date: '2026-11-05T10:50:00Z'
 labels:
   - effort:XL
 dependencies:
   - TASK-1.4
   - TASK-1.6
   - TASK-1.7
+  - TASK-1.18
 parent_task_id: TASK-1
 priority: high
 type: feature
@@ -32,3 +34,9 @@ Parallel-safe: no. Plan: .team/changes/0001-pantry-poc/plan.md (T10).
 - [ ] #4 Runs on both backends.
 - [ ] #5 fps recorded with T2.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+From spike (docs/spikes/lighting-spike.md): use ambient-cube lightmaps (6 bakes) + cube probes grid; must also cover texel density/UV packing for the full room atlases, box-projected reflection probe validation in TSL, contact shadow/AO for dynamic items, probe validity near geometry. Sun patches need HDR headroom: consider RGBM or 16-bit instead of sRGB8 range 4-8.
+<!-- SECTION:NOTES:END -->

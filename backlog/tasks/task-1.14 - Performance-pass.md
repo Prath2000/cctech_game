@@ -4,6 +4,7 @@ title: Performance pass
 status: To Do
 assignee: []
 created_date: '2026-11-05T10:22:00Z'
+updated_date: '2026-11-05T10:50:00Z'
 labels:
   - effort:L
 dependencies:
@@ -11,6 +12,7 @@ dependencies:
   - TASK-1.11
   - TASK-1.12
   - TASK-1.13
+  - TASK-1.19
 parent_task_id: TASK-1
 priority: medium
 type: task
@@ -32,3 +34,9 @@ Parallel-safe: no. Plan: .team/changes/0001-pantry-poc/plan.md (T14).
 - [ ] #3 Low setting measurably faster, same default look.
 - [ ] #4 Budget numbers in a short doc.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+From spike: KTX2 BC6H/ASTC HDR transcoding for lightmaps; pack ambient-cube axes into fewer textures.
+<!-- SECTION:NOTES:END -->

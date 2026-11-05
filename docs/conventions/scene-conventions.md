@@ -15,6 +15,7 @@
   - `use_kind`: for `use` items, e.g. `coffee_machine`, `microwave`, `fridge_door`, `kettle`, `sink`, `cabinet_door`, `vending`, `cooler`, `chair`, `light_switch`.
   - `collider`: `box` (default) | `none` | `convex`; movable `grab` items get dynamic rigid bodies in the game.
   - `mass` (kg) for grab items.
+- `bake`: 0 = static mesh deliberately excluded from the lightmap (tiny clutter, e.g. `vend_*` items inside the vending glass); lit by probes later. Absent = 1. `pnpm check:glb` fails if any `static=1` & `bake!=0` mesh lacks TEXCOORD_1.
 - Static meshes need UV map `lightmap` (2nd UV). Movable meshes don't.
 - Hinged parts (doors) are separate objects parented to the body, with the pivot at the hinge and custom prop `hinge_axis` (`x|y|z`) and `hinge_max_deg`.
 - Instancing: repeated items (mugs, chairs) share one mesh datablock so they export as instances.

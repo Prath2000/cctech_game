@@ -84,8 +84,10 @@ def get(name):
     return m
 
 # ---------------------------------------------------------------- images
-def _load_arr(path, px):
+def _load_arr(path, px, nc=False):
     im = bpy.data.images.load(path, check_existing=False)
+    if nc:  # data map: read the stored bytes verbatim (no sRGB decode)
+        im.colorspace_settings.name = "Non-Color"
     if px and im.size[0] != px:
         im.scale(px, px)
     w, h = im.size
@@ -97,9 +99,10 @@ def _load_arr(path, px):
 def _new_image(name, arr, nc=False, ext="JPEG"):
     h, w, _ = arr.shape
     im = bpy.data.images.new(name, w, h, alpha=arr.shape[2] == 4 and ext == "PNG")
+    if nc:  # data map: tag Non-Color BEFORE filling so pixels are stored/saved verbatim
+        im.colorspace_settings.name = "Non-Color"
     im.pixels.foreach_set(np.ascontiguousarray(arr, np.float32).ravel())
     im.file_format = ext
-    # data maps stay tagged sRGB on purpose: the glTF exporter writes Non-Color generated images as black
     im.pack()
     return im
 
@@ -121,15 +124,15 @@ def _colour_image(name, s):
 
 def _orm_image(name, s):
     d = _tex_dir(s["src"])
-    r = _load_arr(os.path.join(d, "rough.jpg"), s["px"])[..., 0]
+    r = _load_arr(os.path.join(d, "rough.jpg"), s["px"], nc=True)[..., 0]
     r = np.clip(r * s["rs"] + s["ro"], 0.03, 1)
     mp = os.path.join(d, "metal.jpg")
-    m = _load_arr(mp, s["px"])[..., 0] if s["metal"] == "tex" and os.path.exists(mp) else np.full_like(r, s["metal"] if s["metal"] != "tex" else 0)
+    m = _load_arr(mp, s["px"], nc=True)[..., 0] if s["metal"] == "tex" and os.path.exists(mp) else np.full_like(r, s["metal"] if s["metal"] != "tex" else 0)
     a = np.stack([np.ones_like(r), r, m, np.ones_like(r)], -1)
     return _new_image(name + "_orm", a, nc=True)
 
 def _normal_image(name, s):
-    a = _load_arr(os.path.join(_tex_dir(s["src"]), "normal.jpg"), s["px"])
+    a = _load_arr(os.path.join(_tex_dir(s["src"]), "normal.jpg"), s["px"], nc=True)
     return _new_image(name + "_normal", a, nc=True)
 
 # ---------------------------------------------------------------- materials

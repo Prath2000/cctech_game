@@ -225,6 +225,9 @@ def P(static, interact="look", **kw):
     d.update(kw)
     return d
 
+def clutter_prop(d):  # tiny items inside the vending glass: not baked (probe-lit later), bake=0
+    return {"static": d["static"], "collider": "none", "bake": 0}
+
 def empty_prop(d):  # children of a prop: no own collider, same static flag
     return {"static": d["static"], "collider": "none"}
 
@@ -402,17 +405,17 @@ def build_vending(ms, shared, zc):
     for y in rows:
         for z in cols:
             n_s += 1
-            put(f"vend_spiral_{n_s:02d}", shared["spiral"], (-0.1, y + 0.05, z), parent=root, props=empty_prop(root))
+            put(f"vend_spiral_{n_s:02d}", shared["spiral"], (-0.1, y + 0.05, z), parent=root, props=clutter_prop(root))
             kind = content[y]
             if kind is None or rng.random() < 0.2:
                 continue
             n_i += 1
             if kind == "snack":
-                put(f"vend_snack_{n_i:02d}", shared["sn"][rng.randrange(3)], (0.22, y + 0.008, z), parent=root, props=empty_prop(root))
+                put(f"vend_snack_{n_i:02d}", shared["sn"][rng.randrange(3)], (0.22, y + 0.008, z), parent=root, props=clutter_prop(root))
             elif kind == "bottle":
-                put(f"vend_bottle_{n_i:02d}", shared["bt"][rng.randrange(4)], (0.2, y, z), parent=root, props=empty_prop(root))
+                put(f"vend_bottle_{n_i:02d}", shared["bt"][rng.randrange(4)], (0.2, y, z), parent=root, props=clutter_prop(root))
             else:
-                put(f"vend_can_{n_i:02d}", shared["can"][rng.randrange(2)], (0.2, y, z), parent=root, props=empty_prop(root))
+                put(f"vend_can_{n_i:02d}", shared["can"][rng.randrange(2)], (0.2, y, z), parent=root, props=clutter_prop(root))
     return root
 
 def build_cooler(ms, idx, loc, tumbler):
@@ -569,4 +572,4 @@ def _socket(ms):
     b.box((0.008, 0, 0), (0.016, 0.08, 0.15), ms["white"], 0.004)
     for sz in (-0.03, 0.03):
         b.box((0.017, 0.0, sz), (0.004, 0.03, 0.03), ms["text_k"], 0.0)
-    return b.finish("mesh_socket_double")
+    return b.finish("mesh_socket_double", lightmap=True)
