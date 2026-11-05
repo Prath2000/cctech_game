@@ -50,3 +50,17 @@
 | `mug_set_down_1` | sidequesting | [MugClinks.wav](https://freesound.org/people/sidequesting/sounds/547489/) | CC0 1.0 |
 | `mug_set_down_2` | sidequesting | [MugClinks.wav](https://freesound.org/people/sidequesting/sounds/547489/) | CC0 1.0 |
 | `mug_clink` | Geoff-Bremner-Audi | [ceramic porcelain cement clink clank 3](https://freesound.org/people/Geoff-Bremner-Audi/sounds/735407/) | CC0 1.0 |
+
+## Materials and textures (TASK-1.6)
+All CC0 1.0 (no attribution required, credited anyway). Fetched by `scripts/fetch_textures.py` into `assets/raw/` (gitignored); recoloured at build time by `blender/materials.py`.
+
+| Use | Source | Id | Licence | URL |
+|---|---|---|---|---|
+| Floor tile | Poly Haven | `large_grey_tiles` | CC0 | https://polyhaven.com/a/large_grey_tiles |
+| Wall plaster | Poly Haven | `white_plaster_02` | CC0 | https://polyhaven.com/a/white_plaster_02 |
+| Granite counter and sill | ambientCG | `Granite005A` | CC0 | https://ambientcg.com/a/Granite005A |
+| Brushed steel | ambientCG | `Metal012` | CC0 | https://ambientcg.com/a/Metal012 |
+| Black aluminium frames | ambientCG | `Metal050A` | CC0 | https://ambientcg.com/a/Metal050A |
+| Ceiling tile | ambientCG | `OfficeCeiling005` | CC0 | https://ambientcg.com/a/OfficeCeiling005 |
+
+Decals in `assets/decals/` (sticky note, B'ONE sign, INNOVATION and large chevrons, circuit-arrow mural) are crops of our own reference photos (`references/img/photos/`), made by `scripts/make_decals.py`.
