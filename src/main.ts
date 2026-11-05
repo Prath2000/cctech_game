@@ -5,6 +5,7 @@ import { FpsHud } from './hud/fps';
 import { loadRoom } from './room';
 import { initLighting } from './lighting';
 import { loadBakedLighting } from './lighting/baked';
+import { LightSwitch } from './lighting/lightswitch';
 import { FirstPersonController } from './controller';
 import { Interaction } from './interact';
 import { GrabSystem } from './interact/grab';
@@ -41,7 +42,9 @@ const audioExtras = initAudioExtras(audio, scene, player, grab, renderer.domElem
 
 // TASK-1.10: baked ambient-cube lightmaps (static) + probes (dynamic) replace scene lights.
 const baked = await loadBakedLighting(scene, renderer);
-initLighting(scene, renderer, { world: physics.world }).captureReflections();
+const lighting = initLighting(scene, renderer, { world: physics.world });
+lighting.captureReflections();
+const lightSwitch = new LightSwitch(baked, lighting);
 
 // Camera poses: `?pose=<name>` pins the camera (input frozen).
 let currentPose: string | null = new URLSearchParams(location.search).get('pose');
@@ -76,6 +79,7 @@ const ready = new Promise<void>((r) => (markReady = r));
   interaction,
   scene,
   baked,
+  lightSwitch,
   camera,
   grab,
   seating,
@@ -112,6 +116,7 @@ renderer.setAnimationLoop(() => {
   pantry.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
   interaction.update();
   baked.update();
+  lightSwitch.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
   renderer.render(scene, camera);
   hud.tick();
 });

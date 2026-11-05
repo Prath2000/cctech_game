@@ -16,6 +16,9 @@ export function ambientCube(n: any, c: Cube) {
   return cx.mul(n2.x).add(cy.mul(n2.y)).add(cz.mul(n2.z));
 }
 
+/** Emissive radiance of a lit LED panel face (display value, tone-mapped; the bake uses its own radiance). */
+const LED_PANEL_EMISSIVE = 6;
+
 interface ProbeGrid { x: number[]; y: number[]; z: number[]; valid: number[]; cube: number[][][] }
 interface Dyn { mesh: THREE.Mesh; u: Record<string, any>; last: THREE.Vector3; local: THREE.Vector3 }
 
@@ -25,15 +28,20 @@ export interface BakedLighting {
   /** Re-sample probes for a mesh (e.g. after teleporting it). */
   sampleAt(p: THREE.Vector3, out: number[]): void;
   meta: any;
+  /** 0..1 blend of the lights-only bake (a uniform: changing it never recompiles a material). */
+  uLights: { value: number };
+  /** True when the on-state bake was found. */
+  hasOn: boolean;
 }
 
-export interface BakedOpts { state?: 'off' | 'on'; exposure?: number; skyIntensity?: number }
+export interface BakedOpts { lights?: number; exposure?: number; skyIntensity?: number }
 
 export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebGPURenderer, opts: BakedOpts = {}): Promise<BakedLighting> {
   const q = new URLSearchParams(location.search);
-  const state = opts.state ?? 'off';
   const base = `${import.meta.env.BASE_URL}lightmaps/`;
-  const dir = `${base}${state}/`;
+  const dir = `${base}off/`;
+  const onDir = `${base}on/`;
+  const uLights = uniform(Number(q.get('lights') ?? opts.lights ?? 0));
   let meta: any;
   try {
     const r = await fetch(`${dir}lighting.json`);
@@ -44,28 +52,42 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
     console.warn('[lighting] lightmaps missing, using fallback lights', e);
     scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x444444, 1));
     const sun = new THREE.DirectionalLight(0xffffff, 3); sun.position.set(4, 8, 3); scene.add(sun);
-    return { update() {}, sampleAt() {}, meta: null };
+    return { update() {}, sampleAt() {}, meta: null, uLights, hasOn: false };
   }
+  // lights-only 'on' bake (daylight excluded): final = off + uLights * on
+  let onMeta: any = null;
+  try {
+    const r = await fetch(`${onDir}lighting.json`);
+    if (r.ok && (r.headers.get('content-type') ?? '').includes('json')) onMeta = await r.json();
+  } catch { /* no on-state bake: switch is a no-op */ }
   renderer.toneMappingExposure = Number(q.get('exposure') ?? opts.exposure ?? 0.9);
 
   // ---- atlases: 6 sRGB8 maps each, value = irradiance-radiance / range ----
   const loader = new THREE.TextureLoader();
   const atlasCube: Record<string, Cube> = {};
+  const load = async (d: string, name: string, ax: string, range: number) => {
+    const t = await loader.loadAsync(`${d}${name}_${ax}.png`);
+    t.colorSpace = THREE.SRGBColorSpace; t.flipY = false; t.generateMipmaps = false;
+    t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter;
+    return texture(t, uv(1)).rgb.mul(range);
+  };
   await Promise.all(Object.entries(meta.atlases as Record<string, { range: number }>).map(async ([name, a]) => {
     const c: any = {};
+    const on = onMeta?.atlases?.[name] as { range: number } | undefined;
     await Promise.all(AX.map(async (ax) => {
-      const t = await loader.loadAsync(`${dir}${name}_${ax}.png`);
-      t.colorSpace = THREE.SRGBColorSpace; t.flipY = false; t.generateMipmaps = false;
-      t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter;
-      c[ax] = texture(t, uv(1)).rgb.mul(a.range);
+      const off = await load(dir, name, ax, a.range);
+      c[ax] = on ? off.add((await load(onDir, name, ax, on.range)).mul(uLights)) : off;
     }));
     atlasCube[name] = c;
   }));
 
   // ---- probes ----
   const g: ProbeGrid = meta.probes;
-  const cubeData = new Float32Array(g.cube.length * 18);
-  g.cube.forEach((p, i) => p.forEach((f, k) => f.forEach((v, c) => (cubeData[i * 18 + k * 3 + c] = v))));
+  // probe data layout: [off 18 floats | on 18 floats] per probe; the shader blends with uLights
+  const gOn: ProbeGrid | null = onMeta?.probes ?? null;
+  const cubeData = new Float32Array(g.cube.length * 36);
+  g.cube.forEach((p, i) => p.forEach((f, k) => f.forEach((v, c) => (cubeData[i * 36 + k * 3 + c] = v))));
+  gOn?.cube.forEach((p, i) => p.forEach((f, k) => f.forEach((v, c) => (cubeData[i * 36 + 18 + k * 3 + c] = v))));
   const nY = g.y.length, nZ = g.z.length;
   const axis = (arr: number[], v: number): [number, number] => {
     const c = Math.min(Math.max(v, arr[0]), arr[arr.length - 1]);
@@ -82,22 +104,25 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
         const w = (dx ? fx : 1 - fx) * (dy ? fy : 1 - fy) * (dz ? fz : 1 - fz) * (pass === 0 ? g.valid[i] : 1);
         if (w <= 0) continue;
         wsum += w;
-        for (let k = 0; k < 18; k++) out[k] += w * cubeData[i * 18 + k];
+        for (let k = 0; k < 36; k++) out[k] += w * cubeData[i * 36 + k];
       }
       if (wsum > 1e-6) break;
     }
-    for (let k = 0; k < 18; k++) out[k] /= wsum;
+    for (let k = 0; k < 36; k++) out[k] /= wsum;
   };
 
   const dyn: Dyn[] = [];
-  const tmp = new Array(18).fill(0);
+  const tmp = new Array(36).fill(0);
   const tv = new THREE.Vector3();
   const place = (d: Dyn) => {
     tv.copy(d.local).applyMatrix4(d.mesh.matrixWorld);
     if (tv.distanceToSquared(d.last) < 1e-4) return;
     d.last.copy(tv);
     sampleAt(tv, tmp);
-    AX.forEach((ax, k) => d.u[ax].value.set(tmp[k * 3], tmp[k * 3 + 1], tmp[k * 3 + 2]));
+    AX.forEach((ax, k) => {
+      d.u[ax].value.set(tmp[k * 3], tmp[k * 3 + 1], tmp[k * 3 + 2]);
+      d.u[`${ax}_on`].value.set(tmp[18 + k * 3], tmp[18 + k * 3 + 1], tmp[18 + k * 3 + 2]);
+    });
   };
 
   // ---- materials ----
@@ -106,7 +131,10 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
     const std = m as THREE.MeshStandardMaterial;
     if (!std.isMeshStandardMaterial) return m;
     const nm = (renderer as any).library.fromMaterial(std) as THREE.MeshStandardNodeMaterial;
-    nm.name = m.name; nm.emissiveNode = diffuseOf(E).add(materialEmissive);
+    nm.name = m.name;
+    // ceiling LED panel: the emissive face brightens with the switch (~4500-5000 K neutral white)
+    const panel = m.name === 'pantry_led_panel' ? vec3(1.0, 0.96, 0.9).mul(uLights).mul(LED_PANEL_EMISSIVE) : null;
+    nm.emissiveNode = panel ? diffuseOf(E).add(panel) : diffuseOf(E).add(materialEmissive);
     return nm;
   };
   scene.updateMatrixWorld(true);
@@ -120,8 +148,8 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
     if (isStatic) { E = ambientCube(normalWorld, atlasCube[atlas!]); nStatic++; }
     else {
       const u: Record<string, any> = {};
-      for (const ax of AX) u[ax] = uniform(new THREE.Vector3());
-      E = ambientCube(normalWorld, Object.fromEntries(AX.map((ax) => [ax, u[ax]])) as Cube);
+      for (const ax of AX) { u[ax] = uniform(new THREE.Vector3()); u[`${ax}_on`] = uniform(new THREE.Vector3()); }
+      E = ambientCube(normalWorld, Object.fromEntries(AX.map((ax) => [ax, u[ax].add(u[`${ax}_on`].mul(uLights))])) as Cube);
       mesh.geometry.computeBoundingSphere();
       d = { mesh, u, last: new THREE.Vector3(1e9, 0, 0), local: mesh.geometry.boundingSphere!.center.clone() };
       dyn.push(d); nDyn++;
@@ -139,5 +167,5 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
     scene.backgroundIntensity = Number(q.get('sky') ?? opts.skyIntensity ?? 1);
   } catch (e) { console.warn('[lighting] no sky backdrop', e); }
 
-  return { update() { for (const d of dyn) place(d); }, sampleAt, meta };
+  return { update() { for (const d of dyn) place(d); }, sampleAt, meta, uLights, hasOn: !!onMeta };
 }

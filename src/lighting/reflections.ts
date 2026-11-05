@@ -39,22 +39,43 @@ export class ReflectionProbes {
 
   constructor(private scene: THREE.Scene, private renderer: THREE.WebGPURenderer, private quality: Quality) {}
 
-  capture(): void {
+  private pmRTs: any[] = [];
+  private busy = false;
+
+  private captureOne(i: number, pm: THREE.PMREMGenerator): THREE.Texture {
     const size = this.quality === 'high' ? 256 : 64;
+    const rt = new THREE.CubeRenderTarget(size, { type: THREE.HalfFloatType, generateMipmaps: false });
+    const cam = new THREE.CubeCamera(0.05, 40, rt);
+    cam.position.set(...PROBES[i].pos);
+    this.scene.add(cam);
+    cam.update(this.renderer, this.scene);
+    this.scene.remove(cam);
+    // reuse the PMREM target on re-capture: same texture object, so no material/bind-group rebuild (no hitch)
+    const out = pm.fromCubemap(rt.texture, this.pmRTs[i] ?? null);
+    this.pmRTs[i] = out;
+    rt.dispose();
+    return out.texture;
+  }
+
+  capture(): void {
     const pm = new THREE.PMREMGenerator(this.renderer);
-    const textures: THREE.Texture[] = [];
-    for (const p of PROBES) {
-      const rt = new THREE.CubeRenderTarget(size, { type: THREE.HalfFloatType, generateMipmaps: false });
-      const cam = new THREE.CubeCamera(0.05, 40, rt);
-      cam.position.set(...p.pos);
-      this.scene.add(cam);
-      cam.update(this.renderer, this.scene);
-      this.scene.remove(cam);
-      textures.push(pm.fromCubemap(rt.texture).texture);
-      rt.dispose();
-    }
+    const textures = PROBES.map((_, i) => this.captureOne(i, pm));
     pm.dispose();
     this.apply(textures);
+  }
+
+  /** Re-capture the cubemaps in place, one probe per frame (e.g. after the lights finished fading). */
+  async recapture(): Promise<void> {
+    if (!this.applied || this.busy) return;
+    this.busy = true;
+    try {
+      for (let i = 0; i < PROBES.length; i++) {
+        await new Promise((r) => requestAnimationFrame(r));
+        const pm = new THREE.PMREMGenerator(this.renderer);
+        this.captureOne(i, pm);
+        pm.dispose();
+      }
+    } finally { this.busy = false; }
   }
 
   private apply(textures: THREE.Texture[]): void {

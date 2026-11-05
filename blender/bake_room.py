@@ -15,7 +15,14 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 def arg(name, default):
     return type(default)(argv[argv.index(name) + 1]) if name in argv else default
-STATE = arg('--state', 'off'); QUICK = '--quick' in argv
+STATE = arg('--state', 'both'); QUICK = '--quick' in argv
+if STATE == 'both':  # one command bakes both states (separate Blender processes: clean scene each)
+    import subprocess
+    rest = list(argv)
+    if '--state' in rest: i = rest.index('--state'); del rest[i:i + 2]
+    for st in ('off', 'on'):
+        subprocess.run([bpy.app.binary_path, '-b', '--python-exit-code', '1', '-P', os.path.abspath(__file__), '--', *rest, '--state', st], check=True)
+    sys.exit(0)
 SAMPLES = arg('--samples', 24 if QUICK else 384)
 PROBE_SAMPLES = arg('--probe-samples', 64 if QUICK else 512)
 REF_SAMPLES = arg('--ref-samples', 48 if QUICK else 256)
@@ -67,15 +74,21 @@ por_o.location = (layout.ROOM_W / 2, 0.05, layout.ROOM_H / 2); por_o.rotation_eu
 for o in scn.objects:
     if o.type == 'MESH' and o.name.startswith('window_glass'):
         o.visible_diffuse = o.visible_glossy = o.visible_transmission = o.visible_shadow = False
-# ceiling LED panels: present, emission only in the 'on' state
-LED_ON_STRENGTH = 12.0
+# 'on' state = LIGHTS-ONLY delta: daylight (sky, sun, portal) is switched off so the game blends
+# final = off + uLights * on, which keeps the daylight bake exact. Panels are 0.6 m emissive area lights.
+# Scale: 1 unit of irradiance ~ 1000 lux (the daylit shade of the room is ~0.5-1 unit); LED_ON_STRENGTH is panel radiance
+# (8.5 -> ~2700 nit-equivalent; real panels 2500-4000), measured so the measured desk-height illuminance lands at 300-500 lux (printed as [lux]).
+LUX_PER_UNIT = 1000.0
+LED_ON_STRENGTH = arg('--led', 8.5)
+if STATE == 'on':
+    bg.inputs['Strength'].default_value = 0.0; sun.energy = 0.0; por_o.hide_render = True
 for o in scn.objects:
     if o.type == 'MESH' and o.name.startswith('led_panel'):
         m = o.active_material
         if m and m.use_nodes:
             for n in m.node_tree.nodes:
                 if n.type == 'BSDF_PRINCIPLED':
-                    n.inputs['Emission Color'].default_value = (1.0, 0.98, 0.94, 1)
+                    n.inputs['Emission Color'].default_value = (1.0, 0.96, 0.90, 1)  # ~4500-5000 K neutral white
                     n.inputs['Emission Strength'].default_value = LED_ON_STRENGTH if STATE == 'on' else 0.0
 lap('lighting_setup')
 
@@ -171,7 +184,7 @@ for a, lst in atlases.items():
     vmax = max(float(m_.max()) for m_ in maps.values())
     p9999 = max(float(np.percentile(m_, 99.99)) for m_ in maps.values())
     # measured HDR headroom: encode sRGB8(c / RANGE); the range covers p99.99 x1.25 (a few outlier texels/fireflies clip)
-    RANGE = max(1.0, math.ceil(p9999 * 1.25 * 4) / 4)
+    RANGE = max(1.0 if STATE == 'off' else 1 / 32, math.ceil(p9999 * 1.25 * 32) / 32)
     sizes = {}
     for name, den in maps.items():
         enc = (np.clip(lin2srgb(np.clip(den / RANGE, 0, 1)), 0, 1) * 255 + 0.5).astype(np.uint8)
@@ -248,6 +261,9 @@ for _ in range(3):
                             if 0 <= jx < len(GX) and 0 <= jy < ny_ and 0 <= jz < nz_ and valid[idx(jx, jy, jz)]: acc.append(cube[idx(jx, jy, jz)])
                 if acc: cube[i] = np.mean(acc, 0)
 bpy.data.objects.remove(pob)
+# desk-height illuminance estimate: E = pi * (white-diffuse radiance of the up-facing probe face), x LUX_PER_UNIT
+pyi = FACES.index('py'); dsk = [idx(ix, GY.index(1.05), iz) for ix in range(len(GX)) for iz in range(nz_) if valid[idx(ix, GY.index(1.05), iz)] and 1.0 < GX[ix] < 10.5 and 1.0 < GZ[iz] < 6.6]
+print('[lux]', STATE, 'mean desk-height (y=1.05) up-facing illuminance', round(float(np.pi * cube[dsk, pyi].mean() * LUX_PER_UNIT)), 'lux over', len(dsk), 'probes', flush=True)
 probe_meta = {'x': GX, 'y': GY, 'z': GZ, 'order': FACES, 'valid': [int(v) for v in valid],
               'cube': [[[round(float(c), 5) for c in f] for f in p] for p in cube]}
 lap('probes')
@@ -264,11 +280,12 @@ def point_camera(P):
 scn.render.resolution_x, scn.render.resolution_y = 1280, 720
 scn.cycles.samples = REF_SAMPLES; scn.cycles.use_denoising = True
 scn.render.image_settings.file_format = 'PNG'
-if '--no-ref' not in argv:
+if '--no-ref' not in argv and STATE == 'off':
     for pn in REF_POSES:
         point_camera(poses[pn]); scn.render.filepath = os.path.join(SHOTS, f'ref-{STATE}-{pn}.png')
         bpy.ops.render.render(write_still=True)
     lap('reference_renders')
+if STATE == 'on': bpy.data.objects.remove(cam_o); print('[done] on state'); json.dump({'state': STATE, 'quick': QUICK, 'samples': SAMPLES, 'axes': list(AXES), 'atlases': meta_atlas, 'probes': probe_meta, 'led_strength': LED_ON_STRENGTH, 'lux_per_unit': LUX_PER_UNIT, 'timings': timings}, open(os.path.join(OUT, 'lighting.json'), 'w')); sys.exit(0)
 cam_d.type = 'PANO'
 try: cam_d.panorama_type = 'EQUIRECTANGULAR'
 except Exception: cam_d.cycles.panorama_type = 'EQUIRECTANGULAR'

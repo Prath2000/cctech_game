@@ -92,7 +92,7 @@ def materials():
         lam_grey=M("pantry_gloss_laminate_grey", (0.62, 0.61, 0.59), 0.1, coat=0.8),
         lam_white=M("pantry_white_laminate", (0.82, 0.82, 0.8), 0.22, coat=0.4),
         carcass=M("pantry_carcass", (0.72, 0.71, 0.69), 0.5),
-        purple=M("pantry_purple_pet", (0.55, 0.12, 0.62), 0.12, trans=0.85, ior=1.5),
+        purple=M("pantry_purple_pet", (0.78, 0.3, 0.84), 0.1, trans=0.92, ior=1.5),
         purple_cap=M("pantry_purple_cap", (0.12, 0.05, 0.4), 0.35),
         glass=M("pantry_clear_glass", (0.9, 0.95, 0.95), 0.03, trans=1.0, ior=1.5),
         frost=M("pantry_frosted_glass", (0.85, 0.87, 0.86), 0.25, trans=0.6, ior=1.5),
@@ -103,6 +103,8 @@ def materials():
         led_off=M("pantry_led_panel", (0.82, 0.84, 0.86), 0.5, emit=(1, 1, 0.95), emit_k=0.0),
         fan_white=M("pantry_fan_white", (0.85, 0.85, 0.83), 0.45),
         green_led=M("pantry_mw_display", (0.02, 0.05, 0.02), 0.3, emit=(0.2, 1.0, 0.3), emit_k=0.6),
+        red_cloth=M("pantry_red_cloth", (0.5, 0.03, 0.04), 0.9),
+        granite=M("pantry_granite_dark", (0.035, 0.036, 0.04), 0.22, coat=0.4),
         yellow=M("pantry_dish_yellow", (0.8, 0.65, 0.05), 0.3, trans=0.3),
     )
 
@@ -331,9 +333,9 @@ def hinge(o, axis, max_deg, sign):
 def fridge(mt):
     out = []
     x0, x1 = 6.98, 7.62
-    z0, z1 = 0.12, 0.675
+    z0, z1 = 0.2 - DZ, 0.755 - DZ  # world z 0.2-0.755: beside the glazed wall, not in front of a niche (TASK-1.25)
     zc = (z0 + z1) / 2
-    top = 1.55
+    top = 1.6
     bm = bmesh.new()
     bm_box(bm, x0 + 0.04, x1, 0.04, top, z0, z1, 0.008)
     for fx in (x0 + 0.08, x1 - 0.06):
@@ -380,7 +382,7 @@ def fridge(mt):
 def microwave(mt):
     out = []
     x0, x1 = 7.68, 8.0
-    z0, z1 = 3.65, 4.105
+    z0, z1 = 3.40, 3.855
     y0, y1 = 1.25, 1.502
     bm = bmesh.new()
     bm_box(bm, x0 + 0.02, x1, y0, y1, z0, z1, 0.006)
@@ -413,56 +415,73 @@ def microwave(mt):
 
 def coffee_machine(mt):
     out = []
+    # Tata My Bistro (photo 06): left brew unit (deck + recessed bay + drip tray) with an angled touchscreen, taller plain right block.
     cx0, cx1 = 7.50, 7.97
-    z0, z1 = 4.13, 4.58
+    z0, z1 = 3.93, 4.47
+    zm = 4.19  # split between brew unit (low z) and right block
     by = CT
     bm = bmesh.new()
-    # upper unit and right column
-    bm_box(bm, cx0 + 0.02, cx1, by + 0.30, by + 0.62, z0, z1, 0.012)
-    bm_box(bm, cx0 + 0.02, cx1, by + 0.04, by + 0.30, z1 - 0.2, z1, 0.01)
-    # lower-left bay: back block + side wall + floor tray
-    bm_box(bm, cx0 + 0.2, cx1, by + 0.04, by + 0.30, z0, z1 - 0.2, 0.008)
-    bm_box(bm, cx0 + 0.02, cx0 + 0.2, by + 0.04, by + 0.30, z0, z0 + 0.012, 0.004)
-    bm_box(bm, cx0 + 0.02, cx0 + 0.2, by, by + 0.04, z0 + 0.02, z1 - 0.2, 0.006)  # base
-    bm_box(bm, cx0 + 0.02, cx1, by, by + 0.04, z1 - 0.2, z1, 0.006)
+    bm_box(bm, cx0 + 0.02, cx1, by, by + 0.04, z0, z1, 0.006)                        # base plate
+    bm_box(bm, cx0 + 0.07, cx1, by + 0.04, by + 0.55, zm, z1, 0.01)                  # right block (tall, plain)
+    bm_box(bm, cx0 + 0.05, cx1, by + 0.30, by + 0.50, z0, zm, 0.01)                  # brew-unit deck
+    bm_box(bm, cx0 + 0.23, cx1, by + 0.04, by + 0.30, z0, zm, 0.008)                 # bay back block
+    bm_box(bm, cx0 + 0.05, cx1, by + 0.04, by + 0.30, z0, z0 + 0.012, 0.004)         # bay side wall
+    bm_box(bm, cx0 + 0.07, cx0 + 0.075, by + 0.04, by + 0.30, zm - 0.012, zm, 0.001)  # bay right wall (thin)
     # brewing spout and nozzles
-    bm_box(bm, cx0 + 0.07, cx0 + 0.17, by + 0.235, by + 0.30, z0 + 0.1, z0 + 0.21, 0.01)
+    bm_box(bm, cx0 + 0.15, cx0 + 0.25, by + 0.235, by + 0.30, z0 + 0.1, z0 + 0.21, 0.01)
     for dz in (0.135, 0.175):
         for v in bmesh.ops.create_cone(bm, cap_ends=True, segments=10, radius1=0.006, radius2=0.006, depth=0.04)["verts"]:
-            v.co = G(cx0 + 0.12 + v.co.x, by + 0.215 + v.co.z, z0 + dz + v.co.y)
-    # top details: hopper lids and vent rings
-    for hz in (z0 + 0.1, z0 + 0.3):
-        bm_lathe(bm, [(0, 0), (0.052, 0), (0.054, 0.004), (0.05, 0.02), (0.045, 0.024), (0, 0.024)], cx0 + 0.25, hz, by + 0.62, 28)
-    for hx, hz in ((cx0 + 0.34, z0 + 0.12), (cx0 + 0.34, z0 + 0.32), (cx0 + 0.15, z0 + 0.22)):
-        bm_lathe(bm, [(0, 0), (0.026, 0), (0.026, 0.002), (0.0, 0.002)], hx, hz, by + 0.62, 20)
-    bm_box(bm, cx0 + 0.07, cx0 + 0.13, by + 0.62, by + 0.625, z0 + 0.18, z0 + 0.26, 0.001)
-    body = finish("tata_bistro_machine", bm, mt["blk"], (7.735, by, 4.355), static=0,
+            v.co = G(cx0 + 0.2 + v.co.x, by + 0.215 + v.co.z, z0 + dz + v.co.y)
+    # top vent rings (grey fans, mi=1) on deck and right block, plus the handle slot
+    for hx, hz, ty in ((cx0 + 0.14, z0 + 0.07, by + 0.50), (cx0 + 0.14, z0 + 0.20, by + 0.50), (cx0 + 0.34, z0 + 0.13, by + 0.50),
+                       (cx0 + 0.36, zm + 0.08, by + 0.55), (cx0 + 0.36, zm + 0.22, by + 0.55), (cx0 + 0.20, zm + 0.15, by + 0.55)):
+        bm_lathe(bm, [(0, 0), (0.026, 0), (0.026, 0.003), (0.0, 0.003)], hx, hz, ty, 20, mi=1)
+    bm_box_mi(bm, 1, cx0 + 0.14, cx0 + 0.18, by + 0.55, by + 0.553, zm + 0.1, zm + 0.17, 0.001)
+    # silver label plate on the right block front
+    bm_box_mi(bm, 2, cx0 + 0.066, cx0 + 0.072, by + 0.43, by + 0.5, zm + 0.04, zm + 0.19, 0.001)
+    body = finish("tata_bistro_machine", bm, [mt["blk"], mt["dark_steel"], mt["steel"]], (7.735, by, 4.355), static=0,
                   extras={"interact": "use", "use_kind": "coffee_machine", "caption_id": "tata_bistro", "collider": "boxes", "mass": 18.0,
                           "collider_boxes": collider_boxes((7.735, by, 4.355), [
-                              (cx0 + 0.02, cx1, by + 0.30, by + 0.62, z0, z1), (cx0 + 0.02, cx1, by + 0.04, by + 0.30, z1 - 0.2, z1),
-                              (cx0 + 0.2, cx1, by + 0.04, by + 0.30, z0, z1 - 0.2), (cx0 + 0.02, cx0 + 0.2, by + 0.04, by + 0.30, z0, z0 + 0.012),
-                              (cx0 + 0.02, cx0 + 0.2, by, by + 0.04, z0 + 0.02, z1 - 0.2), (cx0 + 0.02, cx1, by, by + 0.04, z1 - 0.2, z1)])})
+                              (cx0 + 0.07, cx1, by + 0.04, by + 0.55, zm, z1), (cx0 + 0.05, cx1, by + 0.30, by + 0.50, z0, zm),
+                              (cx0 + 0.23, cx1, by + 0.04, by + 0.30, z0, zm), (cx0 + 0.05, cx1, by + 0.04, by + 0.30, z0, z0 + 0.012),
+                              (cx0 + 0.02, cx1, by, by + 0.04, z0, z1)])})
     # a coffee machine is heavy furniture: not grabbed
     body["static"] = 1
     add_lightmap_uv(body)
     del body["mass"]
     out.append(body)
-    # drip tray + grille (steel)
+    # drip tray: dark pan + steel grille bars, protruding in front of the base
     bm = bmesh.new()
-    bm_box(bm, cx0, cx0 + 0.3, by + 0.04, by + 0.062, z0 + 0.03, z1 - 0.23, 0.004)
-    for i in range(14):
-        bm_box(bm, cx0 + 0.005, cx0 + 0.295, by + 0.062, by + 0.07, z0 + 0.036 + i * 0.0105, z0 + 0.043 + i * 0.0105, 0.001)
-    out.append(finish("tata_bistro_drip_tray", bm, mt["steel"], (cx0 + 0.15, by + 0.05, z0 + 0.1), parent=body, extras={"interact": "look", "collider": "none"}))
-    # tilted touchscreen
-    sc = (cx0 + 0.02, by + 0.42, z0 + 0.14 + 0.15)
-    ang = math.radians(14)
+    bm_box_mi(bm, 1, cx0 - 0.02, cx0 + 0.24, by + 0.04, by + 0.058, z0 + 0.02, zm - 0.02, 0.004)
+    for i in range(16):
+        bm_box(bm, cx0 - 0.015, cx0 + 0.235, by + 0.058, by + 0.066, z0 + 0.026 + i * 0.0093, z0 + 0.031 + i * 0.0093, 0.0008)
+    bm_box(bm, cx0 - 0.02, cx0 - 0.012, by + 0.058, by + 0.07, z0 + 0.02, zm - 0.02, 0.002)  # front rim
+    out.append(finish("tata_bistro_drip_tray", bm, [mt["steel"], mt["blk"]], (cx0 + 0.15, by + 0.05, z0 + 0.1), parent=body, extras={"interact": "look", "collider": "none"}))
+    # angled touchscreen (steel rim + black glass), leaning back from the deck front
+    sc = (cx0 + 0.035, by + 0.395, (z0 + zm) / 2 + 0.07)
+    ang = math.radians(22)
     bm = bmesh.new()
-    vs = bm_box(bm, sc[0] - 0.012, sc[0] + 0.012, sc[1] - 0.095, sc[1] + 0.095, sc[2] - 0.15, sc[2] + 0.15, 0.006)
+    bm_box_mi(bm, 1, sc[0] - 0.012, sc[0] + 0.012, sc[1] - 0.11, sc[1] + 0.11, sc[2] - 0.17, sc[2] + 0.17, 0.008)
+    bm_box_mi(bm, 0, sc[0] - 0.006, sc[0] + 0.006, sc[1] - 0.102, sc[1] + 0.102, sc[2] - 0.162, sc[2] + 0.162, 0.006)
     rotate_bm(bm, bm.verts, ang, "Y", G(*sc))
-    scr = finish("tata_bistro_screen_bezel", bm, mt["blk_gloss"], (sc[0], sc[1], sc[2]), parent=body, extras={"interact": "use", "use_kind": "coffee_machine", "caption_id": "tata_bistro_screen", "collider": "none"})
+    scr = finish("tata_bistro_screen_bezel", bm, [mt["blk_gloss"], mt["steel"]], (sc[0], sc[1], sc[2]), parent=body, extras={"interact": "use", "use_kind": "coffee_machine", "caption_id": "tata_bistro_screen", "collider": "none"})
     out.append(scr)
-    d = decal("tata_bistro_screen", scr, "tata_bistro_screen.png", sc[0] - 0.0135, sc[2], sc[1], 0.27, 0.16 * 0.98 + 0.0,
+    d = decal("tata_bistro_screen", scr, "tata_bistro_screen.png", sc[0] - 0.0135, sc[2], sc[1], 0.31, 0.19,
               tilt=ang, tilt_pivot=sc, extras={"caption_id": "tata_bistro_screen"})
+    if d:
+        out.append(d)
+    # granite curved side panel left of the machine (photo 06)
+    bm = bmesh.new()
+    bm_box(bm, cx0 - 0.04, cx1 + 0.03, by, by + 0.5, z0 - 0.032, z0 - 0.008, 0.01)
+    out.append(finish("coffee_side_panel", bm, mt["granite"], (7.735, by, z0 - 0.02), static=1, extras={"interact": "look", "collider": "none", "caption_id": "counter"}))
+    # B'ONE board + notice sheet
+    bm = bmesh.new()
+    bm_box(bm, 7.86, 7.93, by, by + 0.45, z1 + 0.005, z1 + 0.125, 0.004)
+    out.append(finish("bone_board", bm, mt["white"], (7.9, by, z1 + 0.065), static=1, extras={"interact": "look", "collider": "none", "caption_id": "bone_board"}))
+    d = decal("bone_board_label", out[-1], "bone_panel.png", 7.8595, z1 + 0.065, by + 0.25, 0.11, 0.311)
+    if d:
+        out.append(d)
+    d = decal("coffee_notice_sheet", body, "coffee_notice_sheet.png", 7.994, 4.05, 1.62, 0.2, 0.185)
     if d:
         out.append(d)
     return out
@@ -653,10 +672,12 @@ def small_props(mt):
     out = []
     grab = lambda mass, cap: {"interact": "grab", "mass": mass, "caption_id": cap, "collider": "convex"}
     # purple 20 L water jug (upright, neck up, per photo 07) with pump hose to the wall socket
-    jx, jz = 7.86, 2.8
+    jx, jz = 7.87, 2.82
+    jr = 0.9  # radial scale: photo 07 jug is slimmer than first pass
     prof = [(0, 0), (0.1, 0), (0.125, 0.012), (0.135, 0.04), (0.135, 0.11), (0.131, 0.12), (0.135, 0.13), (0.135, 0.27), (0.131, 0.28), (0.135, 0.29),
             (0.135, 0.33), (0.12, 0.375), (0.085, 0.415), (0.048, 0.435), (0.034, 0.44), (0.034, 0.448), (0.0, 0.448)]
     bm = bmesh.new()
+    prof = [(r * jr, h) for r, h in prof]
     bm_lathe(bm, prof, jx, jz, CT, 40)
     bm_lathe(bm, [(0, 0.44), (0.04, 0.44), (0.04, 0.49), (0.0, 0.49)], jx, jz, CT, 28, mi=1)
     jug = finish("water_jug_20l", bm, [mt["purple"], mt["purple_cap"]], (jx, CT, jz), extras=grab(1.2, "water_jug"))
@@ -682,12 +703,12 @@ def small_props(mt):
         o.location = G(*at)
         return o
 
-    f1 = flask("steel_flask_01", 0.033, 0.27, mt["steel"], mt["blk"], (7.92, CT, 3.36))
+    f1 = flask("steel_flask_01", 0.033, 0.27, mt["steel"], mt["steel"], (7.9, CT, 3.37))
     out.append(f1)
     o = bpy.data.objects.new("steel_flask_02", f1.data)
     collection().objects.link(o)
     o.location = G(7.93, CT, 3.3 + 0.0)
-    o.location = G(7.82, CT, 3.34)
+    o.location = G(7.78, CT, 3.33)
     for k, v in grab(0.3, "flask").items():
         o[k] = v
     o["static"] = 0
@@ -695,41 +716,55 @@ def small_props(mt):
     out.append(flask("steel_tumbler_black", 0.037, 0.2, mt["blk"], mt["blk"], (7.9, CT, 3.18)))
     out.append(flask("steel_tumbler_01", 0.035, 0.15, mt["steel"], mt["blk"], (7.93, CT, 3.05)))
     out.append(flask("glass_bottle_01", 0.035, 0.25, mt["glass"], mt["steel"], (7.92, CT, 3.26 - 0.0 + 0.0)))
-    out[-1].location = G(7.9, CT, 3.28)
-    out[-3].location = G(7.88, CT, 3.12)
-    out[-2].location = G(7.9, CT, 3.0)
+    out[-1].location = G(7.92, CT, 3.26)
+    out[-3].location = G(7.9, CT, 3.14)
+    out[-2].location = G(7.9, CT, 3.03)
     # small steel tumbler near the coffee machine
     bm = bmesh.new()
     bm_lathe(bm, [(0, 0), (0.032, 0), (0.035, 0.004), (0.036, 0.09), (0.033, 0.09), (0.032, 0.006), (0, 0.006)], 0, 0, 0, 28)
-    t = finish("steel_cup_01", bm, mt["steel"], (7.64, CT, 3.55), extras=grab(0.12, "steel_cup"))
+    t = finish("steel_cup_01", bm, mt["steel"], (7.62, CT, 3.86), extras=grab(0.12, "steel_cup"))
     out.append(t)
     # white glass storage jar with steel lid
     bm = bmesh.new()
     bm_lathe(bm, [(0, 0), (0.047, 0), (0.05, 0.006), (0.05, 0.165), (0.0, 0.165)], 0, 0, 0, 28)
     bm_lathe(bm, [(0, 0.165), (0.052, 0.165), (0.052, 0.182), (0.0, 0.182)], 0, 0, 0, 28, mi=1)
-    out.append(finish("glass_jar_01", bm, [mt["frost"], mt["steel"]], (7.7, CT, 3.62), extras=grab(0.6, "glass_jar")))
+    out.append(finish("glass_jar_01", bm, [mt["frost"], mt["steel"]], (7.72, CT, 3.76), extras=grab(0.6, "glass_jar")))
     # tissue / paper dispenser
     bm = bmesh.new()
-    bm_box(bm, 7.86, 7.98, CT, CT + 0.2, 3.75, 4.05, 0.008)
-    bm_box_mi(bm, 1, 7.858, 7.862, CT + 0.14, CT + 0.15, 3.79, 4.01, 0.0005)
-    out.append(finish("tissue_dispenser_01", bm, [mt["white"], mt["blk"]], (7.92, CT, 3.9), extras=grab(0.5, "tissue_dispenser")))
+    bm_box(bm, 7.86, 7.98, CT, CT + 0.2, 3.44, 3.74, 0.008)
+    bm_box_mi(bm, 1, 7.858, 7.862, CT + 0.14, CT + 0.15, 3.48, 3.70, 0.0005)
+    out.append(finish("tissue_dispenser_01", bm, [mt["white"], mt["blk"]], (7.92, CT, 3.59), extras=grab(0.5, "tissue_dispenser")))
     # grey drying mats
     for i, mz in enumerate((2.85, 3.34)):
         bm = bmesh.new()
-        bm_box(bm, 7.47, 7.77, CT, CT + 0.006, mz - 0.21, mz + 0.21, 0.002)
-        out.append(finish(f"drying_mat_{i + 1:02d}", bm, mt["rubber"], (7.62, CT, mz), extras=grab(0.2, "drying_mat")))
+        bm_box(bm, 7.45, 7.70, CT, CT + 0.006, mz - 0.21, mz + 0.21, 0.002)
+        out.append(finish(f"drying_mat_{i + 1:02d}", bm, mt["rubber"], (7.575, CT, mz), extras=grab(0.2, "drying_mat")))
     # sticky note (thin object, not a decal)
     bm = bmesh.new()
-    bm_box(bm, -0.05, 0.05, 0.0, 0.0012, -0.05, 0.05, 0.0002)
+    bm_box(bm, -0.1, 0.1, 0.0, 0.0012, -0.09, 0.09, 0.0002)
     sn = finish("sticky_note_01", bm, mt["note"], (0, 0, 0), extras=grab(0.01, "sticky_note"))
-    sn.location = G(7.6, CT + 0.0006, 2.5)
+    sn.location = G(7.8, CT + 0.0066, 2.36)
     sn.rotation_euler[2] = math.radians(-14)
     out.append(sn)
-    # wall soap dispenser left of the sink
+    # wall soap dispenser left of the sink: slim white cylinder, clear level window, steel pump at the bottom
+    sxc, szc = 7.955, 1.755
     bm = bmesh.new()
-    bm_box(bm, 7.93, 8.0, 1.2, 1.4, 1.72, 1.79, 0.012)
-    bm_box_mi(bm, 1, 7.925, 7.935, 1.27, 1.36, 1.735, 1.775, 0.003)
-    out.append(finish("soap_dispenser_01", bm, [mt["white"], mt["frost"]], (7.96, 1.3, 1.755), static=1, extras={"interact": "look", "caption_id": "soap_dispenser", "collider": "none"}))
+    bm_box(bm, 7.985, 8.0, 1.19, 1.43, szc - 0.03, szc + 0.03, 0.003)
+    bm_lathe(bm, [(0, 0), (0.033, 0), (0.035, 0.004), (0.035, 0.22), (0.032, 0.226), (0, 0.226)], sxc, szc, 1.2, 28)
+    bm_box_mi(bm, 1, sxc - 0.0365, sxc - 0.03, 1.27, 1.37, szc - 0.011, szc + 0.011, 0.001)
+    bm_lathe(bm, [(0, 0), (0.02, 0), (0.02, 0.025), (0.0, 0.025)], sxc, szc, 1.175, 20, mi=2)
+    bm_box_mi(bm, 2, sxc - 0.05, sxc - 0.01, 1.178, 1.187, szc - 0.008, szc + 0.008, 0.002)
+    out.append(finish("soap_dispenser_01", bm, [mt["white"], mt["frost"], mt["chrome"]], (sxc, 1.3, szc), static=1, extras={"interact": "look", "caption_id": "soap_dispenser", "collider": "none"}))
+    # red dish cloth hung on the wall beside the dispenser
+    bm = bmesh.new()
+    bm_box(bm, 7.984, 7.992, 1.1, 1.42, 1.5, 1.68, 0.002)
+    bm_lathe(bm, [(0, 0), (0.006, 0), (0.006, 0.02), (0, 0.02)], 7.975, 1.59, 1.42, 12, mi=1)
+    out.append(finish("red_cloth_01", bm, [mt["red_cloth"], mt["chrome"]], (7.988, 1.26, 1.59), static=1, extras={"interact": "look", "caption_id": "cloth", "collider": "none"}))
+    # soap tray with a yellow sponge beside the faucet
+    bm = bmesh.new()
+    bm_open_box(bm, 7.83, 7.95, 0.9, 0.93, 1.73, 1.84, 0.003, 0.004)
+    bm_box_mi(bm, 1, 7.85, 7.93, 0.918, 0.945, 1.745, 1.825, 0.004)
+    out.append(finish("sink_soap_tray", bm, [mt["white"], mt["yellow"]], (7.89, CT, 1.785), static=1, extras={"interact": "look", "caption_id": "sponge", "collider": "none"}))
     return out
 
 
@@ -770,7 +805,8 @@ def switch_plate(mt):
 def ceiling(mt):
     out = []
     cy = ROOM_H
-    for i, (x, z) in enumerate(((7.2, 2.4), (7.2, 3.6))):
+    # 4 x 4 grid of 0.6 m LED panels (~1 per 5.6 m^2, a typical office layout)
+    for i, (x, z) in enumerate((x, z) for x in (1.7, 4.4, 7.2, 10.0) for z in (1.5, 3.0, 4.5, 6.0)):
         bm = bmesh.new()
         bm_box(bm, x - 0.3, x + 0.3, cy - 0.015, cy, z - 0.3, z + 0.3, 0.002)
         bm_box_mi(bm, 1, x - 0.285, x + 0.285, cy - 0.019, cy - 0.014, z - 0.285, z + 0.285, 0.001)

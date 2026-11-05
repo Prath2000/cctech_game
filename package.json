@@ -23,6 +23,7 @@
     "build:props:pantry": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/props/run_pantry.py",
     "build:props:seating": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/props/run_seating.py",
     "typecheck": "tsc --noEmit",
+    "render:pt": "tsx scripts/pathtrace.ts",
     "check:shot": "tsx scripts/shot.ts",
     "check:match": "tsx scripts/match.ts",
     "check:walk": "tsx scripts/walk.ts",
