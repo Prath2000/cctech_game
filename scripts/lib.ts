@@ -43,7 +43,15 @@ export async function openGame(
   page.on('pageerror', (e) => console.error('[page error]', e.message));
   await page.goto(`${url}${pagePath}?${query}`);
   await page.waitForFunction(() => (window as any).__game, null, { timeout: 30000 });
-  await page.evaluate(() => (window as any).__game.ready);
-  const backend: string = await page.evaluate(() => (window as any).__game.backend);
-  return { page, backend };
+  // vite may full-reload once (dep optimisation / file changes); retry across navigations
+  for (let i = 0; ; i++) {
+    try {
+      await page.waitForFunction(() => (window as any).__game, null, { timeout: 30000 });
+      await page.evaluate(() => (window as any).__game.ready);
+      const backend: string = await page.evaluate(() => (window as any).__game.backend);
+      return { page, backend };
+    } catch (e) {
+      if (i >= 3 || !String(e).includes('navigation')) throw e;
+    }
+  }
 }

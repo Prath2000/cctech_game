@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.21.0",
-    "three": "^0.187.0"
+    "three": "^0.187.0",
+    "three-gpu-pathtracer": "^0.0.28",
+    "three-mesh-bvh": "^0.9.18"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
@@ -22,6 +24,7 @@
     "build:props:seating": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/props/run_seating.py",
     "typecheck": "tsc --noEmit",
     "check:shot": "tsx scripts/shot.ts",
+    "check:match": "tsx scripts/match.ts",
     "check:walk": "tsx scripts/walk.ts",
     "check:fps": "tsx scripts/fps.ts",
     "check:glb": "python3 scripts/check_glb.py",
@@ -29,6 +32,7 @@
     "check:grab": "tsx scripts/grab-stress.ts",
     "check:pantry": "tsx scripts/pantry.ts",
     "check:seating": "tsx scripts/seating.ts",
+    "check:switch": "tsx scripts/switch.ts",
     "check:audio": "tsx scripts/audio.ts",
     "bake:room": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/bake_room.py --",
     "build:room": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/build_room.py",
