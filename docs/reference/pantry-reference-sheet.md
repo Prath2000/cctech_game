@@ -13,40 +13,39 @@ Every number is an ESTIMATE from photos unless marked "seen". **[G]** = guess. P
 - For the POC it is simplified to one rectangle: the strip becomes the east end of the window wall (fridge corner), the hall is the rest.
 - The red/white/blue chevron wall (east end) differs from the orange "INNOVATION" chevron wall (west wall).
 
-## 3. Room (proposal, all [G])
+## 3. Room (proposal, all [G]; numbers live in `blender/layout.py`, TASK-1.17)
 | Item | Value | Estimated from |
 |---|---|---|
-| Footprint | **8.0 (x) x 6.0 (z) m** | prior read; hall ~3 table rows deep, strip ~2.5 m wide; could stretch to 9 m |
-| Ceiling | 3.0 m [G] | door 2.1 m + header; tile grid 600 mm |
-| Window wall | z=0, full length, floor-to-ceiling black-framed glass, ~9 panes ~0.9 m wide, 0.9 m granite sill inside the strip | `08 (2)`, `08 (3)`, video |
-| Sill | granite, dark (#2a2b30), 0.9 m high, ~0.5 m deep, in the strip (x 4.5-8) | `08 (2)` |
+| Footprint | **12.0 (x) x 7.5 (z) m** (window wall 11-13, depth 6.5-9) | re-measured from video, low confidence |
+| Ceiling | 3.2 m [G] | door 2.1 m + header; tile grid 600 mm |
+| Window wall | z=0, full length, floor-to-ceiling black-framed glass, 12 panels ~1 m wide (9-12 seen) | `08 (2)`, `08 (3)`, video |
+| Sill | granite, dark (#2a2b30), 0.9 m high, ~0.45 m deep, in the strip (x 8-12) | `08 (2)` |
+| Window strip | ~2.75 m wide (2.5-3) between windows and seating hall | video |
 | Floor | glossy cream-white tile #e6e2d8, 600 mm, skirting #cfc9bb | `08 (3)` |
 | Ceiling | white 600x600 grid tiles #f1f1ef, 3-4 ceiling fans, CCTV domes | `08 (3)` |
-| Pillar | white square column 0.6 x 0.6 m at about (5.9, 2.2) | `08 (2)` foreground right, video f_09 |
+| Pillar | white square column 0.6 x 0.6 m at about (9.9, 2.35), near the fridge end | `08 (2)` foreground right, video f_09 |
 
 ### Proposed counter position
-- **Counter on the east wall (x = 7.4-8.0), z = 1.4 to 4.4 (3.0 m long, 0.6 deep, 0.9 high), front facing west (-x).** Window-side end is ~1.4 m from the window wall, so the sink/mug cabinets sit near the glass (windows seen right of the cabinets in `07 (1)`).
-- Wall cabinets (3 doors, ~1.8 m wide) at y 1.45-2.15 above the sink; microwave on a bracket and a TV above the coffee end.
-- Fridge in the window corner at (7.3, 0.4), facing -x/+z towards the room, as in `08 (2)`. Counter position relative to windows/fridge is NOT seen anywhere: guess.
-- Water coolers and vending machine on the west wall near the door.
+- **Counter on the east wall (x = 11.4-12.0), z = 2.0 to 5.2 (3.2 m long, 0.6 deep, 0.9 high), front facing west (-x).** Window-side end is ~2 m from the window wall (just past the strip), so the sink/mug cabinets sit near the glass.
+- Wall cabinets (z 2.6-4.4, y 1.45-2.15) above the sink; microwave on a bracket and a TV above the coffee end.
+- Fridge at the east end of the window strip at x 10.95-11.65, z 0.05-0.75, facing +z, as in `08 (2)`. Counter position relative to windows/fridge is NOT seen anywhere: guess.
+- Chevron wall (z 1.5-3.5), black glass double door (z 4.1-5.4), vending (z 5.6-6.45) and coolers (z 6.5-7.1) on the west wall (x=0).
 
 ### Plan (top-down, metres)
 ```
- x=0                                          x=8
- z=0 +=====================WINDOWS (north wall)====================+
-     |  chevrons(orange)            sill . . . . . [FR]            |
-     |  z1.2-2.8          corridor strip      pillar#   |#COUNTER#  |
- z=2 |                                              ##  |# sink  #  |
-     |  DOOR z3.2-4.4          tables (white)           |# TATA  #  |
- z=4 |  [VEND] z4.6-5.4   o o o o  x2.5-5.5             |#########  |
-     |  [C1][C2] z5.5-5.9     green/blue chairs           (x7.4-8)  |
- z=6 +=============================================================+
-        west wall (x=0)                                east wall (x=8)
- FR = LG fridge (7.3,0.4). C1/C2 = Voltas coolers. VEND = vending, on west wall.
- Table rows: 2 rows of 2 white tables (1.5x0.75) at x~2.5-5.5, z~1.5 and z~3.5, plus row near z~5.
-
+ x=0                                                        x=12
+ z=0 +=========================WINDOWS (12 panels)=======================+
+     |  chevrons(orange)                      sill . . . . . . [FR]       |
+     |  z1.5-3.5            strip 2.75 m              pillar#  |#COUNTER#  |
+ z=3 |                                                         |# sink  #  |
+     |  DOOR z4.1-5.4     3 rows x 3 white tables (1.8x0.8)    |# TATA  #  |
+ z=5 |  [VEND] z5.6-6.45  x2.2-8.6, rows z3.3/4.9/6.5          |#########  |
+     |  [C1][C2] z6.5-7.1                                        (x11.4-12)|
+z=7.5+=================================================================+
+        west wall (x=0)                                    east wall (x=12)
+ FR = LG fridge. C1/C2 = Voltas coolers. VEND = vending, on west wall.
 ```
-- Table layout is a guess from `08 (3)` and video f_17: long white tables pushed together in rows parallel to the window wall.
+- Table layout is a guess from `08 (3)` and video f_17: long white tables pushed together in rows parallel to the window wall, ~4 chairs each.
 
 ## 4. Photo entries
 Common: light state for all = **daylight only, hard low-ish afternoon sun (elev ~35-40°, Nov 15:20) coming through the window wall, throwing long shafts and window-frame shadows on the floor**. Ceiling panel lights: no visible lit fixtures [G: off, or too weak against the sun]; ceiling fans visible but still. Sun is from the window side (north wall, slightly west of the glass normal: patches fall toward +z/+x).
@@ -120,18 +119,18 @@ Positions are in plan coordinates (section 1). Screenshot after any fix; keep as
 
 | name | x | y | z | yaw | pitch | hfov | aspect |
 |---|---|---|---|---|---|---|---|
-| coffee-06-1 | 6.7 | 1.40 | 3.6 | -85 | -5 | 69 | 4:3 |
-| cabinets-07-1 | 6.9 | 1.50 | 2.8 | -88 | 12 | 69 | 4:3 |
-| fridge-07-2 | 4.5 | 1.30 | 1.2 | -85 | -5 | 54 | 3:4 |
-| sink-07 | 6.9 | 1.60 | 3.2 | -90 | -22 | 69 | 4:3 |
-| coolers-08 | 2.2 | 1.20 | 5.4 | 90 | 0 | 54 | 3:4 |
-| vending-08-1 | 2.3 | 1.30 | 5.1 | 95 | 0 | 54 | 3:4 |
-| cafeteria-08-3 | 6.5 | 1.30 | 3.6 | 80 | -3 | 78 | 4:3 |
-| strip-08-2 | 2.0 | 1.40 | 1.2 | -88 | -4 | 75 | 4:3 |
-| video-start (f_01) | 2.0 | 1.4 | 1.2 | -88 | -4 | 69 | 16:9 |
-| video-end (f_17) | 5.0 | 1.4 | 5.4 | 135 | -3 | 69 | 16:9 |
+| coffee-06-1 | 10.5 | 1.40 | 5.0 | -85 | -5 | 69 | 4:3 |
+| cabinets-07-1 | 10.6 | 1.50 | 3.6 | -88 | 12 | 69 | 4:3 |
+| fridge-07-2 | 7.2 | 1.30 | 1.2 | -85 | -5 | 54 | 3:4 |
+| sink-07 | 10.6 | 1.60 | 3.8 | -90 | -22 | 69 | 4:3 |
+| coolers-08 | 2.2 | 1.20 | 6.7 | 90 | 0 | 54 | 3:4 |
+| vending-08-1 | 2.3 | 1.30 | 6.0 | 95 | 0 | 54 | 3:4 |
+| cafeteria-08-3 | 10.0 | 1.30 | 4.6 | 80 | -3 | 78 | 4:3 |
+| strip-08-2 | 2.0 | 1.40 | 1.3 | -88 | -4 | 75 | 4:3 |
+| video-start (f_01) | 2.0 | 1.4 | 1.3 | -88 | -4 | 69 | 16:9 |
+| video-end (f_17) | 7.5 | 1.4 | 6.8 | 135 | -3 | 69 | 16:9 |
 
-Notes: portrait hfov = 2*atan(tan(34.5°)*3/4) ≈ 54°. Chevron wall and the coolers are on the **west** wall (x=0). The coffee station camera is within the counter plan x 7.4-8 so keep ≥0.9 m from the counter.
+Notes: portrait hfov = 2*atan(tan(34.5°)*3/4) ≈ 54°. Chevron wall and the coolers are on the **west** wall (x=0). The coffee station camera is within the counter plan x 11.4-12 so keep ≥0.9 m from the counter.
 
 ## 6. Ceiling fixture observations
 - Grid ceiling 600x600 mm tiles, white, T-bar #e8e8e6; ceiling height guess 3.0 m (tile count and door scale).

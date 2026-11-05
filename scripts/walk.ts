@@ -8,12 +8,12 @@ try {
   const { page } = await openGame(browser, url, 'webgl=1', 1280, 720);
   // [name, start x, z, yaw deg, max allowed coordinate check]
   const cases: [string, number, number, number, (p: { x: number; z: number }) => boolean][] = [
-    ['west wall (sprint)', 1.0, 3.8, 90, (p) => p.x >= 0.29],
-    ['south wall', 1.5, 4.0, 180, (p) => p.z <= 5.71],
+    ['west wall (sprint)', 1.0, 3.3, 90, (p) => p.x >= 0.29],
+    ['south wall', 1.5, 5.0, 180, (p) => p.z <= 7.5 - 0.29],
     ['window glass', 3.0, 1.0, 0, (p) => p.z >= 0.29],
-    ['east wall/counter', 6.0, 3.0, -90, (p) => p.x <= 7.1],
-    ['table', 1.0, 3.8, -90, (p) => p.x <= 2.5 - 0.29],
-    ['pillar', 5.9, 1.2, 180, (p) => p.z <= 1.9 - 0.29],
+    ['east wall/counter', 9.0, 3.0, -90, (p) => p.x <= 11.4 - 0.29],
+    ['table', 1.0, 3.3, -90, (p) => p.x <= 2.2 - 0.29],
+    ['pillar', 9.9, 1.2, 180, (p) => p.z <= 2.05 - 0.29],
   ];
   for (const [name, x, z, yaw, ok] of cases) {
     const p = await page.evaluate(
@@ -37,7 +37,7 @@ try {
   // walking moves freely in open space
   const moved = await page.evaluate(() => new Promise<number>((res) => {
     const pl = (window as any).__game.player;
-    pl.teleport(1.0, 0, 3.8, -90);
+    pl.teleport(1.0, 0, 3.3, -90);
     pl.press('KeyW');
     setTimeout(() => { pl.press('KeyW', false); res(pl.feet.x - 1.0); }, 500);
   }));

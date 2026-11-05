@@ -19,3 +19,15 @@
 - Hinged parts (doors) are separate objects parented to the body, with the pivot at the hinge and custom prop `hinge_axis` (`x|y|z`) and `hinge_max_deg`.
 - Instancing: repeated items (mugs, chairs) share one mesh datablock so they export as instances.
 - Respect rule: the Ganesha idol (reception, not in POC 1) is look-only.
+
+## Layout source
+- All room dimensions and anchors (room size, windows, pillar, door, counter, fridge, coolers, vending, seating grid, spawn) live in `blender/layout.py`. Do not hardcode them; import it.
+- Example, works under `blender -b -P blender/...` (also from `blender/props/`):
+```python
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))        # file in blender/
+# sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # file in blender/props/
+import layout
+x0 = layout.COUNTER["x0"]; tables = layout.table_positions()
+```
+- TS side: the spawn and `scripts/walk.ts` cases use numbers copied from `layout.py`; update them when layout changes.

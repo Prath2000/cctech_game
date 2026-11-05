@@ -5,6 +5,7 @@ import { FpsHud } from './hud/fps';
 import { loadRoom } from './room';
 import { FirstPersonController } from './controller';
 import { Interaction } from './interact';
+import { GrabSystem } from './interact/grab';
 import { addDebugObjects } from './interact/debug';
 import { applyPose, poseTable } from './poses';
 
@@ -23,7 +24,10 @@ if (new URLSearchParams(location.search).get('debug') === '1') addDebugObjects(s
 const interaction = new Interaction(scene, camera, physics.world);
 const player = new FirstPersonController(physics.world, camera, renderer.domElement);
 // Start just inside the west-wall door (z 3.2-4.4), facing east into the room.
-player.teleport(1.0, 0, 3.8, -90);
+player.teleport(1.0, 0, 3.3, -90);
+const grab = new GrabSystem(physics.world, camera, interaction, player.collider, renderer.domElement);
+grab.register(scene, scene);
+interaction.refresh();
 
 scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x444444, 1));
 const sun = new THREE.DirectionalLight(0xffffff, 3);
@@ -62,16 +66,31 @@ const ready = new Promise<void>((r) => (markReady = r));
   player,
   interaction,
   scene,
+  grab,
+  /** Deterministic physics stepping for scripts (no rendering). */
+  stepPhysics(n = 1) {
+    for (let i = 0; i < n; i++) { grab.beforeStep(); physics.world.step(); grab.afterStep(); }
+  },
 };
+
+const STEP = 1 / 60;
+const MAX_SUBSTEPS = 4;
+let acc = 0;
+physics.world.timestep = STEP;
 
 renderer.setAnimationLoop(() => {
   const now = performance.now();
   fpsSamples.push(now - lastT);
   lastT = now;
-  if (fpsSamples.length > 20000) fpsSamples.shift();
+  if (fpsSamples.length > 40000) fpsSamples.splice(0, 20000); // bulk trim: amortised O(1), no per-frame shift()
   if (++frames === 5) markReady();
 
-  physics.world.step();
+  // Fixed 1/60 s physics steps (capped), independent of display refresh rate.
+  acc = Math.min(acc + (fpsSamples[fpsSamples.length - 1] / 1000), STEP * MAX_SUBSTEPS);
+  let steps = 0;
+  for (; acc >= STEP; acc -= STEP, steps++) { grab.beforeStep(); physics.world.step(); }
+  if (steps) grab.afterStep();
+  else physics.world.propagateModifiedBodyPositionsToColliders(); // queries must reflect bodies moved/teleported since the last step
   player.enabled = !currentPose; // a pinned ?pose= is never overridden by the controller
   player.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
   interaction.update();
