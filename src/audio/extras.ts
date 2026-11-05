@@ -11,8 +11,8 @@ export function initAudioExtras(audio: AudioSystem, scene: THREE.Scene, player: 
   scene.traverse((o) => { if (!win && /window/i.test(o.name)) win = o; });
   const box = new THREE.Box3().setFromObject(scene);
   const c = box.getCenter(new THREE.Vector3());
-  // No window mesh in the room: assume the +x (east) wall, opposite the entrance door.
-  audio.windowPos = win ? (win as THREE.Object3D).getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(box.max.x, 1.5, c.z);
+  // No window mesh found: the window wall is z = 0 (blender/layout.py), centred along x.
+  audio.windowPos = win ? (win as THREE.Object3D).getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(c.x, 1.5, box.min.z);
   const settings = initSettings(audio, canvas);
   return {
     settings,
