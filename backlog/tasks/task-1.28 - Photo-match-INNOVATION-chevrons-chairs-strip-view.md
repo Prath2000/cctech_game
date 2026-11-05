@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-05T11:36:00Z'
-updated_date: '2026-11-05T11:49:00Z'
+updated_date: '2026-11-05T12:02:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -25,4 +25,6 @@ Photos 08 (3) and 08 (2): chevrons too small, chairs sparse, window-side strip l
 
 <!-- SECTION:NOTES:BEGIN -->
 WIP: clean orange chevron PNGs (scripts/make_chevrons.py), window_backdrop plane (scripts/make_backdrop.py, materials.py), 6 chairs/table, sill full length. Left: rebuild verify, shots, check:seating, no strip partition added.
+
+Build OK (room.glb 302 objects). Visual verify BLOCKED by same lighting load failure; re-run check:shot cafeteria-08-3 / strip-08-2 and check:seating after lighting settles. Strip partition not added.
 <!-- SECTION:NOTES:END -->
