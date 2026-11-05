@@ -186,10 +186,20 @@ for a, lst in atlases.items():
     # measured HDR headroom: encode sRGB8(c / RANGE); the range covers p99.99 x1.25 (a few outlier texels/fireflies clip)
     RANGE = max(1.0 if STATE == 'off' else 1 / 32, math.ceil(p9999 * 1.25 * 32) / 32)
     sizes = {}
+    if STATE == 'on':
+        # lights-only maps are one colour (neutral-white LED): store LUMINANCE only, 3 axes per RGB texture ->
+        # 2 textures per atlas instead of 6 (WebGPU/WebGL2 allow ~16 samplers per material; off 6 + on 6 + PBR maps overflowed it)
+        lum = {n: d @ np.array([0.2126, 0.7152, 0.0722], np.float32) for n, d in maps.items()}
+        RANGE = max(1 / 32, math.ceil(max(float(np.percentile(l, 99.99)) for l in lum.values()) * 1.25 * 32) / 32)
+        for tag, trio in (('p', ('px', 'py', 'pz')), ('n', ('nx', 'ny', 'nz'))):
+            arr = np.stack([lum[k] for k in trio], -1)
+            enc = (np.clip(lin2srgb(np.clip(arr / RANGE, 0, 1)), 0, 1) * 255 + 0.5).astype(np.uint8)
+            p = os.path.join(OUT, f'{a}_on_{tag}.png'); save_png(enc, p); sizes[tag] = os.path.getsize(p)
+        maps = {}
     for name, den in maps.items():
         enc = (np.clip(lin2srgb(np.clip(den / RANGE, 0, 1)), 0, 1) * 255 + 0.5).astype(np.uint8)
         p = os.path.join(OUT, f'{a}_{name}.png'); save_png(enc, p); sizes[name] = os.path.getsize(p)
-    meta_atlas[a] = {'px': N, 'range': RANGE, 'max': round(vmax, 3), 'p99_99': round(p9999, 3), 'objects': len(lst), 'png_bytes': sizes}
+    meta_atlas[a] = {'px': N, 'range': RANGE, 'max': round(vmax, 3), 'p99_99': round(p9999, 3), 'objects': len(lst), 'png_bytes': sizes, 'packed': 'lum3' if STATE == 'on' else None}
     print('[atlas]', a, meta_atlas[a], flush=True)
     lap(f'bake_{a}')
 # restore for reference renders

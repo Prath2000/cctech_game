@@ -65,18 +65,22 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
   // ---- atlases: 6 sRGB8 maps each, value = irradiance-radiance / range ----
   const loader = new THREE.TextureLoader();
   const atlasCube: Record<string, Cube> = {};
-  const load = async (d: string, name: string, ax: string, range: number) => {
-    const t = await loader.loadAsync(`${d}${name}_${ax}.png`);
+  const loadTex = async (url: string) => {
+    const t = await loader.loadAsync(url);
     t.colorSpace = THREE.SRGBColorSpace; t.flipY = false; t.generateMipmaps = false;
     t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter;
-    return texture(t, uv(1)).rgb.mul(range);
+    return texture(t, uv(1)).rgb;
   };
+  // the lights-only bake is luminance-only (3 axes per RGB texture), tinted by the LED colour
+  const LED_TINT = vec3(1.0, 0.96, 0.9).div(0.9647);
   await Promise.all(Object.entries(meta.atlases as Record<string, { range: number }>).map(async ([name, a]) => {
     const c: any = {};
     const on = onMeta?.atlases?.[name] as { range: number } | undefined;
+    const [onP, onN] = on ? await Promise.all([loadTex(`${onDir}${name}_on_p.png`), loadTex(`${onDir}${name}_on_n.png`)]) : [null, null];
+    const onCh: Record<string, any> = on ? { px: onP!.r, py: onP!.g, pz: onP!.b, nx: onN!.r, ny: onN!.g, nz: onN!.b } : {};
     await Promise.all(AX.map(async (ax) => {
-      const off = await load(dir, name, ax, a.range);
-      c[ax] = on ? off.add((await load(onDir, name, ax, on.range)).mul(uLights)) : off;
+      const off = (await loadTex(`${dir}${name}_${ax}.png`)).mul(a.range);
+      c[ax] = on ? off.add(LED_TINT.mul(onCh[ax].mul(on.range)).mul(uLights)) : off;
     }));
     atlasCube[name] = c;
   }));
