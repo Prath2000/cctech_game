@@ -1,0 +1,7 @@
+# .team scratch is gitignored; handoffs stay committed (spec §8)
+.team/work/scratch/*
+!.team/work/scratch/.gitkeep
+node_modules/
+dist/
+.DS_Store
+*.blend1

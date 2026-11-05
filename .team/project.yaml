@@ -1,0 +1,52 @@
+# .team/project.yaml - read by the team lead at every sort. Edit freely; user overrides win.
+name: "cctech-game"
+type: new            # new | existing
+size_default: small  # tiny | small | big (sorting step picks per request; user can overrule)
+stage: plan         # shape | plan | build | verify | ship (current stage; the team lead updates it)
+autopilot: false    # true = lead loops through all backlog tasks hands-free (set via `team autopilot on|off`; still stops before going live)
+worker_model: sonnet  # sonnet (default) | mixed | haiku; lead may still pick haiku for mechanical tasks
+approval: key-points # strict (gate after Shape/Plan/Build/Verify) | key-points (after Plan + before live) | relaxed (no gates)
+deploy:
+  level: L0          # L0 localhost | L1 Docker local | L2 one server/hosting | L3 cloud+CI/CD | L4 staging/live+monitoring+rollback
+has_ui: true         # switches on UI design + e2e
+tests: false         # true if a test setup exists (switches on TDD + unit tests)
+security_rule: false # true if accounts, payments, personal data or public API
+realtime_or_high_traffic: true  # switches on perf test
+released_to_others: false        # switches on changelog
+# Approval gates: the team lead adds one per gate; the user approves/rejects (`team approve <id>`, `team reject <id> [note]`).
+# Example item (block style), status: waiting | approved | rejected
+#   - id: plan-gate
+#     step: plan
+#     status: waiting
+gates:
+  - id: plan-gate
+    step: plan
+    status: waiting
+# Steps: auto = follow the switch-on rule; on/off = user override. Names = team/plays/<stage>-<step>.md
+steps:
+  shape-survey: auto
+  shape-problem: auto
+  shape-prior-art: auto
+  plan-prd: auto
+  plan-architecture: auto
+  plan-data-model: auto
+  plan-threat-model: auto
+  plan-tasks: auto
+  plan-ui-design: auto
+  build-parallel: auto
+  build-tdd: auto
+  verify-tests: auto
+  verify-e2e: auto
+  verify-review: auto
+  verify-security: auto
+  verify-perf: auto
+  ship-deploy: auto
+  ship-changelog: auto
+  ship-monitoring: auto
+  ship-retro: auto
+# Roles started on demand. Always available: orchestrator, scout, worker, reviewer, product, qa.
+roles:
+  architect: false
+  security: false
+  devops: false
+  writer: false
