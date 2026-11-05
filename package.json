@@ -19,6 +19,7 @@
     "build": "tsc && vite build",
     "build:blockout": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/build_blockout.py",
     "build:props:pantry": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/props/run_pantry.py",
+    "build:props:seating": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/props/run_seating.py",
     "typecheck": "tsc --noEmit",
     "check:shot": "tsx scripts/shot.ts",
     "check:walk": "tsx scripts/walk.ts",
