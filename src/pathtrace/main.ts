@@ -25,13 +25,15 @@ scene.add(gltf.scene);
 gltf.scene.traverse((o) => {
   const mesh = o as THREE.Mesh;
   if (!mesh.isMesh) return;
-  if (q.get('noglass') && mesh.name.startsWith('window_glass')) { mesh.visible = false; return; }
+  if (mesh.name.startsWith('window_glass') && !q.get('glass')) { mesh.visible = false; return; } // panes block the sun in the tracer; thin clear glass adds nothing visible
   if (mesh.name === 'window_backdrop') { mesh.visible = false; return; } // emissive plane outside would block the sun
   const mats = (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).map((m) => {
     // glTF gives plain MeshStandardMaterial for blended glass; upgrade so `transmission` exists.
     if (!/^(glass_clear|glass_black|sx_vend_glass|sx_clear_vinyl|sx_tumbler_glass)$/.test(m.name) || (m as THREE.MeshPhysicalMaterial).isMeshPhysicalMaterial) return m;
     const p = new THREE.MeshPhysicalMaterial();
-    p.copy(m as THREE.MeshStandardMaterial);
+    // Physical.copy() reads physical-only fields the glTF material lacks, so use the Standard copy.
+    THREE.MeshStandardMaterial.prototype.copy.call(p, m as THREE.MeshStandardMaterial);
+    p.defines = { STANDARD: '', PHYSICAL: '' };
     p.name = m.name;
     return p;
   });

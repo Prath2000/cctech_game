@@ -8,6 +8,7 @@
   "kettle": { "name": "Kettle", "caption": "Chai o'clock is always now." },
   "sink": { "name": "Pantry Sink", "caption": "Mugs go here. In theory." },
   "cabinet": { "name": "Cabinet", "caption": "Snacks, sugar and mysteries." },
+  "wall_cabinet_door": { "name": "Cabinet Door", "caption": "Mugs of every colour, none of them yours." },
   "mural": { "name": "Mural", "caption": "Painted by people who actually like Mondays." },
   "innovation_sign": { "name": "INNOVATION", "caption": "Big letters on the wall. Bigger ideas, hopefully." },
   "sticky_note": { "name": "Sticky Note", "caption": "Someone's reminder from sprint zero." },
