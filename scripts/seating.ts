@@ -89,6 +89,7 @@ try {
     pl.teleport(c.position.x + 1.0, 0, c.position.z, 90);
     g.grab.drop();
     const glug0 = g.audio.count.water_cooler_glug ?? 0;
+    const fs0 = g.fpsSamples.length;
     g.seating.useCooler(c);
     await wait(500);
     const mid = g.grab.items[g.grab.items.length - 1].obj;
@@ -96,7 +97,7 @@ try {
     await wait(2800);
     const it = g.grab.items[g.grab.items.length - 1];
     const water = it.obj.children.find((x: any) => x.name === 'water');
-    const out: any = { level: it.obj.userData.water_level, midLevel, scale: water?.scale.y, held: g.grab.held === it, glug: (g.audio.count.water_cooler_glug ?? 0) - glug0 };
+    const out: any = { level: it.obj.userData.water_level, midLevel, scale: water?.scale.y, held: g.grab.held === it, glug: (g.audio.count.water_cooler_glug ?? 0) - glug0, firstFillMax: Math.max(...g.fpsSamples.slice(fs0 + 2)) };
     const sp = { x: it.obj.position.x, z: it.obj.position.z };
     // carry it away
     pl.press('KeyS'); await wait(1600); pl.press('KeyS', false); // back away with the glass in hand
@@ -119,8 +120,31 @@ try {
     return out;
   });
   report(w.level === 1 && w.scale > 0.05 && w.midLevel > 0 && w.midLevel < 1, `cooler fills spawned glass (mid ${w.midLevel?.toFixed(2)}, final ${w.level}, scale ${w.scale?.toFixed(3)}, glug ${w.glug})`);
+  report(w.firstFillMax <= 50, `first cooler fill max frame ${w.firstFillMax.toFixed(1)} ms (no material compile hitch)`);
   report(w.held && w.carryDist < 1.6 && w.farFromCooler > 0.4 && w.waterVisible, `filled glass carried (${w.carryDist.toFixed(2)} m from player, ${w.farFromCooler.toFixed(1)} m from where it was filled)`);
   report(w.heldFill && w.heldLevel === 1, `E with held glass fills it (level ${w.heldLevel})`);
+
+  // Repeated vend/cooler use stays capped
+  const growth = await page.evaluate(async () => {
+    const g = (window as any).__game;
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const bodies = () => g.grab.world.bodies.len();
+    const m = g.scene.getObjectByName('vending_machine'), c = g.scene.getObjectByName('cooler_01');
+    const b0 = bodies();
+    g.grab.drop();
+    for (let i = 0; i < 30; i++) {
+      g.player.teleport(m.position.x + 1.4, 0, m.position.z, 90);
+      g.seating.useVending(m);
+      await wait(60);
+      g.player.teleport(c.position.x + 1.0, 0, c.position.z, 90);
+      g.grab.drop();
+      g.seating.useCooler(c);
+      await wait(60);
+    }
+    await wait(4000);
+    return bodies() - b0;
+  });
+  report(growth <= 14, `30 vend + 30 cooler uses grew bodies by ${growth} (caps 8 + 6)`);
 
   // Frame times during a vend + fill + sit cycle
   const maxFrame = await page.evaluate(async () => {

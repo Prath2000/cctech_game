@@ -4,6 +4,7 @@ import { smooth } from './fx';
 
 const wp = new THREE.Vector3();
 const wq = new THREE.Quaternion();
+const lc = new THREE.Vector3();
 
 /**
  * Hinged door from the scene conventions (`hinge_axis`, `hinge_max_deg`, `hinge_open_sign`): the node origin is the hinge,
@@ -19,6 +20,9 @@ export class Hinge {
   private axis: 'x' | 'y' | 'z';
   private cooldown = 0;
   bounced = 0;
+  private locked = false;
+  private shape: RAPIER.Cuboid;
+  private center = new THREE.Vector3();
 
   constructor(readonly obj: THREE.Object3D, private world: RAPIER.World, private player: RAPIER.Collider, private duration = 0.8) {
     const u = obj.userData;
@@ -35,6 +39,8 @@ export class Hinge {
     );
     // Closed-pose bounds relative to the hinge (doors are axis-aligned, unscaled; may be a Group of meshes).
     const b = new THREE.Box3().setFromObject(obj).translate(wp.negate());
+    this.center.set((b.max.x + b.min.x) / 2, (b.max.y + b.min.y) / 2, (b.max.z + b.min.z) / 2);
+    this.shape = new RAPIER.Cuboid(Math.max(0.005, (b.max.x - b.min.x) / 2), Math.max(0.005, (b.max.y - b.min.y) / 2), Math.max(0.005, (b.max.z - b.min.z) / 2));
     this.collider = world.createCollider(
       RAPIER.ColliderDesc.cuboid(
         Math.max(0.005, (b.max.x - b.min.x) / 2), Math.max(0.005, (b.max.y - b.min.y) / 2), Math.max(0.005, (b.max.z - b.min.z) / 2),
@@ -47,20 +53,41 @@ export class Hinge {
   get moving() { return this.p !== this.target; }
   toggle() { this.target = this.target === 1 ? 0 : 1; this.cooldown = 0; return this.open; }
 
-  update(dt: number) {
-    if (!this.moving) return;
-    this.cooldown -= dt;
-    this.p += Math.sign(this.target - this.p) * Math.min(Math.abs(this.target - this.p), dt / this.duration);
-    this.obj.rotation[this.axis] = this.sign * this.max * smooth(this.p);
+  /** Does the door, posed at the current obj transform, overlap the player? (tested against the pose it WILL have) */
+  private blockedAt() {
     this.obj.updateWorldMatrix(false, false);
     this.obj.getWorldPosition(wp);
     this.obj.getWorldQuaternion(wq);
+    lc.copy(this.center).applyQuaternion(wq).add(wp);
+    const pid = this.player.handle;
+    return !!this.world.intersectionWithShape(lc, wq, this.shape, undefined, undefined, this.collider, undefined, (c) => c.handle === pid);
+  }
+
+  private apply() {
     this.body.setNextKinematicTranslation(wp);
     this.body.setNextKinematicRotation(wq);
-    if (this.cooldown <= 0 && this.world.intersectionPair(this.collider, this.player)) {
-      this.target = 1 - this.target; // player in the way: go back where we came from
+  }
+
+  update(dt: number) {
+    if (!this.moving) return;
+    this.cooldown -= dt;
+    const prev = this.p;
+    const step = (dir: number) => {
+      this.p = prev + dir * Math.min(Math.abs(this.target - prev), dt / this.duration);
+      this.obj.rotation[this.axis] = this.sign * this.max * smooth(this.p);
+      return this.blockedAt();
+    };
+    if (!step(Math.sign(this.target - prev))) { this.locked = false; this.apply(); return; }
+    // Next pose would clip the player: hold, and reverse once (hysteresis: not again until a pose has been free).
+    this.p = prev;
+    this.obj.rotation[this.axis] = this.sign * this.max * smooth(prev);
+    if (!this.locked && this.cooldown <= 0) {
+      this.target = 1 - this.target;
       this.cooldown = 0.4;
+      this.locked = true;
       this.bounced++;
     }
+    this.blockedAt();
+    this.apply();
   }
 }

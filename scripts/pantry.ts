@@ -81,11 +81,23 @@ try {
     });
     // Door must not trap the player: stand where the open fridge door sweeps.
     pl.teleport(10.6, 0, 0.95, 90); await wait(300);
+    // Repeated coffee use must not grow bodies unbounded: move each mug away so every use would spawn a new one.
+    pl.teleport(10.6, 0, 4.3, -90); await wait(300);
+    const bodies = () => g.grab.world.bodies.len();
+    const b0 = bodies();
+    for (let i = 0; i < 30; i++) {
+      P.use('tata_bistro_machine');
+      for (let k = 0; k < 80; k++) P.update(0.1); // simulate ~8 s: grind, pour, steam
+      const m = g.grab.items.filter((it: any) => it.obj.name.startsWith('mug')).pop();
+      if (m) { m.body.setTranslation({ x: 0, y: 5, z: 0 }, true); m.obj.position.set(0, 5, 0); } // away from the spout
+    }
+    const coffeeGrowth = bodies() - b0;
     P.use('lg_fridge_door_freezer'); await wait(1500);
     const bounced = state().bounced;
-    return { out, bounced };
+    return { out, bounced, coffeeGrowth };
   }, LIMIT_MS);
   for (const o of r.out) check(o.ok && !o.note.includes('BAD'), `${o.name}: max frame ${o.max.toFixed(1)} ms (limit ${LIMIT_MS}) ${o.note}`);
+  check(r.coffeeGrowth <= 6, `30 coffee uses grew bodies by ${r.coffeeGrowth} (cap 6)`);
   console.log(`info door reversals when player in the way: ${r.bounced}`);
 } finally {
   await browser.close();

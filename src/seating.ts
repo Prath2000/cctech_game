@@ -95,6 +95,7 @@ export class Seating {
   ) {
     this.prevFeet.copy(player.feet);
     this.collect(scene);
+    this.warmUpWater();
     registerUse('chair', (o) => this.sit(o));
     registerUse('vending', (o) => this.useVending(o));
     registerUse('cooler', (o) => this.useCooler(o));
@@ -166,6 +167,11 @@ export class Seating {
     if (this.sitting) return false;
     const ch = this.chairs.find((c) => c.obj === o);
     if (!ch) return false;
+    // don't sit while a swinging (kinematic) door occupies the seat spot, it would trap the player
+    this.forwardOf(o, this.f);
+    const sx = o.position.x - this.f.x * 0.02, sz = o.position.z - this.f.z * 0.02;
+    if (this.world.intersectionWithShape({ x: sx, y: 0.9, z: sz }, { x: 0, y: 0, z: 0, w: 1 }, this.capsule,
+      RAPIER.QueryFilterFlags.EXCLUDE_FIXED | RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC, undefined, this.player.collider)) return false;
     this.sitting = ch;
     this.sitAt = performance.now();
     this.sitT = 0;
@@ -338,6 +344,7 @@ export class Seating {
     this.grab.register(g, this.scene);
     const it = this.grab.items.find((i) => i.obj === g)!;
     it.body.setBodyType(RAPIER.RigidBodyType.Fixed, true); // sits under the tap while filling
+    g.userData.interact = 'look'; // not grabbable until filled (after register, which only takes 'grab')
     this.interaction.refresh();
     this.startFill(slot, g, true, cooler.getWorldPosition(this.p));
     return true;
@@ -359,6 +366,19 @@ export class Seating {
       return true;
     }
     return false;
+  }
+
+  /** Render the water material once at init (tiny, never culled) so the pipeline exists before the first fill. */
+  private warmUpWater() {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 16), this.waterMat);
+    m.scale.setScalar(1e-4);
+    m.frustumCulled = false;
+    m.raycast = () => {};
+    m.name = 'water_warmup';
+    m.userData = { collider: 'none' };
+    const c = this.coolers[0];
+    if (c) c.getWorldPosition(m.position);
+    this.scene.add(m);
   }
 
   private freeFill() { return this.fills.find((f) => !f.active) ?? null; }
@@ -403,6 +423,7 @@ export class Seating {
       if (u < 1) continue;
       f.active = false;
       if (f.spawned) {
+        f.obj.userData.interact = 'grab';
         const it = this.grab.items.find((i) => i.obj === f.obj);
         if (it) {
           it.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);

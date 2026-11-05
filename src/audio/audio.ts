@@ -108,6 +108,7 @@ export class AudioSystem {
     this.lastFeet.copy(feet);
     this.haveFeet = true;
     for (const it of items) {
+      if (it.body.isSleeping()) { if (this.lastSpeed.get(it)) this.lastSpeed.set(it, 0); continue; }
       const v = it.body.linvel();
       const sp = Math.hypot(v.x, v.y, v.z);
       const prev = this.lastSpeed.get(it) ?? 0;
@@ -131,11 +132,15 @@ export class AudioSystem {
     if (!d || !this.ctx || this.buffers.has(name)) return;
     const probe = document.createElement('audio');
     const pick = (ext: string) => d.files.find((f) => f.endsWith(ext));
-    const file = (probe.canPlayType('audio/ogg; codecs="opus"') ? pick('.ogg') : pick('.m4a')) ?? d.files[0];
-    try {
-      const raw = await (await fetch(this.base + file)).arrayBuffer();
-      this.buffers.set(name, await this.ctx.decodeAudioData(raw));
-    } catch (e) { console.warn(`[audio] ${name} failed to decode`, e); }
+    const first = (probe.canPlayType('audio/ogg; codecs="opus"') ? pick('.ogg') : pick('.m4a')) ?? d.files[0];
+    const order = [first, ...d.files.filter((f) => f !== first)]; // fall back to the other format on failure
+    for (const file of order) {
+      try {
+        const raw = await (await fetch(this.base + file)).arrayBuffer();
+        this.buffers.set(name, await this.ctx.decodeAudioData(raw));
+        return;
+      } catch (e) { console.warn(`[audio] ${name} (${file}) failed to decode`, e); }
+    }
   }
 
   /** Play a manifest sound; optional world position (panned relative to the camera) and max length in seconds. */
@@ -154,7 +159,7 @@ export class AudioSystem {
     src.connect(g);
     if (pos) {
       const p = ctx.createPanner();
-      p.panningModel = 'HRTF';
+      p.panningModel = 'equalpower'; // cheap: HRTF panners per one-shot are expensive
       p.distanceModel = 'inverse';
       p.refDistance = 1.5;
       p.rolloffFactor = 1.3;

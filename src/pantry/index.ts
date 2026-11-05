@@ -135,6 +135,8 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
   };
   for (const it of grab.items) if (it.obj.name.startsWith('mug')) addDisc(it.obj);
   let spawned = 0;
+  const MAX_SPAWNED_MUGS = 6;
+  const spawnedMugs: (typeof grab.items)[number][] = [];
   const cof = { phase: 0, t: 0, mug: null as THREE.Object3D | null, item: null as (typeof grab.items)[number] | null, steamT: 0 };
   const mugUnderSpout = () => {
     for (const it of grab.items) {
@@ -147,7 +149,13 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
   const coffeeUse = () => {
     if (!machine || (cof.phase !== 0 && cof.phase !== 3)) return;
     let it = mugUnderSpout();
-    if (!it) {
+    if (!it && spawnedMugs.length >= MAX_SPAWNED_MUGS) {
+      // cap reached: recycle the oldest spawned mug that isn't being held
+      it = spawnedMugs.find((i) => grab.held !== i) ?? null;
+      if (!it) return;
+      spawnedMugs.push(spawnedMugs.splice(spawnedMugs.indexOf(it), 1)[0]);
+      it.obj.userData.interact = 'grab';
+    } else if (!it) {
       if (!mugProto) return;
       const m = mugProto.clone(true);
       m.name = `mug_spawn_${++spawned}`;
@@ -156,6 +164,7 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
       it = grab.items.find((i) => i.obj === m) ?? null;
       if (!it) return;
       addDisc(m);
+      spawnedMugs.push(it);
       interaction.refresh();
     }
     cof.item = it; cof.mug = it.obj; cof.phase = 1; cof.t = 0;
@@ -168,6 +177,7 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
     it.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
     it.body.setBodyType(RAPIER.RigidBodyType.Fixed, true);
     m.userData.interact = 'look'; // can't be grabbed while brewing
+    m.userData.filled = false;
     const disc = m.getObjectByName('coffee_surface');
     if (disc) disc.scale.setScalar(1e-4);
     audio.play('coffee_grind', nozzle, GRIND);
