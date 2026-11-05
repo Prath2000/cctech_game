@@ -1,0 +1,32 @@
+{
+ "units": "metres (metric, scale 1.0 verified: tables 0.79-0.80, counter 0.80, sill 0.61, floor tile n/a)",
+ "raw_frame": "z-up, floor z=-1.29, walls rotated 29.58 deg about z",
+ "raw_to_layout_4x4": [
+  [
+   -0.493638,
+   0.869667,
+   0,
+   0.29
+  ],
+  [
+   0,
+   0,
+   1,
+   1.29
+  ],
+  [
+   0.869667,
+   0.493638,
+   0,
+   5.85
+  ],
+  [
+   0,
+   0,
+   0,
+   1
+  ]
+ ],
+ "layout_frame": "x=along window wall from chevron wall (x=0), y up, z=distance from window wall inner face (z=0); right-handed, same as layout.py",
+ "steps": "rotate -29.58deg about z; z+=1.29; then (x,y,z)->(y+0.29, z, x+5.85)"
+}
