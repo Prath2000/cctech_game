@@ -6,7 +6,7 @@ import { parseArgs, startServer } from './lib';
 const { flags, opts, pos } = parseArgs(process.argv.slice(2));
 const all = Object.keys(JSON.parse(readFileSync('src/pathtrace/poses.json', 'utf8')));
 const names = pos.length ? pos : all;
-const spp = Number(opts.spp ?? 700);
+const spp = Number(opts.spp ?? 64);
 const capMs = Number(opts.cap ?? 170) * 1000;
 const [W, H] = [1600, 1000];
 const { server, url } = await startServer();

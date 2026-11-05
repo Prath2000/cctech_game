@@ -1,6 +1,6 @@
 {
   "coffee":  { "position": [10.5, 1.6, 5.6], "yaw": -78, "pitch": -12, "hfov": 68 },
-  "table-fans": { "position": [6.4, 1.6, 7.0], "yaw": 0, "pitch": 14, "hfov": 70 },
+  "table-fans": { "position": [6.4, 1.6, 7.0], "yaw": 0, "pitch": 4, "hfov": 70 },
   "fridge":  { "position": [9.4, 1.6, 2.2], "yaw": -50, "pitch": -8, "hfov": 66 },
   "vending": { "position": [2.8, 1.6, 5.2], "yaw": 113, "pitch": -4, "hfov": 68 },
   "sink":    { "position": [9.8, 1.6, 3.0], "yaw": -88, "pitch": -20, "hfov": 68 },

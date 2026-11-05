@@ -25,14 +25,24 @@ scene.add(gltf.scene);
 gltf.scene.traverse((o) => {
   const mesh = o as THREE.Mesh;
   if (!mesh.isMesh) return;
+  if (q.get('noglass') && mesh.name.startsWith('window_glass')) { mesh.visible = false; return; }
   if (mesh.name === 'window_backdrop') { mesh.visible = false; return; } // emissive plane outside would block the sun
-  for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
+  const mats = (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).map((m) => {
+    // glTF gives plain MeshStandardMaterial for blended glass; upgrade so `transmission` exists.
+    if (!/^(glass_clear|glass_black|sx_vend_glass|sx_clear_vinyl|sx_tumbler_glass)$/.test(m.name) || (m as THREE.MeshPhysicalMaterial).isMeshPhysicalMaterial) return m;
+    const p = new THREE.MeshPhysicalMaterial();
+    p.copy(m as THREE.MeshStandardMaterial);
+    p.name = m.name;
+    return p;
+  });
+  mesh.material = Array.isArray(mesh.material) ? mats : mats[0];
+  for (const m of mats) {
     const mat = m as THREE.MeshPhysicalMaterial;
     mat.lightMap = null; // real GI replaces the baked maps
     if (/^(glass_clear|glass_black|sx_vend_glass|sx_clear_vinyl|sx_tumbler_glass)$/.test(mat.name)) {
       mat.transparent = false; mat.opacity = 1; mat.depthWrite = true;
       mat.transmission = mat.name === 'glass_black' ? 0.85 : 1;
-      mat.ior = 1.45; mat.roughness = 0.02; mat.thickness = 0.01;
+      mat.ior = 1.05; if (mat.name === 'glass_clear') mat.color.setRGB(0.92, 0.97, 1); mat.specularColor?.setRGB(1, 1, 1); mat.roughness = 0.02; mat.thickness = 0.01;
       mat.side = THREE.DoubleSide;
     } else if (mat.transparent) mat.depthWrite = true;
     mat.needsUpdate = true;
@@ -82,7 +92,7 @@ pt.rasterizeScene = false;
 pt.minSamples = 0;
 pt.renderDelay = 0;
 pt.fadeDuration = 0;
-await pt.setSceneAsync(scene, cam);
+pt.setScene(scene, cam);
 
 const w = window as unknown as { __pt: object };
 let done = false;

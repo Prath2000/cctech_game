@@ -11,13 +11,13 @@ const webglThree = {
     if (source === 'three' && importer && /three-gpu-pathtracer|three-mesh-bvh|src\/pathtrace\//.test(importer)) {
       return resolve(__dirname, 'node_modules/three/build/three.module.js');
     }
+    if (source === 'three') return resolve(__dirname, 'node_modules/three/build/three.webgpu.js');
     return null;
   },
 };
 
 export default defineConfig({
   plugins: [webglThree],
-  resolve: { alias: [{ find: /^three$/, replacement: 'three/webgpu' }] },
   build: {
     rollupOptions: { input: { main: resolve(__dirname, 'index.html'), spike: resolve(__dirname, 'spike.html'), pathtrace: resolve(__dirname, 'pathtrace.html') } },
   },
