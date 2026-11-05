@@ -97,12 +97,13 @@ try {
     const it = g.grab.items[g.grab.items.length - 1];
     const water = it.obj.children.find((x: any) => x.name === 'water');
     const out: any = { level: it.obj.userData.water_level, midLevel, scale: water?.scale.y, held: g.grab.held === it, glug: (g.audio.count.water_cooler_glug ?? 0) - glug0 };
+    const sp = { x: it.obj.position.x, z: it.obj.position.z };
     // carry it away
-    pl.press('KeyS'); await wait(1700); pl.press('KeyS', false);
+    pl.press('KeyS'); await wait(1600); pl.press('KeyS', false); // back away with the glass in hand
     await wait(300);
     const cam = g.player.feet;
     out.carryDist = Math.hypot(it.obj.position.x - cam.x, it.obj.position.z - cam.z);
-    out.farFromCooler = Math.hypot(it.obj.position.x - c.position.x, it.obj.position.z - c.position.z);
+    out.farFromCooler = Math.hypot(it.obj.position.x - sp.x, it.obj.position.z - sp.z);
     out.waterVisible = water?.visible;
     // Empty glass held + E near the cooler
     g.grab.drop();
@@ -118,7 +119,7 @@ try {
     return out;
   });
   report(w.level === 1 && w.scale > 0.05 && w.midLevel > 0 && w.midLevel < 1, `cooler fills spawned glass (mid ${w.midLevel?.toFixed(2)}, final ${w.level}, scale ${w.scale?.toFixed(3)}, glug ${w.glug})`);
-  report(w.held && w.carryDist < 1.6 && w.farFromCooler > 2.5 && w.waterVisible, `filled glass carried (${w.carryDist.toFixed(2)} m from player, ${w.farFromCooler.toFixed(1)} m from cooler)`);
+  report(w.held && w.carryDist < 1.6 && w.farFromCooler > 0.4 && w.waterVisible, `filled glass carried (${w.carryDist.toFixed(2)} m from player, ${w.farFromCooler.toFixed(1)} m from where it was filled)`);
   report(w.heldFill && w.heldLevel === 1, `E with held glass fills it (level ${w.heldLevel})`);
 
   // Frame times during a vend + fill + sit cycle

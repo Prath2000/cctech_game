@@ -3,11 +3,15 @@ import { createRenderer } from './renderer';
 import { createPhysics } from './physics';
 import { FpsHud } from './hud/fps';
 import { loadRoom } from './room';
+import { initLighting } from './lighting';
 import { FirstPersonController } from './controller';
 import { Interaction } from './interact';
 import { GrabSystem } from './interact/grab';
 import { addDebugObjects } from './interact/debug';
 import { applyPose, poseTable } from './poses';
+import { AudioSystem } from './audio/audio';
+import { Seating, SOUNDS } from './seating';
+import { initPantry, SOUNDS as PANTRY_SOUNDS } from './pantry';
 
 const { renderer, backend } = await createRenderer();
 const physics = await createPhysics();
@@ -27,7 +31,11 @@ const player = new FirstPersonController(physics.world, camera, renderer.domElem
 player.teleport(1.0, 0, 3.3, -90);
 const grab = new GrabSystem(physics.world, camera, interaction, player.collider, renderer.domElement);
 grab.register(scene, scene);
+const audio = new AudioSystem(camera, [...SOUNDS, ...PANTRY_SOUNDS]);
+const seating = new Seating(physics.world, scene, camera, interaction, grab, player, audio, renderer.domElement);
+const pantry = initPantry({ scene, world: physics.world, interaction, grab, audio, player });
 interaction.refresh();
+initLighting(scene, renderer, { world: physics.world }).captureReflections(); // TASK-1.10 (call after baked lighting)
 
 scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x444444, 1));
 const sun = new THREE.DirectionalLight(0xffffff, 3);
@@ -66,7 +74,11 @@ const ready = new Promise<void>((r) => (markReady = r));
   player,
   interaction,
   scene,
+  camera,
   grab,
+  seating,
+  audio,
+  pantry,
   /** Deterministic physics stepping for scripts (no rendering). */
   stepPhysics(n = 1) {
     for (let i = 0; i < n; i++) { grab.beforeStep(); physics.world.step(); grab.afterStep(); }
@@ -91,8 +103,10 @@ renderer.setAnimationLoop(() => {
   for (; acc >= STEP; acc -= STEP, steps++) { grab.beforeStep(); physics.world.step(); }
   if (steps) grab.afterStep();
   else physics.world.propagateModifiedBodyPositionsToColliders(); // queries must reflect bodies moved/teleported since the last step
-  player.enabled = !currentPose; // a pinned ?pose= is never overridden by the controller
+  player.enabled = !currentPose && !seating.sitting; // a pinned ?pose= is never overridden by the controller
   player.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
+  seating.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
+  pantry.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
   interaction.update();
   renderer.render(scene, camera);
   hud.tick();

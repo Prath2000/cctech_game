@@ -27,6 +27,7 @@
     "check:glb": "python3 scripts/check_glb.py",
     "check:look": "tsx scripts/look.ts",
     "check:grab": "tsx scripts/grab-stress.ts",
+    "check:pantry": "tsx scripts/pantry.ts",
     "check:seating": "tsx scripts/seating.ts",
     "build:room": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/build_room.py",
     "fetch:textures": "python3 scripts/fetch_textures.py",

@@ -1,11 +1,11 @@
 ---
 id: TASK-1.12
 title: Seating Use items
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-05T10:22:00Z'
-updated_date: '2026-11-05T10:43:00Z'
+updated_date: '2026-11-05T10:56:00Z'
 labels:
   - effort:M
 dependencies:
@@ -28,13 +28,13 @@ Parallel-safe: yes (with T11). Plan: .team/changes/0001-pantry-poc/plan.md (T12)
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Sit and stand on a chair works.
-- [ ] #2 Vending drops a grabbable snack.
-- [ ] #3 Cooler fills a glass that can be carried.
+- [x] #1 Sit and stand on a chair works.
+- [x] #2 Vending drops a grabbable snack.
+- [x] #3 Cooler fills a glass that can be carried.
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Started early: seating half of TASK-1.7 is done (props_seating via blender/props/seating.py); pantry half still in progress.
+src/seating.ts (chairs/vending/coolers), src/audio/audio.ts, scripts/seating.ts (pnpm check:seating). Chairs: dynamic Y-locked bodies, player passes through and pushes by proximity; room.ts skips static colliders for chairs. check:grab fails on stale bounds (room now extends past z 7), not from this change.
 <!-- SECTION:NOTES:END -->
