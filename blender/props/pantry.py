@@ -541,10 +541,27 @@ def mugs(mt):
     mesh = bpy.data.meshes.new("mug_shared")
     bm.to_mesh(mesh)
     bm.free()
-    mesh.materials.append(None)
-    mats = []
-    for k, c in MUG_COLORS.items():
-        mats.append((k, M("pantry_mug_" + k, c, 0.18, coat=0.6)))
+    # one shared material; per-colour meshes carry a uniform COLOR_0 (vertex colour) that multiplies base colour
+    mug_mat = M("pantry_mug", (1, 1, 1), 0.18, coat=0.6)
+    if not mug_mat.node_tree.nodes.get("mug_vcol"):
+        nt = mug_mat.node_tree
+        vc = nt.nodes.new("ShaderNodeVertexColor")
+        vc.name = "mug_vcol"
+        vc.layer_name = "Col"
+        nt.links.new(vc.outputs["Color"], nt.nodes["Principled BSDF"].inputs["Base Color"])
+    meshes = {}
+
+    def mug_mesh(k, c):
+        if k not in meshes:
+            me = mesh.copy()
+            me.name = "mug_" + k
+            me.materials.clear()
+            me.materials.append(mug_mat)
+            ca = me.color_attributes.new("Col", "FLOAT_COLOR", "CORNER")
+            for i in range(len(ca.data)):
+                ca.data[i].color = (*c, 1.0)
+            meshes[k] = me
+        return meshes[k]
     layout = []
     # front row 11 mugs, back row 3, all on the open shelf (y 1.218), unit z 2.0-3.9, x 7.65-8.0
     cols = ["brown", "red", "navy", "white", "black", "navy", "cream", "sage", "brown", "cream", "white"]
@@ -556,23 +573,18 @@ def mugs(mt):
     for i, (c, x, z) in enumerate([("red", 7.84, 1.96), ("sage", 7.9, 2.16), ("navy", 7.84, 2.5), ("cream", 7.9, 2.72), ("teal", 7.84, 3.2), ("brown", 7.9, 3.4)]):
         layout.append((c, x, z, (i * 1.3) % 6.28, 1.70))
     for i, (c, x, z, rot, my) in enumerate(layout):
-        o = bpy.data.objects.new(f"mug_{i + 1:02d}", mesh)
+        o = bpy.data.objects.new(f"mug_{i + 1:02d}", mug_mesh(c, MUG_COLORS[c]))
         collection().objects.link(o)
         o.location = G(x, my, z)
         o.rotation_euler[2] = rot
-        o.material_slots[0].link = "OBJECT"
-        o.material_slots[0].material = dict(mats)[c]
-        o.update_tag()
         for k, v in {"static": 0, "interact": "grab", "caption_id": "mug", "mass": 0.3, "collider": "convex"}.items():
             o[k] = v
         out.append(o)
     # olive mug on the drying mat (counter)
-    o = bpy.data.objects.new("mug_olive_counter", mesh)
+    o = bpy.data.objects.new("mug_olive_counter", mug_mesh("olive", (0.18, 0.2, 0.05)))
     collection().objects.link(o)
     o.location = G(7.6, CT + 0.004, 3.0)
     o.rotation_euler[2] = 2.4
-    o.material_slots[0].link = "OBJECT"
-    o.material_slots[0].material = mt["olive"]
     for k, v in {"static": 0, "interact": "grab", "caption_id": "mug", "mass": 0.3, "collider": "convex"}.items():
         o[k] = v
     out.append(o)

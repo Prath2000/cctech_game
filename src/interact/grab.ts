@@ -30,6 +30,7 @@ export class GrabSystem {
   respawns = 0;
   private fwd = new THREE.Vector3();
   private tgt = new THREE.Vector3();
+  private ray = new RAPIER.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }); // reused every step
 
   constructor(
     private world: RAPIER.World,
@@ -87,17 +88,16 @@ export class GrabSystem {
       const pos = m.geometry.getAttribute('position');
       if (o.userData.collider === 'convex') {
         const pts = new Float32Array(pos.count * 3);
-        for (let i = 0; i < pos.count; i++) v.fromBufferAttribute(pos, i).applyMatrix4(rel).toArray(pts, i * 3);
+        for (let i = 0; i < pos.count; i++) v.fromBufferAttribute(pos, i).applyMatrix4(rel).multiply(s).toArray(pts, i * 3);
         mk(RAPIER.ColliderDesc.convexHull(pts));
       } else {
         const box = new THREE.Box3();
-        for (let i = 0; i < pos.count; i++) box.expandByPoint(v.fromBufferAttribute(pos, i).applyMatrix4(rel));
+        for (let i = 0; i < pos.count; i++) box.expandByPoint(v.fromBufferAttribute(pos, i).applyMatrix4(rel).multiply(s));
         const sz = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
         const half = (n: number) => Math.max(0.005, n / 2);
         mk(RAPIER.ColliderDesc.cuboid(half(sz.x), half(sz.y), half(sz.z)).setTranslation(c.x, c.y, c.z));
       }
     }
-    void s;
     return { obj: o, body, colliders, awake: true, home: { p: p.clone(), q: q.clone() } };
   }
 
@@ -158,10 +158,10 @@ export class GrabSystem {
     this.camera.getWorldDirection(this.fwd);
     const o = this.camera.position;
     let d = HOLD_DIST;
-    const hit = this.world.castRay(
-      new RAPIER.Ray({ x: o.x, y: o.y, z: o.z }, this.fwd), HOLD_DIST + 0.3, true,
-      undefined, undefined, this.playerCollider, it.body,
-    );
+    const ray = this.ray;
+    ray.origin.x = o.x; ray.origin.y = o.y; ray.origin.z = o.z;
+    ray.dir.x = this.fwd.x; ray.dir.y = this.fwd.y; ray.dir.z = this.fwd.z;
+    const hit = this.world.castRay(ray, HOLD_DIST + 0.3, true, undefined, undefined, this.playerCollider, it.body);
     if (hit) d = Math.max(MIN_DIST, Math.min(HOLD_DIST, hit.timeOfImpact - 0.3));
     this.tgt.copy(o).addScaledVector(this.fwd, d);
     const p = it.body.translation();

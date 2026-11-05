@@ -7,7 +7,7 @@ import bpy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-OUT = os.path.join(ROOT, "public", "models", "room.glb")
+OUT = os.environ.get("ROOM_OUT") or os.path.join(ROOT, "public", "models", "room.glb")
 for p in (HERE, ROOT):
     if p not in sys.path:
         sys.path.insert(0, p)
