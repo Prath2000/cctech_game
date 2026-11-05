@@ -24,8 +24,10 @@
     "check:shot": "tsx scripts/shot.ts",
     "check:walk": "tsx scripts/walk.ts",
     "check:fps": "tsx scripts/fps.ts",
+    "check:glb": "python3 scripts/check_glb.py",
     "check:look": "tsx scripts/look.ts",
     "check:grab": "tsx scripts/grab-stress.ts",
+    "check:seating": "tsx scripts/seating.ts",
     "build:room": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/build_room.py",
     "fetch:textures": "python3 scripts/fetch_textures.py",
     "build:decals": "python3 scripts/make_decals.py"

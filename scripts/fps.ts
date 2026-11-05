@@ -9,7 +9,7 @@ const { server, url } = await startServer();
 const browser = await launch(headed);
 try {
   const q = `pose=${encodeURIComponent(pose)}${flags.has('webgl') ? '&webgl=1' : ''}`;
-  const { page, backend } = await openGame(browser, url, q, 1280, 720);
+  const { page, backend } = await openGame(browser, url, q, 1280, 720, opts.page ?? '');
   await page.waitForTimeout(2000); // warm-up
   const frames: number[] = await page.evaluate(`new Promise((res) => {
     const out = [];
