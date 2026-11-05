@@ -438,7 +438,7 @@ def coffee_machine(mt):
         bm_lathe(bm, [(0, 0), (0.026, 0), (0.026, 0.003), (0.0, 0.003)], hx, hz, ty, 20, mi=1)
     bm_box_mi(bm, 1, cx0 + 0.14, cx0 + 0.18, by + 0.55, by + 0.553, zm + 0.1, zm + 0.17, 0.001)
     # silver label plate on the right block front
-    bm_box_mi(bm, 2, cx0 + 0.066, cx0 + 0.072, by + 0.43, by + 0.5, zm + 0.04, zm + 0.19, 0.001)
+    bm_box_mi(bm, 2, cx0 + 0.066, cx0 + 0.072, by + 0.44, by + 0.5, zm + 0.2, zm + 0.31, 0.001)
     body = finish("tata_bistro_machine", bm, [mt["blk"], mt["dark_steel"], mt["steel"]], (7.735, by, 4.355), static=0,
                   extras={"interact": "use", "use_kind": "coffee_machine", "caption_id": "tata_bistro", "collider": "boxes", "mass": 18.0,
                           "collider_boxes": collider_boxes((7.735, by, 4.355), [
@@ -672,7 +672,7 @@ def small_props(mt):
     out = []
     grab = lambda mass, cap: {"interact": "grab", "mass": mass, "caption_id": cap, "collider": "convex"}
     # purple 20 L water jug (upright, neck up, per photo 07) with pump hose to the wall socket
-    jx, jz = 7.87, 2.82
+    jx, jz = 7.87, 2.9
     jr = 0.9  # radial scale: photo 07 jug is slimmer than first pass
     prof = [(0, 0), (0.1, 0), (0.125, 0.012), (0.135, 0.04), (0.135, 0.11), (0.131, 0.12), (0.135, 0.13), (0.135, 0.27), (0.131, 0.28), (0.135, 0.29),
             (0.135, 0.33), (0.12, 0.375), (0.085, 0.415), (0.048, 0.435), (0.034, 0.44), (0.034, 0.448), (0.0, 0.448)]
@@ -703,7 +703,7 @@ def small_props(mt):
         o.location = G(*at)
         return o
 
-    f1 = flask("steel_flask_01", 0.033, 0.27, mt["steel"], mt["steel"], (7.9, CT, 3.37))
+    f1 = flask("steel_flask_01", 0.033, 0.27, mt["steel"], mt["steel"], (7.9, CT, 3.4))
     out.append(f1)
     o = bpy.data.objects.new("steel_flask_02", f1.data)
     collection().objects.link(o)
@@ -716,9 +716,9 @@ def small_props(mt):
     out.append(flask("steel_tumbler_black", 0.037, 0.2, mt["blk"], mt["blk"], (7.9, CT, 3.18)))
     out.append(flask("steel_tumbler_01", 0.035, 0.15, mt["steel"], mt["blk"], (7.93, CT, 3.05)))
     out.append(flask("glass_bottle_01", 0.035, 0.25, mt["glass"], mt["steel"], (7.92, CT, 3.26 - 0.0 + 0.0)))
-    out[-1].location = G(7.92, CT, 3.26)
-    out[-3].location = G(7.9, CT, 3.14)
-    out[-2].location = G(7.9, CT, 3.03)
+    out[-1].location = G(7.92, CT, 3.29)
+    out[-3].location = G(7.9, CT, 3.18)
+    out[-2].location = G(7.9, CT, 3.08)
     # small steel tumbler near the coffee machine
     bm = bmesh.new()
     bm_lathe(bm, [(0, 0), (0.032, 0), (0.035, 0.004), (0.036, 0.09), (0.033, 0.09), (0.032, 0.006), (0, 0.006)], 0, 0, 0, 28)
