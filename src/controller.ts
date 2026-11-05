@@ -21,7 +21,8 @@ export class FirstPersonController {
   readonly feet = new THREE.Vector3();
 
   constructor(private world: RAPIER.World, private camera: THREE.PerspectiveCamera, dom: HTMLElement) {
-    this.collider = world.createCollider(RAPIER.ColliderDesc.capsule(HALF_CYL, RADIUS));
+    // Group bit 0 = player; the query ignores bit 2 (held grab items), see interact/grab.ts.
+    this.collider = world.createCollider(RAPIER.ColliderDesc.capsule(HALF_CYL, RADIUS).setCollisionGroups(0x0001_ffff));
     const k = (this.kcc = world.createCharacterController(0.01));
     k.setUp({ x: 0, y: 1, z: 0 });
     k.enableAutostep(0.3, 0.1, false);
@@ -81,7 +82,7 @@ export class FirstPersonController {
       dz = (dz / len) * speed;
     }
     this.vy = this.kcc.computedGrounded() ? -1 : this.vy + GRAVITY * dt;
-    this.kcc.computeColliderMovement(this.collider, { x: dx * dt, y: this.vy * dt, z: dz * dt });
+    this.kcc.computeColliderMovement(this.collider, { x: dx * dt, y: this.vy * dt, z: dz * dt }, undefined, 0x0001_fffb);
     const m = this.kcc.computedMovement();
     const p = this.collider.translation();
     const n = { x: p.x + m.x, y: p.y + m.y, z: p.z + m.z };

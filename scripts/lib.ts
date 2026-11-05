@@ -36,11 +36,12 @@ export async function launch(headed: boolean): Promise<Browser> {
 }
 
 export async function openGame(
-  browser: Browser, url: string, query: string, width: number, height: number,
+  browser: Browser, url: string, query: string, width: number, height: number, pagePath = '',
 ): Promise<{ page: Page; backend: string }> {
   const page = await browser.newPage({ viewport: { width, height } });
+  await page.addInitScript('window.__name = (f) => f'); // tsx/esbuild helper used inside page.evaluate callbacks
   page.on('pageerror', (e) => console.error('[page error]', e.message));
-  await page.goto(`${url}?${query}`);
+  await page.goto(`${url}${pagePath}?${query}`);
   await page.waitForFunction(() => (window as any).__game, null, { timeout: 30000 });
   await page.evaluate(() => (window as any).__game.ready);
   const backend: string = await page.evaluate(() => (window as any).__game.backend);
