@@ -10,7 +10,7 @@ import { Hinge } from './hinge';
 
 export const SOUNDS = [
   'coffee_grind', 'coffee_pour', 'steam_hiss', 'microwave_hum', 'microwave_beep', 'microwave_door_open', 'microwave_door_close',
-  'fridge_door_open', 'fridge_door_close', 'kettle_boil', 'kettle_click', 'sink_tap', 'cabinet_open', 'cabinet_close',
+  'fridge_door_open', 'fridge_door_close', 'fridge_hum', 'kettle_boil', 'kettle_click', 'sink_tap', 'cabinet_open', 'cabinet_close',
 ];
 
 const DOOR_SOUNDS: Record<string, [string, string]> = {
@@ -50,26 +50,32 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
     for (const it of list) it.body.sleep(); // asleep until their door opens
     mugsBehind.set(h, list);
   }
+  let fridgeHum: AudioBufferSourceNode | null = null;
+  const fridgeDoors = () => [...hinges.values()].filter((h) => h.obj.userData.use_kind === 'fridge_door');
   const toggleDoor = (obj: THREE.Object3D) => {
     const h = hinges.get(obj);
     if (!h) return;
     const opening = h.toggle();
     const s = DOOR_SOUNDS[String(obj.userData.use_kind)];
     if (s) audio.play(s[opening ? 0 : 1], obj.getWorldPosition(doorPos));
+    if (obj.userData.use_kind === 'fridge_door') { // compressor hum while any fridge door is open
+      if (opening && !fridgeHum) fridgeHum = audio.play('fridge_hum', obj.getWorldPosition(doorPos), 0, true) ?? null;
+      if (!fridgeDoors().some((d) => d.target !== 0)) { try { fridgeHum?.stop(); } catch { /* stopped */ } fridgeHum = null; }
+    }
     if (opening) for (const it of mugsBehind.get(h) ?? []) it.body.wakeUp();
   };
 
   // ---- fridge ------------------------------------------------------------------------------------------------------
-  const fridgeDoors = [...hinges.values()].filter((h) => h.obj.userData.use_kind === 'fridge_door');
+  const fridgeDoorList = fridgeDoors();
   const glowFor = (h: Hinge, behind: boolean, color: number, max: number, inset: number) => {
     const b = new THREE.Box3().setFromObject(h.obj); // closed pose
     const c = b.getCenter(new THREE.Vector3());
     c.x = behind ? b.max.x + 0.003 : b.min.x - 0.004;
     return new Glow(scene, c, b.max.z - b.min.z - 2 * inset, b.max.y - b.min.y - 2 * inset, color, max);
   };
-  const fridgeGlows = fridgeDoors.map((h) => glowFor(h, true, 0xdce9ff, 0.9, 0.03));
-  const fridgeCenter = fridgeDoors.length
-    ? fridgeDoors.reduce((a, h) => a.add(origin(h.obj)), new THREE.Vector3()).divideScalar(fridgeDoors.length)
+  const fridgeGlows = fridgeDoorList.map((h) => glowFor(h, true, 0xdce9ff, 0.9, 0.03));
+  const fridgeCenter = fridgeDoorList.length
+    ? fridgeDoorList.reduce((a, h) => a.add(origin(h.obj)), new THREE.Vector3()).divideScalar(fridgeDoorList.length)
     : V(0, 0, 0);
   const fridgeLight = new EasedLight(scene, V(fridgeCenter.x - 0.25, fridgeCenter.y + 0.2, fridgeCenter.z - 0.25), 0xdce9ff, 3, 2.5);
 
@@ -231,7 +237,7 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
 
       // fridge + microwave open glow / lights
       let anyOpen = 0;
-      fridgeDoors.forEach((h, i) => { const l = Math.min(1, h.p * 4); fridgeGlows[i].target = l; fridgeGlows[i].level = l; fridgeGlows[i].update(0); anyOpen = Math.max(anyOpen, l); });
+      fridgeDoorList.forEach((h, i) => { const l = Math.min(1, h.p * 4); fridgeGlows[i].target = l; fridgeGlows[i].level = l; fridgeGlows[i].update(0); anyOpen = Math.max(anyOpen, l); });
       fridgeLight.target = anyOpen; fridgeLight.update(dt);
       if (mwHinge && mwOpenGlow && mwRunGlow) {
         const open = Math.min(1, mwHinge.p * 4);

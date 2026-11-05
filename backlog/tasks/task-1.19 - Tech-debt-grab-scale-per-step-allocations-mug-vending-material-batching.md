@@ -1,10 +1,11 @@
 ---
 id: TASK-1.19
 title: 'Tech debt: grab scale + per-step allocations; mug/vending material batching'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-11-05T10:48:00Z'
-updated_date: '2026-11-05T10:48:00Z'
+updated_date: '2026-11-05T11:09:00Z'
 labels:
   - effort:S
 dependencies:

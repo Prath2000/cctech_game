@@ -64,3 +64,4 @@ All CC0 1.0 (no attribution required, credited anyway). Fetched by `scripts/fetc
 | Ceiling tile | ambientCG | `OfficeCeiling005` | CC0 | https://ambientcg.com/a/OfficeCeiling005 |
 
 Decals in `assets/decals/` (sticky note, B'ONE sign, INNOVATION and large chevrons, circuit-arrow mural) are crops of our own reference photos (`references/img/photos/`), made by `scripts/make_decals.py`.
+- Audio engine (`src/audio/*`) is project code; no additional third-party audio assets beyond the table above.

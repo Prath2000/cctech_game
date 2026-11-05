@@ -1,10 +1,11 @@
 ---
 id: TASK-1.16
 title: Audio
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@claude'
 created_date: '2026-11-05T10:22:00Z'
-updated_date: '2026-11-05T10:43:00Z'
+updated_date: '2026-11-05T11:14:00Z'
 labels:
   - effort:S
 dependencies:
@@ -26,13 +27,15 @@ Parallel-safe: yes (with T14, T15). Plan: .team/changes/0001-pantry-poc/plan.md 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Each Use item with a sound spec plays it.
-- [ ] #2 Mute toggle works.
-- [ ] #3 Licences recorded.
+- [x] #1 Each Use item with a sound spec plays it.
+- [x] #2 Mute toggle works.
+- [x] #3 Licences recorded.
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Sound library prepared in public/audio (manifest.json)
+
+Audio engine extended in src/audio/audio.ts (master gain, mute/volume persisted, HRTF positional, ambience, footsteps, set-down clinks); settings overlay src/audio/settings.ts (Esc, M mutes); wiring in src/audio/extras.ts. Fridge hum added in pantry. playSound('switch_on') exported for TASK-1.13. Verified with pnpm check:audio.
 <!-- SECTION:NOTES:END -->

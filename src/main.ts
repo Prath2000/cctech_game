@@ -11,6 +11,7 @@ import { GrabSystem } from './interact/grab';
 import { addDebugObjects } from './interact/debug';
 import { applyPose, poseTable } from './poses';
 import { AudioSystem } from './audio/audio';
+import { initAudioExtras } from './audio/extras';
 import { Seating, SOUNDS } from './seating';
 import { initPantry, SOUNDS as PANTRY_SOUNDS } from './pantry';
 
@@ -36,6 +37,7 @@ const audio = new AudioSystem(camera, [...SOUNDS, ...PANTRY_SOUNDS]);
 const seating = new Seating(physics.world, scene, camera, interaction, grab, player, audio, renderer.domElement);
 const pantry = initPantry({ scene, world: physics.world, interaction, grab, audio, player });
 interaction.refresh();
+const audioExtras = initAudioExtras(audio, scene, player, grab, renderer.domElement);
 
 // TASK-1.10: baked ambient-cube lightmaps (static) + probes (dynamic) replace scene lights.
 const baked = await loadBakedLighting(scene, renderer);
@@ -105,6 +107,7 @@ renderer.setAnimationLoop(() => {
   else physics.world.propagateModifiedBodyPositionsToColliders(); // queries must reflect bodies moved/teleported since the last step
   player.enabled = !currentPose && !seating.sitting; // a pinned ?pose= is never overridden by the controller
   player.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
+  audioExtras.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000), player.enabled);
   seating.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
   pantry.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
   interaction.update();
