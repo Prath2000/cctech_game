@@ -34,8 +34,19 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
   const state = opts.state ?? 'off';
   const base = `${import.meta.env.BASE_URL}lightmaps/`;
   const dir = `${base}${state}/`;
-  const meta = await (await fetch(`${dir}lighting.json`)).json();
-  renderer.toneMappingExposure = Number(q.get('exposure') ?? opts.exposure ?? 1);
+  let meta: any;
+  try {
+    const r = await fetch(`${dir}lighting.json`);
+    if (!r.ok || !(r.headers.get('content-type') ?? '').includes('json')) throw new Error(`HTTP ${r.status}`);
+    meta = await r.json();
+  } catch (e) {
+    // No bake yet (pnpm bake:room): degrade to plain lights so the game still loads.
+    console.warn('[lighting] lightmaps missing, using fallback lights', e);
+    scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x444444, 1));
+    const sun = new THREE.DirectionalLight(0xffffff, 3); sun.position.set(4, 8, 3); scene.add(sun);
+    return { update() {}, sampleAt() {}, meta: null };
+  }
+  renderer.toneMappingExposure = Number(q.get('exposure') ?? opts.exposure ?? 0.9);
 
   // ---- atlases: 6 sRGB8 maps each, value = irradiance-radiance / range ----
   const loader = new THREE.TextureLoader();
@@ -94,7 +105,7 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
   const lit = (m: THREE.Material, E: any) => {
     const std = m as THREE.MeshStandardMaterial;
     if (!std.isMeshStandardMaterial) return m;
-    const nm = THREE.MeshStandardNodeMaterial.fromMaterial(std) as THREE.MeshStandardNodeMaterial;
+    const nm = (renderer as any).library.fromMaterial(std) as THREE.MeshStandardNodeMaterial;
     nm.name = m.name; nm.emissiveNode = diffuseOf(E).add(materialEmissive);
     return nm;
   };
