@@ -1,11 +1,11 @@
 ---
 id: TASK-1.2
 title: Reference survey and sheet
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-05T10:22:00Z'
-updated_date: '2026-11-05T10:23:00Z'
+updated_date: '2026-11-05T10:26:00Z'
 labels:
   - effort:M
 dependencies: []
@@ -25,7 +25,13 @@ Parallel-safe: yes. Parent: TASK-1. Plan: .team/changes/0001-pantry-poc/plan.md 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Sheet has an entry for every pantry and seating photo listed in §5/§5b.
-- [ ] #2 Each entry has camera spot, lens, light state, materials.
-- [ ] #3 Room size and counter position proposal listed.
+- [x] #1 Sheet has an entry for every pantry and seating photo listed in §5/§5b.
+- [x] #2 Each entry has camera spot, lens, light state, materials.
+- [x] #3 Room size and counter position proposal listed.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sheet at docs/reference/pantry-reference-sheet.md: 8 photo entries, poses table, plan, gaps. 08(2) is same room.
+<!-- SECTION:NOTES:END -->
