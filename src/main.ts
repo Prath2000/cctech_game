@@ -2,6 +2,8 @@ import * as THREE from 'three/webgpu';
 import { createRenderer } from './renderer';
 import { createPhysics } from './physics';
 import { FpsHud } from './hud/fps';
+import { loadRoom } from './room';
+import { FirstPersonController } from './controller';
 import { applyPose, poseTable } from './poses';
 
 const { renderer, backend } = await createRenderer();
@@ -14,20 +16,10 @@ const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 10
 camera.position.set(3, 2.5, 4);
 camera.lookAt(0, 0.8, 0);
 
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(50, 50),
-  new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.9 }),
-);
-ground.rotation.x = -Math.PI / 2;
-scene.add(ground);
-
-const cube = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshStandardMaterial({ color: 0xc86432, roughness: 0.5 }),
-);
-scene.add(cube);
-const body = physics.addBox([0, 4, 0], 0.5);
-body.setRotation({ x: 0.2, y: 0.3, z: 0.1, w: 0.93 }, true);
+await loadRoom(physics.world, scene);
+const player = new FirstPersonController(physics.world, camera, renderer.domElement);
+// Start just inside the west-wall door (z 3.2-4.4), facing east into the room.
+player.teleport(1.0, 0, 3.8, -90);
 
 scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x444444, 1));
 const sun = new THREE.DirectionalLight(0xffffff, 3);
@@ -63,6 +55,7 @@ const ready = new Promise<void>((r) => (markReady = r));
     currentPose = name;
     return true;
   },
+  player,
 };
 
 renderer.setAnimationLoop(() => {
@@ -73,10 +66,8 @@ renderer.setAnimationLoop(() => {
   if (++frames === 5) markReady();
 
   physics.world.step();
-  const t = body.translation();
-  const r = body.rotation();
-  cube.position.set(t.x, t.y, t.z);
-  cube.quaternion.set(r.x, r.y, r.z, r.w);
+  player.enabled = !currentPose; // a pinned ?pose= is never overridden by the controller
+  player.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
   renderer.render(scene, camera);
   hud.tick();
 });

@@ -9,8 +9,6 @@ export interface Physics {
 export async function createPhysics(): Promise<Physics> {
   await RAPIER.init();
   const world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
-  // Static ground: top surface at y = 0.
-  world.createCollider(RAPIER.ColliderDesc.cuboid(25, 0.5, 25).setTranslation(0, -0.5, 0));
   return {
     world,
     addBox([x, y, z], half) {

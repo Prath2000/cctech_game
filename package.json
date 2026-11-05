@@ -17,8 +17,10 @@
     "preview": "vite preview",
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:blockout": "/Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 -P blender/build_blockout.py",
     "typecheck": "tsc --noEmit",
     "check:shot": "tsx scripts/shot.ts",
+    "check:walk": "tsx scripts/walk.ts",
     "check:fps": "tsx scripts/fps.ts"
   },
   "type": "module",
