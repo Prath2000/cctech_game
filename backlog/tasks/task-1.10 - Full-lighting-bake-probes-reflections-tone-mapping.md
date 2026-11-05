@@ -1,7 +1,7 @@
 ---
 id: TASK-1.10
 title: Full lighting bake, probes, reflections, tone mapping
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-05T10:22:00Z'
