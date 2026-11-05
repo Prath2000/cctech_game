@@ -35,12 +35,12 @@ const audio = new AudioSystem(camera, [...SOUNDS, ...PANTRY_SOUNDS]);
 const seating = new Seating(physics.world, scene, camera, interaction, grab, player, audio, renderer.domElement);
 const pantry = initPantry({ scene, world: physics.world, interaction, grab, audio, player });
 interaction.refresh();
-initLighting(scene, renderer, { world: physics.world }).captureReflections(); // TASK-1.10 (call after baked lighting)
 
 scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x444444, 1));
 const sun = new THREE.DirectionalLight(0xffffff, 3);
 sun.position.set(4, 8, 3);
 scene.add(sun);
+initLighting(scene, renderer, { world: physics.world }).captureReflections(); // TASK-1.10 (call after baked lighting)
 
 // Camera poses: `?pose=<name>` pins the camera (input frozen).
 let currentPose: string | null = new URLSearchParams(location.search).get('pose');
