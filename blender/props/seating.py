@@ -390,10 +390,18 @@ def build_vending(ms, shared, zc):
         for c_ in range(3):
             b.box((D2 + 0.0135, 0.19 - r_ * 0.03, -0.315 + (c_ - 1) * 0.04), (0.006, 0.02, 0.028), ms["grey"], 0.002)
     b.box((D2 + 0.006, 0.9, 0.395), (0.012, 0.06, 0.03), ms["steel"], 0.004)  # lock plate
-    # payment tablet on bracket (viewer-right = -z)
-    b.box((D2 + 0.02, 1.36, -0.27), (0.016, 0.32, 0.2), ms["black"], 0.01)
-    b.box((D2 + 0.0295, 1.36, -0.27), (0.002, 0.29, 0.175), ms["screen"], 0.003)
-    b.box((D2 + 0.01, 1.36, -0.27), (0.02, 0.1, 0.04), k, 0.004)
+    # payment tablet on bracket, overlapping the right glass edge (viewer-right = -z): bezel, bright screen with a
+    # red header and a 3 x 4 product-thumbnail grid (photo 08 (1))
+    tz = -0.375
+    b.box((D2 + 0.02, 1.36, tz), (0.016, 0.31, 0.165), ms["black"], 0.01)
+    b.box((D2 + 0.0295, 1.365, tz), (0.002, 0.275, 0.145), ms["screen"], 0.002)
+    b.box((D2 + 0.0308, 1.485, tz), (0.002, 0.03, 0.145), ms["red"], 0.0)
+    thumbs = ["b1", "b2", "b3", "b4", "sn1", "sn2", "sn3", "can", "b1", "b4", "sn2", "b3"]
+    for i_, tm in enumerate(thumbs):
+        r_, c_ = divmod(i_, 3)
+        b.box((D2 + 0.0308, 1.43 - r_ * 0.052, tz + (1 - c_) * 0.046), (0.002, 0.04, 0.034), ms[tm], 0.0)
+    b.box((D2 + 0.0308, 1.255, tz), (0.002, 0.014, 0.1), ms["grey"], 0.0)
+    b.box((D2 + 0.01, 1.36, tz), (0.02, 0.1, 0.04), k, 0.004)                                  # bracket
     # glass-side faces of frame at corners
     me = b.finish("mesh_vending_body", lightmap=True)
     root = put("vending_machine", me, (0.405, 0.0, zc), face_rot(1, 0), props=P(1, "use", use_kind="vending", collider="box", caption_id="vending_machine"))
@@ -527,7 +535,7 @@ def build(context=None):
     ci = 1
     for (o, xc, zc) in tables:
         for side in (-1, 1):
-            for dx in (-L.TABLE_L / 4, L.TABLE_L / 4):
+            for dx in (-L.TABLE_L / 3, 0.0, L.TABLE_L / 3):
                 x = xc + dx + rng.uniform(-0.06, 0.06)
                 pull = rng.uniform(0.0, 0.06)
                 z = zc + side * (L.TABLE_W / 2 + 0.08 + pull)

@@ -15,7 +15,7 @@ WALL_T = 0.2    # wall thickness, built outside the interior [assumed]
 WINDOW_PANELS = 12    # video shows ~9-12 panels [low]
 MULLION_W = 0.12      # black mullion width [assumed from photos]
 WINDOW_FRAME_H = 0.08  # top/bottom black frame height [assumed]
-SILL_X0 = 8.0         # granite sill runs from here to the east wall [reference sheet 08 (2)]
+SILL_X0 = 0.4         # granite ledge runs along the whole window wall [photo 08 (2)]
 SILL_H, SILL_D = 0.9, 0.45  # sill height/depth [sheet]
 
 # --- window strip + pillar -------------------------------------------------
@@ -33,7 +33,7 @@ DOOR_FRAME_PAD = 0.05
 COUNTER = dict(x0=11.4, z0=2.0, length=3.2, depth=0.6, height=0.9)  # sheet proposal scaled; x1=ROOM_W
 WALL_CAB = dict(depth=0.35, y0=1.45, y1=2.15, z0=2.6, z1=4.4)       # above sink, sheet [low]
 FRIDGE = dict(x0=ROOM_W - 1.05, z0=0.05, w=0.7, d=0.7, h=1.7)       # LG fridge, window-strip east end [photo 08 (2), medium]
-FRIDGE_NICHE_D = 0.8  # visual back panel depth
+FRIDGE_NICHE_D = 0.05  # visual back panel depth: thin plaster strip behind the fridge only (was 0.8 and walled off the windows, TASK-1.25)
 
 # --- west wall: vending + coolers (sheet: near the door) -------------------
 VENDING = dict(z0=5.6, w=0.85, d=0.8, h=1.85)  # photo 08 (1) [low position]
@@ -44,7 +44,7 @@ SEAT_ROWS, SEAT_COLS = 3, 3   # video: ~3 rows of 2-3 long tables [low]
 SEAT_ORIGIN = (2.2, 3.3)      # (x0 of first table, z centre of first row)
 SEAT_SPACING = (2.3, 1.6)     # (x pitch between tables, z pitch between rows)
 TABLE_L, TABLE_W, TABLE_H = 1.8, 0.8, 0.75  # table top size/height [assumed]
-CHAIRS_PER_TABLE = 4          # video [low]
+CHAIRS_PER_TABLE = 6          # video [low]
 
 # --- player ------------------------------------------------------------------
 SPAWN = (1.0, 0.0, 3.3, -90)  # feet x,y,z, yaw deg (-90 faces +x, into the hall)

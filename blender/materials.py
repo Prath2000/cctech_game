@@ -45,7 +45,7 @@ SPECS = {
     "plastic_black": dict(color="#15171a", rough=0.5, metal=0.0),               # vending machine cabinet
     "plastic_white": dict(color="#f3f5f6", rough=0.2, metal=0.0, coat=0.5),     # coolers
     "paint_white": dict(color="#f3f1ec", rough=0.85, metal=0.0),                # pillar
-    "paint_chevron_orange": dict(color="#e8602c", rough=0.6, metal=0.0),
+    "paint_chevron_orange": dict(color="#e5663a", rough=0.6, metal=0.0),
     "glass_clear": dict(color="#9fb4c4", rough=0.02, metal=0.0, alpha=0.18, spec=0.9),
     "glass_black": dict(color="#101214", rough=0.03, metal=0.0, alpha=0.8, spec=0.9),
     "glass_frosted": dict(color="#e8eef2", rough=0.55, metal=0.0, alpha=0.6),
@@ -272,6 +272,28 @@ def decal(name, png, centre, right, up, w, h, caption, blend=False):
         bm = bmesh.new(); bm.from_mesh(o.data); bmesh.ops.reverse_faces(bm, faces=bm.faces); bm.to_mesh(o.data); bm.free()
     return o
 
+def add_window_backdrop():
+    """Hazy city plate (scripts/make_backdrop.py) 30 m outside the window wall (z<0): emissive, unlit, no shadow."""
+    z = -30.0
+    o = add_mesh_object("window_backdrop", [(-30, -14, z), (42, -14, z), (42, 31, z), (-30, 31, z)], "window_view")
+    o["static"] = 0; o["bake"] = 0; o["lit"] = False
+    o.visible_shadow = False
+    m = bpy.data.materials.new("mat_window_backdrop")
+    nt, b = _setup(m)
+    im = bpy.data.images.load(os.path.join(DECALS, "window_backdrop.jpg"))
+    im.pack(); im.file_format = "JPEG"
+    t = nt.nodes.new("ShaderNodeTexImage"); t.image = im
+    b.inputs["Base Color"].default_value = (0, 0, 0, 1)
+    b.inputs["Roughness"].default_value = 1.0
+    nt.links.new(t.outputs["Color"], b.inputs["Emission Color"])
+    b.inputs["Emission Strength"].default_value = 1.0
+    o.data.materials.append(m)
+    # face the room (+z): vertices go (0,1,2,3) left to right seen from inside, so flip if the normal points away
+    gn = Vector(o.data.polygons[0].normal)
+    if -gn.y < 0:
+        bm = bmesh.new(); bm.from_mesh(o.data); bmesh.ops.reverse_faces(bm, faces=bm.faces); bm.to_mesh(o.data); bm.free()
+    return o
+
 def add_door_pulls(steel):
     x0, x1, y0, y1, za0, za1 = bounds("door_leaf_a")
     zm = za1  # meeting line of the two leaves
@@ -312,9 +334,11 @@ def build(context=None):
     cw = bounds("chevron_wall")[1] + D       # chevron panel face
     lo, hi = chevron_span()
     # small INNOVATION chevron (right-aligned to the panel end, nearest the door), big chevron to its left
-    decal("decal_chevron_innovation", "chevron_innovation", (cw, 1.39 + 0.77, hi - 0.1 - 1.31 / 2), (0, 0, -1), (0, 1, 0), 1.31, 1.54, "innovation_sign", blend=True)
-    decal("decal_chevron_large", "chevron_large", (cw, 0.95 + 0.975, hi - 0.1 - 1.31 - 0.1 - 1.41 / 2), (0, 0, -1), (0, 1, 0), 1.41, 1.95, "chevron_wall", blend=True)
+    # tops aligned at 3.0 m like photo 08 (3): innovation chevron (1.2 x 1.6) nearest the door, big one (1.5 x 2.1) to its left
+    decal("decal_chevron_innovation", "chevron_innovation", (cw, 3.0 - 0.8, hi - 0.1 - 1.2 / 2), (0, 0, -1), (0, 1, 0), 1.2, 1.6, "innovation_sign", blend=True)
+    decal("decal_chevron_large", "chevron_large", (cw, 3.0 - 1.05, hi - 0.1 - 1.2 - 0.15 - 1.5 / 2), (0, 0, -1), (0, 1, 0), 1.5, 2.1, "chevron_wall", blend=True)
     decal("decal_mural_circuit_arrow", "mural_circuit_arrow", (x_w + D, 2.03, z_s - 0.75), (0, 0, -1), (0, 1, 0), 1.5, 1.06, "circuit_mural", blend=True)
+    add_window_backdrop()
     cx0, cx1, cy0, cy1, cz0, cz1 = bounds("counter")
     decal("decal_sticky_note", "sticky_note", (cx0 + 0.3, cy1 + D, (cz0 + cz1) / 2), (0.966, 0, 0.259), (0.259, 0, -0.966), 0.1, 0.1, "sticky_note")
     decal("decal_bone_sign", "bone_sign", (x_e - D, cy1 + 0.15, cz1 - 0.3), (0, 0, 1), (0, 1, 0), 0.32, 0.1, "bone_sign")
