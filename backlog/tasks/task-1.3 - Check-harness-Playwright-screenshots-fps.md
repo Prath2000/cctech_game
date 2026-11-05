@@ -1,9 +1,11 @@
 ---
 id: TASK-1.3
 title: Check harness (Playwright screenshots + fps)
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@claude'
 created_date: '2026-11-05T10:22:00Z'
+updated_date: '2026-11-05T10:26:00Z'
 labels:
   - effort:M
 dependencies:
@@ -24,8 +26,14 @@ Parallel-safe: no. Plan: .team/changes/0001-pantry-poc/plan.md (T2).
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 `pnpm check:shot <pose>` writes a PNG.
-- [ ] #2 `pnpm check:fps` prints median fps and 1% low.
-- [ ] #3 Backend flag selectable.
-- [ ] #4 Camera poses live in one JSON file.
+- [x] #1 `pnpm check:shot <pose>` writes a PNG.
+- [x] #2 `pnpm check:fps` prints median fps and 1% low.
+- [x] #3 Backend flag selectable.
+- [x] #4 Camera poses live in one JSON file.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Use: pnpm check:shot <pose> [--webgl] [--headed] [--size WxH] [--out p]; pnpm check:fps [--webgl] [--headed] [--seconds N] [--pose p]. Poses in src/data/camera-poses.json. See README Checks.
+<!-- SECTION:NOTES:END -->

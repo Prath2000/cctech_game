@@ -2,6 +2,7 @@ import * as THREE from 'three/webgpu';
 import { createRenderer } from './renderer';
 import { createPhysics } from './physics';
 import { FpsHud } from './hud/fps';
+import { applyPose, poseTable } from './poses';
 
 const { renderer, backend } = await createRenderer();
 const physics = await createPhysics();
@@ -33,13 +34,44 @@ const sun = new THREE.DirectionalLight(0xffffff, 3);
 sun.position.set(4, 8, 3);
 scene.add(sun);
 
+// Camera poses: `?pose=<name>` pins the camera (input frozen).
+let currentPose: string | null = new URLSearchParams(location.search).get('pose');
+if (currentPose && !applyPose(camera, currentPose)) {
+  console.warn(`[pose] unknown pose "${currentPose}"`);
+  currentPose = null;
+}
+
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
+  if (currentPose) applyPose(camera, currentPose);
+  else camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
 
+const fpsSamples: number[] = [];
+let frames = 0;
+let lastT = performance.now();
+let markReady!: () => void;
+const ready = new Promise<void>((r) => (markReady = r));
+(window as any).__game = {
+  ready,
+  backend,
+  poses: Object.keys(poseTable),
+  fpsSamples,
+  setPose(name: string) {
+    if (!applyPose(camera, name)) return false;
+    currentPose = name;
+    return true;
+  },
+};
+
 renderer.setAnimationLoop(() => {
+  const now = performance.now();
+  fpsSamples.push(now - lastT);
+  lastT = now;
+  if (fpsSamples.length > 20000) fpsSamples.shift();
+  if (++frames === 5) markReady();
+
   physics.world.step();
   const t = body.translation();
   const r = body.rotation();

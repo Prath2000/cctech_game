@@ -1,9 +1,11 @@
 ---
 id: TASK-1.5
 title: Room blockout in Blender + collisions + first-person controller
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-11-05T10:22:00Z'
+updated_date: '2026-11-05T10:26:00Z'
 labels:
   - effort:L
 dependencies:
