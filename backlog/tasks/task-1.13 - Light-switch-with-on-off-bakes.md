@@ -1,9 +1,11 @@
 ---
 id: TASK-1.13
 title: Light switch with on/off bakes
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-11-05T10:22:00Z'
+updated_date: '2026-11-05T11:34:00Z'
 labels:
   - effort:M
 dependencies:
