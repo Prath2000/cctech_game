@@ -8,3 +8,5 @@ dist/
 .team/work/shots/
 assets/raw/
 public/spike/lm_*.exr
+references/photogrammetry/obj/
+references/photogrammetry/ply/

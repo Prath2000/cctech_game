@@ -4,9 +4,17 @@ title: 'Photo-match: lighting flat/cool, no hard sun patches'
 status: To Do
 assignee: []
 created_date: '2026-11-05T11:36:00Z'
+updated_date: '2026-11-05T11:37:00Z'
 labels:
   - effort:S
-dependencies: []
+dependencies:
+  - TASK-1.13
+  - TASK-1.23
+  - TASK-1.24
+  - TASK-1.25
+  - TASK-1.26
+  - TASK-1.27
+  - TASK-1.28
 parent_task_id: TASK-1
 priority: high
 type: bug

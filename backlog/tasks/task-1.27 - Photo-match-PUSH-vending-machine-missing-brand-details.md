@@ -1,9 +1,11 @@
 ---
 id: TASK-1.27
 title: 'Photo-match: PUSH vending machine missing brand details'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-11-05T11:36:00Z'
+updated_date: '2026-11-05T11:49:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -18,3 +20,9 @@ ordinal: 2550
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Photo 08 (1): PUSH text, green dispense flap, keypad tablet; shot has none. Fix blender/props/vending.py. Pose should back up ~1 m. See verify.md.
 <!-- SECTION:DESCRIPTION:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+WIP: tablet now has red header + 3x4 thumbnail grid, overlaps glass edge. PUSH/flap already in code. Left: verify shot (pose too close, pose worker), check:seating.
+<!-- SECTION:NOTES:END -->
