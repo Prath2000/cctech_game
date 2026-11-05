@@ -4,7 +4,7 @@ title: Performance pass
 status: To Do
 assignee: []
 created_date: '2026-11-05T10:22:00Z'
-updated_date: '2026-11-05T10:50:00Z'
+updated_date: '2026-11-05T11:22:00Z'
 labels:
   - effort:L
 dependencies:
@@ -13,6 +13,7 @@ dependencies:
   - TASK-1.12
   - TASK-1.13
   - TASK-1.19
+  - TASK-1.20
 parent_task_id: TASK-1
 priority: medium
 type: task
