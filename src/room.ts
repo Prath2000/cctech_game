@@ -46,42 +46,15 @@ export async function loadRoom(world: RAPIER.World, scene: THREE.Scene): Promise
     if (o.userData.hinge_axis) return; // hinged doors get kinematic bodies (pantry)
     const m = o as THREE.Mesh;
     if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
-    if (o.userData.collider === 'islands') for (const b of islandBoxes(m.geometry)) addBox(o, b);
+    if (o.userData.collider === 'boxes') {
+      // Hollow props: explicit [cx,cy,cz,hx,hy,hz] boxes (object-local, game axes) so bays/interiors stay open.
+      for (const [cx, cy, cz, hx, hy, hz] of JSON.parse(String(o.userData.collider_boxes))) {
+        addBox(o, new THREE.Box3(new THREE.Vector3(cx - hx, cy - hy, cz - hz), new THREE.Vector3(cx + hx, cy + hy, cz + hz)));
+      }
+    }
     else addBox(o, m.geometry.boundingBox!);
   });
   world.step(); // refresh the query pipeline so the character controller sees them
   console.log(`[room] ${count} colliders`);
   return root;
-}
-
-/**
- * One local-space box per connected piece of the mesh (pieces joined by shared vertex positions).
- * For hollow props (cabinet carcass, coffee machine) so bays/interiors stay open instead of one solid bbox.
- */
-function islandBoxes(g: THREE.BufferGeometry): THREE.Box3[] {
-  const posAttr = g.getAttribute('position');
-  const index = g.getIndex();
-  const parent = new Int32Array(posAttr.count).map((_, i) => i);
-  const find = (i: number): number => { while (parent[i] !== i) i = parent[i] = parent[parent[i]]; return i; };
-  const byKey = new Map<string, number>();
-  for (let i = 0; i < posAttr.count; i++) {
-    const k = `${Math.round(posAttr.getX(i) * 1e4)},${Math.round(posAttr.getY(i) * 1e4)},${Math.round(posAttr.getZ(i) * 1e4)}`;
-    const j = byKey.get(k);
-    if (j === undefined) byKey.set(k, i); else parent[find(i)] = find(j);
-  }
-  const n = index ? index.count : posAttr.count;
-  for (let t = 0; t < n; t += 3) {
-    const a = index ? index.getX(t) : t, b = index ? index.getX(t + 1) : t + 1, c = index ? index.getX(t + 2) : t + 2;
-    parent[find(b)] = find(a);
-    parent[find(c)] = find(a);
-  }
-  const boxes = new Map<number, THREE.Box3>();
-  const v = new THREE.Vector3();
-  for (let i = 0; i < posAttr.count; i++) {
-    const r = find(i);
-    let b = boxes.get(r);
-    if (!b) boxes.set(r, (b = new THREE.Box3()));
-    b.expandByPoint(v.fromBufferAttribute(posAttr, i));
-  }
-  return [...boxes.values()];
 }

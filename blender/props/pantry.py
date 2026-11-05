@@ -5,6 +5,7 @@ Blender z-up (x, -z, y). The counter (blockout) is x 7.4-8.0, z 1.4-4.4, top at 
 everything faces -x (west), see docs/reference/pantry-reference-sheet.md section 3/4.
 Procedural models from product dims + photo decals (assets/decals/pantry/); no downloaded assets.
 """
+import json
 import math
 import os
 
@@ -310,6 +311,16 @@ def decal(name, parent, fname, x, zc, yc, w, h, tilt=0.0, tilt_pivot=None, extra
     return o
 
 
+def collider_boxes(origin, boxes):
+    """Hollow-prop collision: custom prop `collider_boxes` = JSON [[cx, cy, cz, hx, hy, hz], ...] in game axes relative to the
+    object origin (room.ts builds one cuboid per entry; used with collider=boxes)."""
+    out = []
+    for (x0, x1, y0, y1, z0, z1) in boxes:
+        out.append([round((x0 + x1) / 2 - origin[0], 4), round((y0 + y1) / 2 - origin[1], 4), round((z0 + z1) / 2 - origin[2], 4),
+                    round((x1 - x0) / 2, 4), round((y1 - y0) / 2, 4), round((z1 - z0) / 2, 4)])
+    return json.dumps(out)
+
+
 def hinge(o, axis, max_deg, sign):
     o["hinge_axis"] = axis
     o["hinge_max_deg"] = max_deg
@@ -426,7 +437,11 @@ def coffee_machine(mt):
         bm_lathe(bm, [(0, 0), (0.026, 0), (0.026, 0.002), (0.0, 0.002)], hx, hz, by + 0.62, 20)
     bm_box(bm, cx0 + 0.07, cx0 + 0.13, by + 0.62, by + 0.625, z0 + 0.18, z0 + 0.26, 0.001)
     body = finish("tata_bistro_machine", bm, mt["blk"], (7.735, by, 4.355), static=0,
-                  extras={"interact": "use", "use_kind": "coffee_machine", "caption_id": "tata_bistro", "collider": "box", "mass": 18.0})
+                  extras={"interact": "use", "use_kind": "coffee_machine", "caption_id": "tata_bistro", "collider": "boxes", "mass": 18.0,
+                          "collider_boxes": collider_boxes((7.735, by, 4.355), [
+                              (cx0 + 0.02, cx1, by + 0.30, by + 0.62, z0, z1), (cx0 + 0.02, cx1, by + 0.04, by + 0.30, z1 - 0.2, z1),
+                              (cx0 + 0.2, cx1, by + 0.04, by + 0.30, z0, z1 - 0.2), (cx0 + 0.02, cx0 + 0.2, by + 0.04, by + 0.30, z0, z0 + 0.012),
+                              (cx0 + 0.02, cx0 + 0.2, by, by + 0.04, z0 + 0.02, z1 - 0.2), (cx0 + 0.02, cx1, by, by + 0.04, z1 - 0.2, z1)])})
     # a coffee machine is heavy furniture: not grabbed
     body["static"] = 1
     add_lightmap_uv(body)
@@ -534,13 +549,16 @@ def mugs(mt):
     # front row 11 mugs, back row 3, all on the open shelf (y 1.218), unit z 2.0-3.9, x 7.65-8.0
     cols = ["brown", "red", "navy", "white", "black", "navy", "cream", "sage", "brown", "cream", "white"]
     for i, c in enumerate(cols):
-        layout.append((c, 7.8, 1.82 + i * 0.145, (i * 1.7) % 6.28))
+        layout.append((c, 7.8, 1.82 + i * 0.145, (i * 1.7) % 6.28, 1.468))
     for i, c in enumerate(["teal", "green", "black"]):
-        layout.append((c, 7.9, 2.0 + i * 0.5, (i * 2.1) % 6.28))
-    for i, (c, x, z, rot) in enumerate(layout):
+        layout.append((c, 7.9, 2.0 + i * 0.5, (i * 2.1) % 6.28, 1.468))
+    # six more stored inside the closed wall cabinets (on the cabinet floor, y 1.70): reachable once a door is open
+    for i, (c, x, z) in enumerate([("red", 7.84, 1.96), ("sage", 7.9, 2.16), ("navy", 7.84, 2.5), ("cream", 7.9, 2.72), ("teal", 7.84, 3.2), ("brown", 7.9, 3.4)]):
+        layout.append((c, x, z, (i * 1.3) % 6.28, 1.70))
+    for i, (c, x, z, rot, my) in enumerate(layout):
         o = bpy.data.objects.new(f"mug_{i + 1:02d}", mesh)
         collection().objects.link(o)
-        o.location = G(x, 1.468, z)
+        o.location = G(x, my, z)
         o.rotation_euler[2] = rot
         o.material_slots[0].link = "OBJECT"
         o.material_slots[0].material = dict(mats)[c]
@@ -574,7 +592,10 @@ def wall_cabinets(mt):
     bm_box(bm, x0, x1, 1.45, 2.38, z0, z0 + t, 0.002)
     bm_box(bm, x0, x1, 1.45, 2.38, z1 - t, z1, 0.002)
     body = finish("wall_cabinet_body", bm, mt["carcass"], ((x0 + x1) / 2, 1.915, (z0 + z1) / 2), static=1,
-                  extras={"interact": "look", "caption_id": "wall_cabinet", "collider": "box"})
+                  extras={"interact": "look", "caption_id": "wall_cabinet", "collider": "boxes",
+                          "collider_boxes": collider_boxes(((x0 + x1) / 2, 1.915, (z0 + z1) / 2), [
+                              (x0, x1, 1.45, 1.45 + t, z0, z1), (x0, x1, 1.68, 1.70, z0, z1), (x0, x1, 2.38 - t, 2.38, z0, z1),
+                              (x1 - 0.012, x1, 1.45, 2.38, z0, z1), (x0, x1, 1.45, 2.38, z0, z0 + t), (x0, x1, 1.45, 2.38, z1 - t, z1)])})
     out.append(body)
     w = 0.623
     for i in range(3):

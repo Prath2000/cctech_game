@@ -4,6 +4,7 @@ import { createPhysics } from './physics';
 import { FpsHud } from './hud/fps';
 import { loadRoom } from './room';
 import { initLighting } from './lighting';
+import { loadBakedLighting } from './lighting/baked';
 import { FirstPersonController } from './controller';
 import { Interaction } from './interact';
 import { GrabSystem } from './interact/grab';
@@ -36,11 +37,9 @@ const seating = new Seating(physics.world, scene, camera, interaction, grab, pla
 const pantry = initPantry({ scene, world: physics.world, interaction, grab, audio, player });
 interaction.refresh();
 
-scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x444444, 1));
-const sun = new THREE.DirectionalLight(0xffffff, 3);
-sun.position.set(4, 8, 3);
-scene.add(sun);
-initLighting(scene, renderer, { world: physics.world }).captureReflections(); // TASK-1.10 (call after baked lighting)
+// TASK-1.10: baked ambient-cube lightmaps (static) + probes (dynamic) replace scene lights.
+const baked = await loadBakedLighting(scene, renderer);
+initLighting(scene, renderer, { world: physics.world }).captureReflections();
 
 // Camera poses: `?pose=<name>` pins the camera (input frozen).
 let currentPose: string | null = new URLSearchParams(location.search).get('pose');
@@ -74,6 +73,7 @@ const ready = new Promise<void>((r) => (markReady = r));
   player,
   interaction,
   scene,
+  baked,
   camera,
   grab,
   seating,
@@ -108,6 +108,7 @@ renderer.setAnimationLoop(() => {
   seating.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
   pantry.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
   interaction.update();
+  baked.update();
   renderer.render(scene, camera);
   hud.tick();
 });
