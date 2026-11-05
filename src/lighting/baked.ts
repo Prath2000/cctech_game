@@ -1,7 +1,7 @@
 // TASK-1.10 baked lighting: ambient-cube lightmaps on static meshes, interpolated cube probes on dynamic ones.
 // One TSL code path (`ambientCube`) for both; identical on WebGPU and WebGL2. No scene lights are needed.
 import * as THREE from 'three/webgpu';
-import { float, materialColor, materialEmissive, materialMetalness, mix, normalWorld, step, texture, uniform, uv, vec3 } from 'three/tsl';
+import { float, materialColor, materialEmissive, materialMetalness, mix, normalWorld, step, texture, uniform, uv, vec3, vertexColor } from 'three/tsl';
 import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 
 const AX = ['px', 'nx', 'py', 'ny', 'pz', 'nz'] as const; // GAME axes: +x east, +y up, +z south
@@ -136,7 +136,8 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
   };
 
   // ---- materials ----
-  const diffuseOf = (E: any) => materialColor.rgb.mul(float(1).sub(materialMetalness)).mul(E);
+  // vertex colours (e.g. mugs) tint the albedo too, or they come out as the white base colour lit grey
+  const diffuseOf = (E: any, tinted = false) => (tinted ? materialColor.rgb.mul(vertexColor().rgb) : materialColor.rgb).mul(float(1).sub(materialMetalness)).mul(E);
   const lit = (m: THREE.Material, E: any) => {
     const std = m as THREE.MeshStandardMaterial;
     if (!std.isMeshStandardMaterial) return m;
@@ -144,7 +145,8 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
     nm.name = m.name;
     // ceiling LED panel: the emissive face brightens with the switch (~4500-5000 K neutral white)
     const panel = m.name === 'pantry_led_panel' ? vec3(1.0, 0.96, 0.9).mul(uLights).mul(LED_PANEL_EMISSIVE) : null;
-    nm.emissiveNode = panel ? diffuseOf(E).add(panel) : diffuseOf(E).add(materialEmissive);
+    const d = diffuseOf(E, std.vertexColors);
+    nm.emissiveNode = panel ? d.add(panel) : d.add(materialEmissive);
     return nm;
   };
   scene.updateMatrixWorld(true);
