@@ -27,6 +27,9 @@ for name in (() if os.environ.get("ROOM_PROPS") == "0" else ("pantry", "seating"
             import traceback; traceback.print_exc()
             print("WARNING: props module failed:", name, e)
 
+import layout, lightmap_uv  # noqa: E402
+LM_STATS = lightmap_uv.assign(ctx, layout.ROOM_W, layout.ROOM_H, layout.ROOM_D)  # atlas UVs + lm_atlas prop
+
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 bpy.ops.export_scene.gltf(filepath=OUT, export_format="GLB", export_yup=True, export_extras=True,
                           export_apply=True, export_texcoords=True, export_image_format="WEBP",
