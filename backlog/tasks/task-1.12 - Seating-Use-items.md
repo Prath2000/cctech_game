@@ -1,9 +1,11 @@
 ---
 id: TASK-1.12
 title: Seating Use items
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-11-05T10:22:00Z'
+updated_date: '2026-11-05T10:43:00Z'
 labels:
   - effort:M
 dependencies:
@@ -30,3 +32,9 @@ Parallel-safe: yes (with T11). Plan: .team/changes/0001-pantry-poc/plan.md (T12)
 - [ ] #2 Vending drops a grabbable snack.
 - [ ] #3 Cooler fills a glass that can be carried.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Started early: seating half of TASK-1.7 is done (props_seating via blender/props/seating.py); pantry half still in progress.
+<!-- SECTION:NOTES:END -->

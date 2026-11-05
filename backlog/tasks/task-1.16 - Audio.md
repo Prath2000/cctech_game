@@ -4,6 +4,7 @@ title: Audio
 status: To Do
 assignee: []
 created_date: '2026-11-05T10:22:00Z'
+updated_date: '2026-11-05T10:43:00Z'
 labels:
   - effort:S
 dependencies:
@@ -29,3 +30,9 @@ Parallel-safe: yes (with T14, T15). Plan: .team/changes/0001-pantry-poc/plan.md 
 - [ ] #2 Mute toggle works.
 - [ ] #3 Licences recorded.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sound library prepared in public/audio (manifest.json)
+<!-- SECTION:NOTES:END -->

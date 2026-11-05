@@ -1,11 +1,11 @@
 ---
 id: TASK-1.7
 title: Branded props and furniture
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-05T10:22:00Z'
-updated_date: '2026-11-05T10:42:00Z'
+updated_date: '2026-11-05T10:47:00Z'
 labels:
   - effort:L
 dependencies:
@@ -27,13 +27,15 @@ Parallel-safe: yes (with T6). Plan: .team/changes/0001-pantry-poc/plan.md (T7).
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 All listed props exist in the scene with unique names.
-- [ ] #2 Branded items side by side with photos have no major brand differences.
-- [ ] #3 Repeated items (mugs, chairs) are instanced.
+- [x] #1 All listed props exist in the scene with unique names.
+- [x] #2 Branded items side by side with photos have no major brand differences.
+- [x] #3 Repeated items (mugs, chairs) are instanced.
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Seating half: blender/props/seating.py (+ run_seating.py, preview_seating.py; pnpm build:props:seating -> public/models/props_seating.glb). Layout read from blender/layout.py (tables, vending, coolers, room size) so a resize is one edit. Contains vending_machine (PUSH, 6 spiral rows, glass, keypad, tablet, flap), cooler_01/02 + steel_tumbler, 6+ tables, chairs (2 shared meshes), glasses, snack packets, ketchup/salt, 2 bins, 6 fans, circuit mural (decal cropped from photo 08). Skipped: INNOVATION chevrons (blockout/materials), LED panels (off in photos). ~113k tris counted per instance. Previews vs photos 08/08(1)/08(3) checked; coolers lack the photo gap between units (0.3 pitch).
+
+Pantry half: blender/props/pantry.py (+ run_pantry.py, pnpm build:props:pantry -> public/models/props_pantry.glb, 67 objects, ~27k tris). Procedural LG fridge (2 hinged doors + photo stickers), LG microwave (hinged door, logo decal), Tata Bistro machine (screen decal), kettle, sink cut into counter + faucet, wall cabinets (3 hinged doors), 5 hinged base doors, 15 mugs sharing one mesh, flasks, purple jug, sticky note, switch plate, LED panels, fan. Positions are anchored to the blockout counter (DX/DZ), so room resizes need no edits. Decals: assets/decals/pantry/. Licences appended.
 <!-- SECTION:NOTES:END -->
