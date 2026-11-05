@@ -3,11 +3,11 @@ id: TASK-1.29
 title: >-
   Analyse photogrammetry scan: true room measurements + scan-as-visual
   evaluation
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-05T11:44:00Z'
-updated_date: '2026-11-05T11:49:00Z'
+updated_date: '2026-11-05T12:11:00Z'
 labels:
   - effort:M
 dependencies: []
@@ -25,13 +25,13 @@ User supplied references/photogrammetry/pantry-obj.zip (textured mesh: 306k vert
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Scale and orientation verified (known-size checks) and documented
-- [ ] #2 docs/reference/scan-measurements.md with all key dimensions/positions vs current blender/layout.py and a proposed layout diff
-- [ ] #3 Go/no-go on using the scan mesh/points as visual base, with preview renders
+- [x] #1 Scale and orientation verified (known-size checks) and documented
+- [x] #2 docs/reference/scan-measurements.md with all key dimensions/positions vs current blender/layout.py and a proposed layout diff
+- [x] #3 Go/no-go on using the scan mesh/points as visual base, with preview renders
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-WIP: alignment, room size, counter done. Left: full feature table, layout diff, perspective renders, ASCII plan, scan-as-visual go/no-go, tick ACs.
+Done. See docs/reference/scan-measurements.md: scale verified, features table, ASCII plan, proposed layout diff (not applied), scan-as-visual NO-GO. Previews in docs/reference/scan/.
 <!-- SECTION:NOTES:END -->
