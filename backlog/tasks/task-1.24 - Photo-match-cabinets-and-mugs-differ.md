@@ -1,9 +1,11 @@
 ---
 id: TASK-1.24
 title: 'Photo-match: cabinets and mugs differ'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-11-05T11:36:00Z'
+updated_date: '2026-11-05T11:49:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -18,3 +20,9 @@ ordinal: 2550
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Photo 07 (1): 3 tall glossy doors, shelf of colourful mugs; shot has 2 doors and uniform grey mugs. Fix blender/props cabinet door count + mug colours; pose pitch in camera-poses.json. See verify.md.
 <!-- SECTION:DESCRIPTION:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+WIP: 3 wall doors exist (shot crops to 2 by pose). Grey mugs root cause: src/lighting/baked.ts lit() emissive uses materialColor.rgb (white on shared pantry_mug), ignores COLOR_0 vertex colour; GLB export is fine. Fix in lighting: multiply by vertexColor() when geometry has color attr. Not edited (lighting-owned).
+<!-- SECTION:NOTES:END -->

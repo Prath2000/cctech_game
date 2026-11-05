@@ -80,7 +80,7 @@ for i in range(N + 1):
 for i in range(N):
     x0 = i * bay + mull
     box(f"window_glass_{i:02d}", x0, x0 + bay - mull, fh, H - fh, -0.02, 0.02, M_GLASS)
-box("window_sill", L.SILL_X0, W, 0, L.SILL_H, 0.1, 0.1 + L.SILL_D, M_DARK)
+box("window_sill", L.SILL_X0, L.FRIDGE["x0"] - 0.03, 0, L.SILL_H, 0.1, 0.1 + L.SILL_D, M_DARK)
 
 # west wall: orange chevron wall + double door
 box("chevron_wall", 0, 0.12, 0, H, L.CHEVRON_Z0, L.CHEVRON_Z1, M_LIGHT)
