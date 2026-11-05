@@ -2,8 +2,8 @@
 name: "cctech-game"
 type: new            # new | existing
 size_default: small  # tiny | small | big (sorting step picks per request; user can overrule)
-stage: plan         # shape | plan | build | verify | ship (current stage; the team lead updates it)
-autopilot: false    # true = lead loops through all backlog tasks hands-free (set via `team autopilot on|off`; still stops before going live)
+stage: build         # shape | plan | build | verify | ship (current stage; the team lead updates it)
+autopilot: true    # true = lead loops through all backlog tasks hands-free (set via `team autopilot on|off`; still stops before going live)
 worker_model: sonnet  # sonnet (default) | mixed | haiku; lead may still pick haiku for mechanical tasks
 approval: key-points # strict (gate after Shape/Plan/Build/Verify) | key-points (after Plan + before live) | relaxed (no gates)
 deploy:
@@ -21,7 +21,7 @@ released_to_others: false        # switches on changelog
 gates:
   - id: plan-gate
     step: plan
-    status: waiting
+    status: approved
 # Steps: auto = follow the switch-on rule; on/off = user override. Names = team/plays/<stage>-<step>.md
 steps:
   shape-survey: auto
