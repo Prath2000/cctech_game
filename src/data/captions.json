@@ -1,0 +1,22 @@
+{
+  "_comment": "Keyed by caption_id (or object name). Value: { name, caption }. Edit freely; reload to see changes.",
+  "coffee_machine": { "name": "Coffee Machine", "caption": "Tata Bistro - fuel of CCTech since forever." },
+  "fridge": { "name": "Fridge", "caption": "Labelled lunches only. Everyone knows who took yours." },
+  "microwave": { "name": "Microwave", "caption": "Beeps three times. Nobody collects it after the first." },
+  "vending": { "name": "Vending Machine", "caption": "PUSH. Not pull. Never pull." },
+  "water_cooler": { "name": "Water Cooler", "caption": "Where the real meetings happen." },
+  "kettle": { "name": "Kettle", "caption": "Chai o'clock is always now." },
+  "sink": { "name": "Pantry Sink", "caption": "Mugs go here. In theory." },
+  "cabinet": { "name": "Cabinet", "caption": "Snacks, sugar and mysteries." },
+  "mural": { "name": "Mural", "caption": "Painted by people who actually like Mondays." },
+  "innovation_sign": { "name": "INNOVATION", "caption": "Big letters on the wall. Bigger ideas, hopefully." },
+  "sticky_note": { "name": "Sticky Note", "caption": "Someone's reminder from sprint zero." },
+  "mug": { "name": "Mug", "caption": "Definitely not yours. Probably still warm." },
+  "chair": { "name": "Chair", "caption": "Ergonomic, officially." },
+  "sofa": { "name": "Sofa", "caption": "Strictly for brainstorming." },
+  "table": { "name": "Table", "caption": "Has seen a thousand stand-ups." },
+  "light_switch": { "name": "Light Switch", "caption": "Let there be light." },
+  "debug_cube": { "name": "Test Cube", "caption": "A very grabbable cube (0.3 kg)." },
+  "debug_box": { "name": "Test Box", "caption": "Press E. Nothing happens yet." },
+  "debug_panel": { "name": "Test Panel", "caption": "Just look at it." }
+}

@@ -4,6 +4,8 @@ import { createPhysics } from './physics';
 import { FpsHud } from './hud/fps';
 import { loadRoom } from './room';
 import { FirstPersonController } from './controller';
+import { Interaction } from './interact';
+import { addDebugObjects } from './interact/debug';
 import { applyPose, poseTable } from './poses';
 
 const { renderer, backend } = await createRenderer();
@@ -17,6 +19,8 @@ camera.position.set(3, 2.5, 4);
 camera.lookAt(0, 0.8, 0);
 
 await loadRoom(physics.world, scene);
+if (new URLSearchParams(location.search).get('debug') === '1') addDebugObjects(scene, physics.world);
+const interaction = new Interaction(scene, camera, physics.world);
 const player = new FirstPersonController(physics.world, camera, renderer.domElement);
 // Start just inside the west-wall door (z 3.2-4.4), facing east into the room.
 player.teleport(1.0, 0, 3.8, -90);
@@ -56,6 +60,8 @@ const ready = new Promise<void>((r) => (markReady = r));
     return true;
   },
   player,
+  interaction,
+  scene,
 };
 
 renderer.setAnimationLoop(() => {
@@ -68,6 +74,7 @@ renderer.setAnimationLoop(() => {
   physics.world.step();
   player.enabled = !currentPose; // a pinned ?pose= is never overridden by the controller
   player.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
+  interaction.update();
   renderer.render(scene, camera);
   hud.tick();
 });

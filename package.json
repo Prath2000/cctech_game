@@ -21,7 +21,9 @@
     "typecheck": "tsc --noEmit",
     "check:shot": "tsx scripts/shot.ts",
     "check:walk": "tsx scripts/walk.ts",
-    "check:fps": "tsx scripts/fps.ts"
+    "check:fps": "tsx scripts/fps.ts",
+    "check:look": "tsx scripts/look.ts",
+    "check:grab": "tsx scripts/grab-stress.ts"
   },
   "type": "module",
   "packageManager": "pnpm@12.16.1",
