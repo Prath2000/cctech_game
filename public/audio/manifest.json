@@ -1,0 +1,345 @@
+{
+ "_note": "ogg = Opus-in-Ogg (Chrome/Firefox); m4a = AAC (Safari). Mono, 44.1k source. Loops are seamless crossfaded. One-shots peak ~-3 dBFS or ~-16 LUFS; ambience/hum loops ~-24 LUFS. volume = suggested 0..1 gain.",
+ "sounds": {
+  "coffee_grind": {
+   "files": [
+    "coffee_grind.ogg",
+    "coffee_grind.m4a"
+   ],
+   "loop": false,
+   "volume": 0.8,
+   "use_kind": "coffee_machine",
+   "duration_s": 4.0
+  },
+  "coffee_pour": {
+   "files": [
+    "coffee_pour.ogg",
+    "coffee_pour.m4a"
+   ],
+   "loop": false,
+   "volume": 0.8,
+   "use_kind": "coffee_machine",
+   "duration_s": 2.01
+  },
+  "coffee_brew": {
+   "files": [
+    "coffee_brew.ogg",
+    "coffee_brew.m4a"
+   ],
+   "loop": true,
+   "volume": 0.5,
+   "use_kind": "coffee_machine",
+   "duration_s": 8.01
+  },
+  "steam_hiss": {
+   "files": [
+    "steam_hiss.ogg",
+    "steam_hiss.m4a"
+   ],
+   "loop": false,
+   "volume": 0.7,
+   "use_kind": "coffee_machine",
+   "duration_s": 1.44
+  },
+  "microwave_hum": {
+   "files": [
+    "microwave_hum.ogg",
+    "microwave_hum.m4a"
+   ],
+   "loop": true,
+   "volume": 0.5,
+   "use_kind": "microwave",
+   "duration_s": 6.01
+  },
+  "microwave_beep": {
+   "files": [
+    "microwave_beep.ogg",
+    "microwave_beep.m4a"
+   ],
+   "loop": false,
+   "volume": 0.8,
+   "use_kind": "microwave",
+   "duration_s": 3.15
+  },
+  "microwave_door_open": {
+   "files": [
+    "microwave_door_open.ogg",
+    "microwave_door_open.m4a"
+   ],
+   "loop": false,
+   "volume": 0.8,
+   "use_kind": "microwave",
+   "duration_s": 0.74
+  },
+  "microwave_door_close": {
+   "files": [
+    "microwave_door_close.ogg",
+    "microwave_door_close.m4a"
+   ],
+   "loop": false,
+   "volume": 0.8,
+   "use_kind": "microwave",
+   "duration_s": 1.0
+  },
+  "fridge_door_open": {
+   "files": [
+    "fridge_door_open.ogg",
+    "fridge_door_open.m4a"
+   ],
+   "loop": false,
+   "volume": 0.8,
+   "use_kind": "fridge",
+   "duration_s": 2.01
+  },
+  "fridge_door_close": {
+   "files": [
+    "fridge_door_close.ogg",
+    "fridge_door_close.m4a"
+   ],
+   "loop": false,
+   "volume": 0.8,
+   "use_kind": "fridge",
+   "duration_s": 0.88
+  },
+  "fridge_hum": {
+   "files": [
+    "fridge_hum.ogg",
+    "fridge_hum.m4a"
+   ],
+   "loop": true,
+   "volume": 0.4,
+   "use_kind": "fridge",
+   "duration_s": 12.01
+  },
+  "kettle_boil": {
+   "files": [
+    "kettle_boil.ogg",
+    "kettle_boil.m4a"
+   ],
+   "loop": true,
+   "volume": 0.5,
+   "use_kind": "kettle",
+   "duration_s": 14.01
+  },
+  "kettle_click": {
+   "files": [
+    "kettle_click.ogg",
+    "kettle_click.m4a"
+   ],
+   "loop": false,
+   "volume": 0.7,
+   "use_kind": "kettle",
+   "duration_s": 1.19
+  },
+  "sink_tap": {
+   "files": [
+    "sink_tap.ogg",
+    "sink_tap.m4a"
+   ],
+   "loop": true,
+   "volume": 0.5,
+   "use_kind": "sink",
+   "duration_s": 10.01
+  },
+  "cabinet_open": {
+   "files": [
+    "cabinet_open.ogg",
+    "cabinet_open.m4a"
+   ],
+   "loop": false,
+   "volume": 0.7,
+   "use_kind": "cabinet",
+   "duration_s": 0.99
+  },
+  "cabinet_close": {
+   "files": [
+    "cabinet_close.ogg",
+    "cabinet_close.m4a"
+   ],
+   "loop": false,
+   "volume": 0.7,
+   "use_kind": "cabinet",
+   "duration_s": 0.3
+  },
+  "vending_hum": {
+   "files": [
+    "vending_hum.ogg",
+    "vending_hum.m4a"
+   ],
+   "loop": true,
+   "volume": 0.4,
+   "use_kind": "vending_machine",
+   "duration_s": 12.01
+  },
+  "vending_drop": {
+   "files": [
+    "vending_drop.ogg",
+    "vending_drop.m4a"
+   ],
+   "loop": false,
+   "volume": 0.9,
+   "use_kind": "vending_machine",
+   "duration_s": 1.77
+  },
+  "water_cooler_glug": {
+   "files": [
+    "water_cooler_glug.ogg",
+    "water_cooler_glug.m4a"
+   ],
+   "loop": false,
+   "volume": 0.8,
+   "use_kind": "water_cooler",
+   "duration_s": 3.44
+  },
+  "chair_roll": {
+   "files": [
+    "chair_roll.ogg",
+    "chair_roll.m4a"
+   ],
+   "loop": false,
+   "volume": 0.7,
+   "use_kind": "chair",
+   "duration_s": 2.58
+  },
+  "chair_creak": {
+   "files": [
+    "chair_creak.ogg",
+    "chair_creak.m4a"
+   ],
+   "loop": false,
+   "volume": 0.6,
+   "use_kind": "chair",
+   "duration_s": 1.47
+  },
+  "light_switch_on": {
+   "files": [
+    "light_switch_on.ogg",
+    "light_switch_on.m4a"
+   ],
+   "loop": false,
+   "volume": 0.8,
+   "use_kind": "light_switch",
+   "duration_s": 0.31
+  },
+  "light_switch_off": {
+   "files": [
+    "light_switch_off.ogg",
+    "light_switch_off.m4a"
+   ],
+   "loop": false,
+   "volume": 0.8,
+   "use_kind": "light_switch",
+   "duration_s": 0.28
+  },
+  "footstep_tile_1": {
+   "files": [
+    "footstep_tile_1.ogg",
+    "footstep_tile_1.m4a"
+   ],
+   "loop": false,
+   "volume": 0.5,
+   "use_kind": "footsteps",
+   "duration_s": 0.5
+  },
+  "footstep_tile_2": {
+   "files": [
+    "footstep_tile_2.ogg",
+    "footstep_tile_2.m4a"
+   ],
+   "loop": false,
+   "volume": 0.5,
+   "use_kind": "footsteps",
+   "duration_s": 0.51
+  },
+  "footstep_tile_3": {
+   "files": [
+    "footstep_tile_3.ogg",
+    "footstep_tile_3.m4a"
+   ],
+   "loop": false,
+   "volume": 0.5,
+   "use_kind": "footsteps",
+   "duration_s": 0.5
+  },
+  "footstep_tile_4": {
+   "files": [
+    "footstep_tile_4.ogg",
+    "footstep_tile_4.m4a"
+   ],
+   "loop": false,
+   "volume": 0.5,
+   "use_kind": "footsteps",
+   "duration_s": 0.53
+  },
+  "office_room_tone": {
+   "files": [
+    "office_room_tone.ogg",
+    "office_room_tone.m4a"
+   ],
+   "loop": true,
+   "volume": 0.25,
+   "use_kind": "ambience",
+   "duration_s": 20.01
+  },
+  "ac_hum": {
+   "files": [
+    "ac_hum.ogg",
+    "ac_hum.m4a"
+   ],
+   "loop": true,
+   "volume": 0.2,
+   "use_kind": "ambience",
+   "duration_s": 15.01
+  },
+  "city_distant": {
+   "files": [
+    "city_distant.ogg",
+    "city_distant.m4a"
+   ],
+   "loop": true,
+   "volume": 0.2,
+   "use_kind": "ambience",
+   "duration_s": 30.01
+  },
+  "glass_set_down": {
+   "files": [
+    "glass_set_down.ogg",
+    "glass_set_down.m4a"
+   ],
+   "loop": false,
+   "volume": 0.6,
+   "use_kind": "grab_drop",
+   "duration_s": 0.75
+  },
+  "mug_set_down_1": {
+   "files": [
+    "mug_set_down_1.ogg",
+    "mug_set_down_1.m4a"
+   ],
+   "loop": false,
+   "volume": 0.6,
+   "use_kind": "grab_drop",
+   "duration_s": 0.45
+  },
+  "mug_set_down_2": {
+   "files": [
+    "mug_set_down_2.ogg",
+    "mug_set_down_2.m4a"
+   ],
+   "loop": false,
+   "volume": 0.6,
+   "use_kind": "grab_drop",
+   "duration_s": 0.45
+  },
+  "mug_clink": {
+   "files": [
+    "mug_clink.ogg",
+    "mug_clink.m4a"
+   ],
+   "loop": false,
+   "volume": 0.6,
+   "use_kind": "grab_drop",
+   "duration_s": 0.66
+  }
+ }
+}
