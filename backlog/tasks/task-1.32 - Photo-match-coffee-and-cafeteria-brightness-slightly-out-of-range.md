@@ -1,7 +1,7 @@
 ---
 id: TASK-1.32
 title: 'Photo-match: coffee and cafeteria brightness slightly out of range'
-status: Done
+status: In Progress
 assignee: []
 created_date: '2026-11-06T09:50:00Z'
 updated_date: '2026-11-06T10:15:00Z'
@@ -22,7 +22,7 @@ On 119434b check:match gives coffee 0.78 (target >= 0.8) and cafeteria 1.16 (ove
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 check:match reports coffee and cafeteria in range
+- [ ] #1 check:match reports coffee and cafeteria in range
 - [x] #2 All other check:match ratios stay in range
 <!-- AC:END -->
 
@@ -30,4 +30,6 @@ On 119434b check:match gives coffee 0.78 (target >= 0.8) and cafeteria 1.16 (ove
 
 <!-- SECTION:NOTES:BEGIN -->
 Pass 4 (12ca175): coffee 0.77, cafeteria 1.16. Fridge 1.18 is also over range, tracked in TASK-1.25.
+
+ec25efa: coffee shows 0.80 but is 101/127 = 0.795, under the 0.8 target, so reopened (a2e7d0d marked it Done on the rounded number). Cafeteria 1.14. granite_black tint went from #2d2d31 to #85858b, a large change: needs an independent look at the counter against the photo. Full checks not re-run on this model yet.
 <!-- SECTION:NOTES:END -->
