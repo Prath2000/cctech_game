@@ -41,7 +41,8 @@ export async function loadRoom(world: RAPIER.World, scene: THREE.Scene): Promise
   root.traverse((o) => {
     if (!(o as THREE.Mesh).isMesh) return;
     if (o.userData.collider === 'none') return;
-    if (o.userData.interact === 'grab') return; // grab items get dynamic bodies (GrabSystem)
+    // grab items get dynamic bodies (GrabSystem); multi-material items are a group whose child meshes carry no extras
+    for (let a: THREE.Object3D | null = o; a; a = a.parent) if (a.userData.interact === 'grab') return;
     if (o.userData.use_kind === 'chair') return; // chairs get dynamic bodies (seating.ts)
     if (o.userData.hinge_axis) return; // hinged doors get kinematic bodies (pantry)
     const m = o as THREE.Mesh;
