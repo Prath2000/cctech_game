@@ -25,15 +25,27 @@ try {
     setInterval(() => { pl.press(key, false); key = key === 'KeyW' ? 'KeyS' : 'KeyW'; pl.press(key); }, 2000);
     setInterval(() => { dist += pl.feet.distanceTo(prev); prev.copy(pl.feet); (window as any).__walked = dist; pl.yaw += 0.01; }, 50);
   });
-  const frames: number[] = await page.evaluate(`new Promise((res) => {
-    const out = [];
-    let last = performance.now();
+  // Also note every frame over 25 ms: when it happened, where the player was, and what the browser says took the time.
+  const { frames, slow, loaf }: { frames: number[]; slow: string[]; loaf: string[] } = await page.evaluate(`new Promise((res) => {
+    const out = [], slow = [], loaf = [];
+    const start = performance.now();
+    let last = start;
     const end = last + ${seconds} * 1000;
+    try {
+      new PerformanceObserver((l) => { for (const e of l.getEntries()) loaf.push(
+        (e.startTime - start).toFixed(0) + ' ms in: ' + e.duration.toFixed(0) + ' ms, blocking ' + e.blockingDuration.toFixed(0) + ', scripts ' +
+        (e.scripts.map((x) => (x.sourceFunctionName || x.invoker || '?') + ' ' + x.duration.toFixed(0)).join('; ') || 'none')
+      ); }).observe({ type: 'long-animation-frame' });
+    } catch {}
     const f = (t) => {
       out.push(t - last);
+      if (out.length > 1 && t - last > 25) {
+        const p = window.__game && window.__game.player;
+        slow.push((t - last).toFixed(1) + ' ms, ' + ((t - start) / 1000).toFixed(1) + ' s in' + (p ? ', at ' + p.feet.x.toFixed(1) + ',' + p.feet.z.toFixed(1) + ' yaw ' + p.yaw.toFixed(2) : ''));
+      }
       last = t;
       if (t < end) requestAnimationFrame(f);
-      else res(out.slice(1));
+      else res({ frames: out.slice(1), slow, loaf });
     };
     requestAnimationFrame(f);
   })`);
@@ -45,6 +57,8 @@ try {
   console.log(`median fps: ${(1000 / median).toFixed(1)}`);
   console.log(`1% low fps: ${(1000 / avgWorst).toFixed(1)}`);
   console.log(`max frame ms: ${sorted[sorted.length - 1].toFixed(1)}`);
+  for (const x of slow) console.log(`slow frame: ${x}`);
+  for (const x of loaf) console.log(`long frame: ${x}`);
   if (flags.has('walk')) console.log(`walked m: ${(await page.evaluate(() => (window as any).__walked)).toFixed(1)}`);
 } finally {
   await browser.close();
