@@ -11,12 +11,15 @@ Re-measure with `pnpm run check:budget --url http://localhost:4173 [--mbps N]` a
 | Run | Median fps | 1% low | Max frame | Notes |
 |---|---|---|---|---|
 | WebGPU, standing | 59.9 | 53.5 | 18.7 ms | current lightmaps |
-| WebGPU, walking (32 m) | 59.9 | 53.5 | 18.7 ms | current lightmaps |
-| WebGL, walking (32 m) | 59.9 | 53.6 | 18.7 ms | current lightmaps |
+| WebGPU, walking only (32 m) | 59.9 | 53.5 | 18.7 ms | current lightmaps; the view did not turn |
+| WebGL, walking only (32 m) | 59.9 | 53.6 | 18.7 ms | current lightmaps; the view did not turn |
+| WebGPU, walking and turning, 5 runs (31 m) | 59.9 | 53.5-53.6 in four, 49.5 in one | 18.7-18.8 ms in four, 32.5 ms in one | current lightmaps |
+| WebGL, walking and turning, 5 runs (30-31 m) | 59.9 | 53.6-53.7 in three, 45.3 in one, 20.3 in one | 18.7 ms in three, 49.7 ms in one, 250.1 ms in one | current lightmaps |
 | WebGL, standing | 59.9 | 56.6 | 17.8 ms | one run, before the WebP change |
 | WebGPU, standing, 4 earlier runs | 59.9 | 56.5 in three, 29.4 in one | 17.8 ms in three, 100 ms in one | before the WebP change |
 
-- The one 100 ms frame is unexplained and did not repeat in 3 further runs. Treat "no stutter" as likely, not proven.
+- Single slow frames do happen: 3 of 10 walking-and-turning runs had one (32.5, 49.7 and 250.1 ms), and one of 4 earlier standing runs had 100 ms. None is explained. The 250 ms frame did not repeat in 4 further WebGL runs.
+- So the "no stutter" target is not met as a guarantee: usually smooth, with an occasional hitch of unknown cause. Other activity on the Mac has not been ruled out.
 - The light-switch fade stays at 16.8 ms worst frame (`check:switch`).
 - Safari, either backend: not measured (needs "Allow remote automation" or a reading from the user).
 

@@ -1,11 +1,14 @@
 // Numbers for docs/reference/performance-budget.md: draw calls and triangles per pose, plus cold load on a throttled
 // network. Usage: pnpm run check:budget --url http://localhost:4173 [--mbps 50] [--headed]. Needs a production preview running for a fair load time.
-import { parseArgs, startServer, launch, openGame } from './lib';
+import { parseArgs, launch, openGame } from './lib';
 
 const { flags, opts } = parseArgs(process.argv.slice(2));
 const mbps = Number(opts.mbps ?? 50);
-const dev = opts.url ? null : await startServer();
-const url = opts.url ?? dev!.url;
+if (!opts.url) {
+  console.error('budget needs --url of a running production preview (pnpm build, then vite preview); the dev server would give misleading numbers.');
+  process.exit(1);
+}
+const url = opts.url;
 const browser = await launch(flags.has('headed'));
 try {
   const { page, backend } = await openGame(browser, url, 'pose=overview', 1280, 720);
@@ -40,5 +43,4 @@ try {
   console.log(`cold load at ${mbps} Mbps: ${((Date.now() - t0) / 1000).toFixed(1)} s, ${(bytes / 1e6).toFixed(1)} MB over the wire`);
 } finally {
   await browser.close();
-  await dev?.server.close();
 }
