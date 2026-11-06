@@ -62,6 +62,11 @@ export class ReflectionProbes {
     const textures = PROBES.map((_, i) => this.captureOne(i, pm));
     pm.dispose();
     this.apply(textures);
+    // Warm-up: the first capture saw only the plain materials. Re-render once now that the glossy env-node
+    // variants exist, so their render-target pipelines compile during loading, not at the first light toggle.
+    const pm2 = new THREE.PMREMGenerator(this.renderer);
+    PROBES.forEach((_, i) => this.captureOne(i, pm2));
+    pm2.dispose();
   }
 
   /** Re-capture the cubemaps in place, one probe per frame (e.g. after the lights finished fading). */
