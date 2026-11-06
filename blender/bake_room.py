@@ -80,6 +80,8 @@ for o in scn.objects:
 # (8.5 -> ~2700 nit-equivalent; real panels 2500-4000), measured so the measured desk-height illuminance lands at 300-500 lux (printed as [lux]).
 LUX_PER_UNIT = 1000.0
 LED_ON_STRENGTH = arg('--led', 8.5)
+LED_BAY_BOOST = arg('--led-bay', 5.5)   # bay panels (last 3, x 7.1-7.7, z 8.0-9.3): daylight barely reaches the kitchenette
+BAY_PANELS = ('led_panel_10', 'led_panel_11', 'led_panel_12')
 if STATE == 'on':
     bg.inputs['Strength'].default_value = 0.0; sun.energy = 0.0; por_o.hide_render = True
 for o in scn.objects:
@@ -89,7 +91,7 @@ for o in scn.objects:
             for n in m.node_tree.nodes:
                 if n.type == 'BSDF_PRINCIPLED':
                     n.inputs['Emission Color'].default_value = (1.0, 0.96, 0.90, 1)  # ~4500-5000 K neutral white
-                    n.inputs['Emission Strength'].default_value = LED_ON_STRENGTH if STATE == 'on' else 0.0
+                    n.inputs['Emission Strength'].default_value = LED_ON_STRENGTH * (LED_BAY_BOOST if o.name.startswith(BAY_PANELS) else 1.0) if STATE == 'on' else 0.0
 lap('lighting_setup')
 
 # ---------------- bake materials: atlas target + ambient-cube normal override ----------------

@@ -18,6 +18,8 @@ export class Interaction {
   readonly ray = new THREE.Raycaster();
   readonly prompt = new PromptHud();
   private highlight: Highlight;
+  /** Pinned `?pose=` views: pick still works, but no outline/prompt is drawn over the shot. */
+  quiet = false;
   /** Interactive object under the crosshair (null if none / out of reach). */
   target: THREE.Object3D | null = null;
   /** Object to ignore for aiming (the held item). */
@@ -75,7 +77,7 @@ export class Interaction {
     const t = this.pick();
     this.target = t;
     const level = t && interactLevel(t);
-    if (!t || !level) {
+    if (this.quiet || !t || !level) {
       this.highlight.set(null);
       this.prompt.show(null);
       return;

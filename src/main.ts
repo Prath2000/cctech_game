@@ -114,6 +114,7 @@ renderer.setAnimationLoop(() => {
   audioExtras.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000), player.enabled);
   seating.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
   pantry.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));
+  interaction.quiet = !!currentPose;
   interaction.update();
   baked.update();
   lightSwitch.update(Math.min(0.05, fpsSamples[fpsSamples.length - 1] / 1000));

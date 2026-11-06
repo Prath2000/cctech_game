@@ -91,9 +91,9 @@ def materials():
         blk_gloss=M("pantry_black_gloss", (0.012, 0.012, 0.014), 0.12, coat=0.6),
         glass_dark=M("pantry_glass_dark", (0.01, 0.012, 0.015), 0.04, coat=1.0),
         white=M("pantry_white_plastic", (0.86, 0.86, 0.84), 0.35),
-        lam_grey=M("pantry_gloss_laminate_grey", (0.62, 0.61, 0.59), 0.1, coat=0.8),
+        lam_grey=M("pantry_gloss_laminate_grey", (0.86, 0.86, 0.84), 0.1, coat=0.8),
         lam_white=M("pantry_white_laminate", (0.82, 0.82, 0.8), 0.22, coat=0.4),
-        carcass=M("pantry_carcass", (0.72, 0.71, 0.69), 0.5),
+        carcass=M("pantry_carcass", (0.86, 0.85, 0.83), 0.45),
         purple=M("pantry_purple_pet", (0.78, 0.3, 0.84), 0.1, trans=0.92, ior=1.5),
         purple_cap=M("pantry_purple_cap", (0.12, 0.05, 0.4), 0.35),
         glass=M("pantry_clear_glass", (0.9, 0.95, 0.95), 0.03, trans=1.0, ior=1.5),
@@ -106,8 +106,10 @@ def materials():
         fan_white=M("pantry_fan_white", (0.85, 0.85, 0.83), 0.45),
         green_led=M("pantry_mw_display", (0.02, 0.05, 0.02), 0.3, emit=(0.2, 1.0, 0.3), emit_k=0.6),
         red_cloth=M("pantry_red_cloth", (0.5, 0.03, 0.04), 0.9),
-        granite=M("pantry_granite_dark", (0.035, 0.036, 0.04), 0.22, coat=0.4),
-        sink_steel=M("pantry_sink_steel", (0.6, 0.62, 0.64), 0.38, 0.9),
+        granite=M("pantry_granite_dark", (0.07, 0.072, 0.08), 0.22, coat=0.4),
+        sink_steel=M("pantry_sink_steel", (0.42, 0.44, 0.46), 0.5, 1.0),
+        soap_yel=M("pantry_soap_yellow", (0.82, 0.68, 0.06), 0.3),
+        soap_grn=M("pantry_soap_green", (0.12, 0.5, 0.18), 0.3),
         pink=M("pantry_pink_bottle", (0.85, 0.2, 0.45), 0.25),
         yellow=M("pantry_dish_yellow", (0.8, 0.65, 0.05), 0.3, trans=0.3),
     )
@@ -480,9 +482,11 @@ def coffee_machine(mt):
     out.append(finish("coffee_side_panel", bm, mt["granite"], (7.735, by, z0 - 0.02), static=1, extras={"interact": "look", "collider": "none", "caption_id": "counter"}))
     # B'ONE board + notice sheet
     bm = bmesh.new()
-    bm_box(bm, 7.86, 7.93, by, by + 0.45, z1 + 0.005, z1 + 0.125, 0.004)
-    out.append(finish("bone_board", bm, mt["white"], (7.9, by, z1 + 0.065), static=1, extras={"interact": "look", "collider": "none", "caption_id": "bone_board"}))
-    d = decal("bone_board_label", out[-1], "bone_panel.png", 7.855, z1 + 0.065, by + 0.25, 0.11, 0.311)
+    # photo 06: white board with red lettering on the x=6.7 wall just right of the machine, top above the machine (old frame: x 7.94-8.0, z 3.38-3.58, y 1.4-1.8)
+    bm = bmesh.new()
+    bm_box(bm, 7.94, 7.995, 1.4, 1.8, 3.38, 3.58, 0.004)
+    out.append(finish("bone_board", bm, mt["white"], (7.97, 1.6, 3.48), static=1, extras={"interact": "look", "collider": "none", "caption_id": "bone_board"}))
+    d = decal("bone_board_label", out[-1], "bone_panel.png", 7.935, 3.48, 1.6, 0.15, 0.34)
     if d:
         out.append(d)
     d = decal("coffee_notice_sheet", body, "coffee_notice_sheet.png", 7.994, 4.05, 1.62, 0.2, 0.185)
@@ -595,10 +599,10 @@ def mugs(mt):
     # ~15 mugs on the open shelf under the wall cabinet (shelf board top y 1.468; old frame x 7.65-8.0, z 1.9-3.25)
     cols = ["white", "brown", "navy", "red", "cream", "teal", "green", "black", "sage"]
     layout = []
-    for k in range(15):
-        row, col = divmod(k, 8) if k < 8 else (1, k - 8)
-        n_row = 8 if row == 0 else 7
-        layout.append((cols[(k * 4) % len(cols)], 7.78 + 0.1 * row, 1.98 + (col + 0.5) * (1.25 / n_row), 0.35 * k, 1.45 + 0.018))
+    for k in range(13):  # z 2.6-3.23 only: the z 1.98-2.55 end of the shelf holds the kettle and bottles (photo 07-1)
+        row, col = (0, k) if k < 7 else (1, k - 7)
+        n_row = 7 if row == 0 else 6
+        layout.append((cols[(k * 4) % len(cols)], 7.78 + 0.1 * row, 2.6 + (col + 0.5) * (0.63 / n_row), 0.35 * k, 1.45 + 0.018))
     for i, (c, x, z, rot, my) in enumerate(layout):
         o = bpy.data.objects.new(f"mug_{i + 1:02d}", mug_mesh(c, MUG_COLORS[c]))
         collection().objects.link(o)
@@ -707,6 +711,18 @@ def small_props(mt):
     bm_tube(bm, sm, 0.006, 8)
     out.append(finish("water_jug_hose", bm, mt["hose"], pts[-1], static=1, extras={"interact": "look", "collider": "none"}))
 
+    # small steel kettle + two soap bottles at the sink end of the open shelf (photo cabinets-07-1)
+    sy = 1.45 + 0.018
+    bm = bmesh.new()
+    bm_lathe(bm, [(0, 0), (0.06, 0), (0.06, 0.02), (0, 0.02)], 7.82, 2.2, sy, 28, mi=1)
+    bm_lathe(bm, [(0, 0.02), (0.058, 0.02), (0.07, 0.04), (0.068, 0.12), (0.05, 0.155), (0.04, 0.16), (0, 0.16)], 7.82, 2.2, sy, 28, mi=0)
+    bm_lathe(bm, [(0, 0.16), (0.038, 0.16), (0.036, 0.175), (0.012, 0.185), (0, 0.185)], 7.82, 2.2, sy, 20, mi=1)
+    bm_tube(bm, [(7.82 + 0.07 + 0.03 * math.sin(math.pi * (0.1 + 0.8 * i / 9)), sy + 0.09 + 0.055 * math.cos(math.pi * (0.1 + 0.8 * i / 9)), 2.2) for i in range(10)], 0.007, 8, mi=1)
+    out.append(finish("shelf_kettle_01", bm, [mt["steel"], mt["blk"]], (7.82, sy, 2.2), extras={"interact": "grab", "mass": 0.8, "caption_id": "kettle", "collider": "convex"}))
+    for i, (bz, col, h) in enumerate(((2.04, "soap_yel", 0.17), (2.4, "soap_grn", 0.15))):
+        bm = bmesh.new()
+        bm_lathe(bm, [(0, 0), (0.03, 0), (0.033, 0.006), (0.033, h - 0.04), (0.02, h - 0.015), (0.01, h - 0.01), (0, h - 0.01)], 7.9, bz, sy, 20)
+        out.append(finish(f"shelf_bottle_{i + 1:02d}", bm, mt[col], (7.9, sy, bz), extras={"interact": "grab", "mass": 0.3, "caption_id": "bottle", "collider": "convex"}))
     # steel / black / glass flasks along the back edge
     def flask(name, r, h, body, cap, at, share=None, mass=0.3):
         prof = [(0, 0), (r - 0.006, 0), (r, 0.008), (r, h - 0.045), (r - 0.006, h - 0.038), (r - 0.0065, h - 0.034), (0, h - 0.034)]
@@ -745,8 +761,9 @@ def small_props(mt):
     out.append(finish("glass_jar_01", bm, [mt["frost"], mt["steel"]], (7.72, CT, 3.76), extras=grab(0.6, "glass_jar")))
     # pink hand-wash bottle beside the sink (old frame z 1.97 -> scan z 9.23; sink spans 9.3-9.8)
     bm = bmesh.new()
-    bm_lathe(bm, [(0, 0), (0.032, 0), (0.036, 0.006), (0.036, 0.15), (0.03, 0.18), (0.014, 0.195), (0.012, 0.205), (0, 0.205)], 7.9, 1.97, CT, 24)
-    bm_lathe(bm, [(0, 0.2), (0.016, 0.2), (0.016, 0.235), (0.0, 0.235)], 7.9, 1.97, CT, 16, mi=1)
+    pk = 1.9  # photo-07: a large pink bottle (~0.4 m), not a hand-wash pump
+    bm_lathe(bm, [(r * pk, h * pk) for r, h in [(0, 0), (0.032, 0), (0.036, 0.006), (0.036, 0.15), (0.03, 0.18), (0.014, 0.195), (0.012, 0.205), (0, 0.205)]], 7.9, 1.97, CT, 24)
+    bm_lathe(bm, [(r * pk, h * pk) for r, h in [(0, 0.2), (0.016, 0.2), (0.016, 0.235), (0.0, 0.235)]], 7.9, 1.97, CT, 16, mi=1)
     out.append(finish("pink_bottle_01", bm, [mt["pink"], mt["white"]], (7.9, CT, 1.97), extras=grab(0.35, "bottle")))
     # tissue / paper dispenser
     bm = bmesh.new()
@@ -825,7 +842,7 @@ def ceiling(mt):
     out = []
     cy = ROOM_H
     # 3 x 3 grid of 0.6 m LED panels over the 8.7 x 7.35 hall, plus 2 over the kitchen bay, which daylight barely reaches (ceiling fixtures are not measurable in the scan)
-    for i, (x, z) in enumerate([(x, z) for x in (1.5, 4.35, 7.2) for z in (1.2, 3.7, 6.2)] + [(7.7, 8.0), (7.7, 9.3)]):  # [not measured] 3 x 3 grid + bay
+    for i, (x, z) in enumerate([(x, z) for x in (1.5, 4.35, 7.2) for z in (1.2, 3.7, 6.2)] + [(7.7, 8.0), (7.7, 9.3), (7.1, 8.65)]):  # [not measured] 3 x 3 grid + bay (last 3 = bay, boosted in bake_room.py)
         bm = bmesh.new()
         bm_box(bm, x - 0.3, x + 0.3, cy - 0.015, cy, z - 0.3, z + 0.3, 0.002)
         bm_box_mi(bm, 1, x - 0.285, x + 0.285, cy - 0.019, cy - 0.014, z - 0.285, z + 0.285, 0.001)
@@ -841,7 +858,7 @@ SHIFT = [  # old-frame (dx, dy, dz) for top-level objects, by name prefix: squee
     (("soap_dispenser",), (0, 0, -0.25)), (("red_cloth",), (0, 0, 0.05)), (("sink_soap_tray",), (0, 0, -0.3)),
     (("kettle",), (0, 0, 0.40)),
     (("lg_microwave",), (0, 0, -1.985)),   # on the left (high-z) wall shelf above the sink, y 1.25 (wall_cabinets)
-    (("tata_bistro", "coffee_"), (0, 0, -1.25)), (("bone_board",), (0, 0, -1.25)),   # was -1.37: sat inside the coffee machine block and was hidden
+    (("tata_bistro", "coffee_"), (0, 0, -1.25)),    # was -1.37: sat inside the coffee machine block and was hidden
     (("steel_flask", "steel_tumbler", "glass_bottle", "glass_jar"), (0, 0.25, -0.9)),
     (("tissue_dispenser",), (0, 0.25, -1.1)),
     (("steel_cup",), (0, 0, -1.25)),
