@@ -12,6 +12,7 @@ export class FpsHud {
       pointerEvents: 'none', whiteSpace: 'pre', zIndex: '10',
     });
     this.el.id = 'hud-fps';
+    if (new URLSearchParams(location.search).has('pose')) this.el.style.display = 'none'; // pinned comparison shots stay clean
     document.body.appendChild(this.el);
   }
 
