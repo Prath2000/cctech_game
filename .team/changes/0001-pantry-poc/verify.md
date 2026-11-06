@@ -64,3 +64,13 @@ Poses: coffee-06-1, cabinets-07-1, fridge-07-2, sink-07, coolers-08, vending-08-
 - MAJOR Pose: shot is ~2 m back and yawed so window wall dominates left; the photo is a corridor view along the glass. Fix: camera-poses.json yaw to -90 and x ~3.
 - MAJOR Window view: photo has parked cars and city; shot is blank blue/white. Fix: window backdrop plate in layout.py / bake_room.py.
 - MINOR Floor: beige tile with strong sun patches in photo; shot nearly white with no patches (see lighting).
+
+## Photo-match pass 2 (after scan layout, before new bake; geometry only, from 800px side-by-sides)
+- cabinets-07-1 FAIL framing: looks down at counter. MAJOR stray white panels and cylinder hood overhead, glossy doors out of view, mugs and kettles scattered.
+- fridge-07-2 FAIL framing: grey wall fills view, fridge side-on at right edge.
+- strip-08-2 FAIL framing: looks straight out of window; no chairs or desk.
+- cafeteria-08-3 FAIL framing: too close to one table. MAJOR chevrons grey and small, about 2 chairs visible.
+- coolers-08 FAIL content: one cooler (photo has two), circuit-board mural missing.
+- sink-07 framing OK. MAJOR sink is a translucent box, not steel basin. MINOR pink bottle missing.
+- coffee-06-1 OK. MINOR microwave on counter not left shelf; no B'ONE board visible.
+- vending-08-1 OK. MINOR screen is colour grid, not white keypad.
