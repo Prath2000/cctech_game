@@ -759,12 +759,13 @@ def small_props(mt):
     bm_lathe(bm, [(0, 0), (0.047, 0), (0.05, 0.006), (0.05, 0.165), (0.0, 0.165)], 7.72, 3.76, CT, 28)
     bm_lathe(bm, [(0, 0.165), (0.052, 0.165), (0.052, 0.182), (0.0, 0.182)], 7.72, 3.76, CT, 28, mi=1)
     out.append(finish("glass_jar_01", bm, [mt["frost"], mt["steel"]], (7.72, CT, 3.76), extras=grab(0.6, "glass_jar")))
-    # pink hand-wash bottle beside the sink (old frame z 1.97 -> scan z 9.23; sink spans 9.3-9.8)
+    # pink hand-wash bottle beside the sink (scan x 7.32 z 9.4, on the counter strip beside the sink (x 7.2-7.4), clear of the drying mats (x <= 7.15): solid counter, it sat over the sink basin x 6.8-7.2 and rested on the mats)
+    PBX, PBZ = 7.38, 1.8  # old frame; scan x = 14.7 - x, scan z = 11.2 - z (see main below)
     bm = bmesh.new()
     pk = 1.9  # photo-07: a large pink bottle (~0.4 m), not a hand-wash pump
-    bm_lathe(bm, [(r * pk, h * pk) for r, h in [(0, 0), (0.032, 0), (0.036, 0.006), (0.036, 0.15), (0.03, 0.18), (0.014, 0.195), (0.012, 0.205), (0, 0.205)]], 7.9, 1.97, CT, 24)
-    bm_lathe(bm, [(r * pk, h * pk) for r, h in [(0, 0.2), (0.016, 0.2), (0.016, 0.235), (0.0, 0.235)]], 7.9, 1.97, CT, 16, mi=1)
-    out.append(finish("pink_bottle_01", bm, [mt["pink"], mt["white"]], (7.9, CT, 1.97), extras=grab(0.35, "bottle")))
+    bm_lathe(bm, [(r * pk, h * pk) for r, h in [(0, 0), (0.032, 0), (0.036, 0.006), (0.036, 0.15), (0.03, 0.18), (0.014, 0.195), (0.012, 0.205), (0, 0.205)]], PBX, PBZ, CT, 24)
+    bm_lathe(bm, [(r * pk, h * pk) for r, h in [(0, 0.2), (0.016, 0.2), (0.016, 0.235), (0.0, 0.235)]], PBX, PBZ, CT, 16, mi=1)
+    out.append(finish("pink_bottle_01", bm, [mt["pink"], mt["white"]], (PBX, CT, PBZ), extras=grab(0.35, "bottle")))
     # tissue / paper dispenser
     bm = bmesh.new()
     bm_box(bm, 7.86, 7.98, CT, CT + 0.2, 3.44, 3.74, 0.008)
@@ -863,7 +864,7 @@ SHIFT = [  # old-frame (dx, dy, dz) for top-level objects, by name prefix: squee
     (("tissue_dispenser",), (0, 0.25, -1.1)),
     (("steel_cup",), (0, 0, -1.25)),
     (("water_jug_20l",), (-0.27, -CT, 0.5)),
-    (("drying_mat_01",), (0, 0, -1.25)), (("drying_mat_02",), (0, 0, -0.95)),
+    (("drying_mat_01",), (0.1, 0, -1.25)), (("drying_mat_02",), (0.1, 0, -0.95)),   # dx 0.1 = scan x -0.1: frees the counter strip x 7.2-7.4 for the pink bottle
     (("mug_olive",), (0, 0, -0.75)),
     (("light_switch",), (0, 0, 0.4)),
 ]

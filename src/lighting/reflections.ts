@@ -122,6 +122,7 @@ export class ReflectionProbes {
   private pickProbe(c: THREE.Vector3, s: THREE.Vector3): number {
     if (Math.max(s.x, s.z) > 4) return 2;
     if (c.z < 2.75 && c.y > 0.5) return 1;
-    return c.x > 8 ? 0 : 2;
+    // kitchenette bay (sink, counter, fridge): its own probe; the hall probe's box does not contain it, so its parallax reflections were wrong
+    return c.x > 6.7 && c.z > 6.8 ? 0 : 2;
   }
 }

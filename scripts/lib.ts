@@ -9,7 +9,7 @@ export function parseArgs(argv: string[]) {
     const a = argv[i];
     if (a.startsWith('--')) {
       const k = a.slice(2);
-      if (['webgl', 'headed'].includes(k)) flags.add(k);
+      if (['webgl', 'headed', 'no-pose'].includes(k)) flags.add(k);
       else opts[k] = argv[++i];
     } else pos.push(a);
   }

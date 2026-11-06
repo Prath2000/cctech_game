@@ -5,11 +5,17 @@ const seconds = Number(opts.seconds ?? 10);
 const pose = opts.pose ?? 'overview';
 const headed = flags.has('headed');
 if (!headed) console.warn('WARNING: headless run; fps is not representative of a real Mac GPU/display. Use --headed.');
-const { server, url } = await startServer();
+// --url http://...: measure a server that is already running (a production preview) instead of the dev server.
+const dev = opts.url ? null : await startServer();
+const url = opts.url ?? dev!.url;
 const browser = await launch(headed);
 try {
-  const q = `pose=${encodeURIComponent(pose)}${flags.has('webgl') ? '&webgl=1' : ''}`;
-  const { page, backend } = await openGame(browser, url, q, 1280, 720, opts.page ?? '');
+  // --no-pose: the real player view, with auto resolution active (a pose switches it off).
+  const q = `${flags.has('no-pose') ? '' : `pose=${encodeURIComponent(pose)}`}${flags.has('webgl') ? '&webgl=1' : ''}`;
+  const started = Date.now();
+  const { page, backend } = await openGame(browser, url, q, Number(opts.width ?? 1280), Number(opts.height ?? 720), opts.page ?? '');
+  console.log(`load ms (page open to game ready): ${Date.now() - started}`);
+  page.on('console', (m) => { if (m.text().startsWith('[autores]')) console.log(m.text()); });
   await page.waitForTimeout(2000); // warm-up
   const frames: number[] = await page.evaluate(`new Promise((res) => {
     const out = [];
@@ -33,5 +39,5 @@ try {
   console.log(`max frame ms: ${sorted[sorted.length - 1].toFixed(1)}`);
 } finally {
   await browser.close();
-  await server.close();
+  await dev?.server.close();
 }
