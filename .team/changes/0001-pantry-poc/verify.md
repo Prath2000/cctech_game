@@ -74,3 +74,23 @@ Poses: coffee-06-1, cabinets-07-1, fridge-07-2, sink-07, coolers-08, vending-08-
 - sink-07 framing OK. MAJOR sink is a translucent box, not steel basin. MINOR pink bottle missing.
 - coffee-06-1 OK. MINOR microwave on counter not left shelf; no B'ONE board visible.
 - vending-08-1 OK. MINOR screen is colour grid, not white keypad.
+
+## Photo-match pass 3 (commit 119434b, all 8 spots)
+Evidence: one scout look at about 800-1000 px side-by-sides, not repeated, so PASS means "looked right once". Ratios are game/photo brightness from check:match. Fridge and sink fixes may be in progress after this pass; results below are from before them.
+
+| Spot | Ratio | Passed | Failed | Could not tell |
+|---|---|---|---|---|
+| coffee-06-1 | 0.78 MISS (target >= 0.8, was 0.80) | Tata Bistro screen, B'ONE | | LG label |
+| cabinets-07-1 | 0.92 | cabinets, mugs | | |
+| fridge-07-2 | 1.08 | | flat pale grey plain box, only partly in frame; photo's windows on the left are absent | |
+| sink-07 | 0.83 | | basin matte, weak reflections | pink bottle (cut off at frame bottom), soap bottles |
+| coolers-08 | 0.94 | coolers | | |
+| vending-08-1 | 0.88 | PUSH vending | | |
+| cafeteria-08-3 | 1.16 MISS by 0.01 | | about 2 tables, photo about 4 | |
+| strip-08-2 | 1.14 | | | INNOVATION text, chevrons (framing differs from photo) |
+
+All shots: chairs passed; no black patches or floating objects. Lighting is cooler and flatter than the photos.
+
+Not checked: baked shadow under the drying mats (mats moved 0.1 m without a re-bake). Pink bottle move is confirmed in room.glb data at (7.32, 0.8, 9.4) but not visually.
+
+Majors still open: fridge view, sink steel, lighting character. User verdict not yet given.

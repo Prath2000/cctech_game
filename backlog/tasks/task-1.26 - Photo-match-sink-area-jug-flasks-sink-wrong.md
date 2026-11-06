@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-05T11:36:00Z'
-updated_date: '2026-11-05T11:49:00Z'
+updated_date: '2026-11-06T09:50:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -25,4 +25,6 @@ Photo 07: jug narrower, translucent, near wall; steel flasks; stainless sink bas
 
 <!-- SECTION:NOTES:BEGIN -->
 Done: jug slimmer/translucent, flasks reordered, soap dispenser cylinder, red cloth, yellow cloth, soap tray + sponge. Left: nudge jug z to ~2.9, flask positions vs socket plate, compare sink shot.
+
+Pass 3 (119434b), one scout look; see verify.md. Sink basin matte despite the probe change. Pink bottle moved in room.glb but not visually confirmed; soap bottles could not be judged. Ratio 0.83.
 <!-- SECTION:NOTES:END -->

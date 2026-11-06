@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-05T11:36:00Z'
-updated_date: '2026-11-05T11:49:00Z'
+updated_date: '2026-11-06T09:50:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -25,4 +25,6 @@ Photo 07 (1): 3 tall glossy doors, shelf of colourful mugs; shot has 2 doors and
 
 <!-- SECTION:NOTES:BEGIN -->
 WIP: 3 wall doors exist (shot crops to 2 by pose). Grey mugs root cause: src/lighting/baked.ts lit() emissive uses materialColor.rgb (white on shared pantry_mug), ignores COLOR_0 vertex colour; GLB export is fine. Fix in lighting: multiply by vertexColor() when geometry has color attr. Not edited (lighting-owned).
+
+Pass 3 (119434b), one scout look; see verify.md. Cabinets and mugs passed, ratio 0.92. Open only for a confirming look and the user verdict.
 <!-- SECTION:NOTES:END -->

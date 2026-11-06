@@ -4,7 +4,7 @@ title: 'Photo-match: lighting flat/cool, no hard sun patches'
 status: To Do
 assignee: []
 created_date: '2026-11-05T11:36:00Z'
-updated_date: '2026-11-05T11:37:00Z'
+updated_date: '2026-11-06T09:50:00Z'
 labels:
   - effort:S
 dependencies:
@@ -26,3 +26,9 @@ ordinal: 2550
 <!-- SECTION:DESCRIPTION:BEGIN -->
 All photos show warm hard sun with window patches on floor and cream walls; shots are flat cool-white and floor is blown white. Fix blender/bake_room.py sun (warm, low, small angle), blender/materials.py wall/floor albedo (cream #f3efe6, beige tiles). Light-switch worker owns bake_room.py now; coordinate. See verify.md.
 <!-- SECTION:DESCRIPTION:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Pass 3 (119434b), one scout look; see verify.md. Lighting still cooler and flatter than the photos. Hard sun patches were not assessed in this pass.
+<!-- SECTION:NOTES:END -->
