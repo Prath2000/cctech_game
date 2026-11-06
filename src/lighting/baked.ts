@@ -62,7 +62,7 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
   } catch { /* no on-state bake: switch is a no-op */ }
   renderer.toneMappingExposure = Number(q.get('exposure') ?? opts.exposure ?? 0.9);
 
-  // ---- atlases: 6 sRGB8 maps each, value = irradiance-radiance / range ----
+  // ---- atlases: 6 sRGB8 maps each (lossless WebP), value = irradiance-radiance / range ----
   const loader = new THREE.TextureLoader();
   const atlasCube: Record<string, Cube> = {};
   const loadTex = async (url: string) => {
@@ -78,14 +78,14 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
     const on = onMeta?.atlases?.[name] as { range: number } | undefined;
     // A missing/stale on-state bake must not stop the game: that atlas just ignores the switch.
     const [onP, onN] = on
-      ? await Promise.all([loadTex(`${onDir}${name}_on_p.png`), loadTex(`${onDir}${name}_on_n.png`)]).catch(() => {
+      ? await Promise.all([loadTex(`${onDir}${name}_on_p.webp`), loadTex(`${onDir}${name}_on_n.webp`)]).catch(() => {
           console.warn(`[lighting] on-state maps missing for ${name}; re-run pnpm bake:room`);
           return [null, null];
         })
       : [null, null];
     const onCh: Record<string, any> = onP && onN ? { px: onP.r, py: onP.g, pz: onP.b, nx: onN.r, ny: onN.g, nz: onN.b } : {};
     await Promise.all(AX.map(async (ax) => {
-      const off = (await loadTex(`${dir}${name}_${ax}.png`)).mul(a.range);
+      const off = (await loadTex(`${dir}${name}_${ax}.webp`)).mul(a.range);
       c[ax] = on && onCh[ax] ? off.add(LED_TINT.mul(onCh[ax].mul(on.range)).mul(uLights)) : off;
     }));
     atlasCube[name] = c;

@@ -4,13 +4,15 @@ Run: Blender -b --python-exit-code 1 -P blender/bake_room.py -- [--state off|on]
   2. sets up daylight (Multiple-Scattering sky + sun matching the photos, window portal), LED panels off/on
   3. bakes an ambient cube (6 axis maps, Cycles Metal) per atlas, OIDN-denoises explicitly, encodes sRGB8 with
      a measured per-atlas HDR range, bakes a cube-probe grid, renders the sky backdrop + Blender reference shots
-Outputs: public/lightmaps/<state>/{<atlas>_<axis>.png, lighting.json}, public/lightmaps/sky.exr, .team/work/shots/ref-*.png
+Outputs: public/lightmaps/<state>/{<atlas>_<axis>.webp, lighting.json}, public/lightmaps/sky.exr, .team/work/shots/ref-*.png
 Axes in file names are GAME axes (x east, y up, z south). Blender (x, y, z) = game (x, -z, y).
 """
-import bpy, bmesh, math, json, os, sys, time
+import bpy, bmesh, math, json, os, shutil, subprocess, sys, time
 import numpy as np
 from mathutils import Vector
 
+# Fail now rather than after hours of baking: every lightmap is written through cwebp (brew install webp).
+if not shutil.which('cwebp'): sys.exit('cwebp not found: brew install webp')
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 def arg(name, default):
@@ -158,11 +160,14 @@ def denoise(a):
 def lin2srgb(c):
     return np.where(c <= 0.0031308, c * 12.92, 1.055 * np.power(np.maximum(c, 1e-9), 1 / 2.4) - 0.055)
 
-def save_png(arr8, path):
+def save_webp(arr8, path):
+    """Lossless: the pixels are exactly what a PNG would hold, about half the download. Lossy would mix the on-state's 3 packed axes."""
+    png = path[:-len('.webp')] + '.png'
     H, W = arr8.shape[:2]
     pim = bpy.data.images.new('png', W, H, alpha=False); pim.colorspace_settings.name = 'Non-Color'
     pim.pixels.foreach_set(np.concatenate([arr8.astype(np.float32) / 255.0, np.ones((H, W, 1), np.float32)], -1).ravel())
-    pim.filepath_raw = path; pim.file_format = 'PNG'; pim.save(); bpy.data.images.remove(pim)
+    pim.filepath_raw = png; pim.file_format = 'PNG'; pim.save(); bpy.data.images.remove(pim)
+    subprocess.run(['cwebp', '-quiet', '-lossless', '-z', '9', '-exact', png, '-o', path], check=True); os.remove(png)
 
 meta_atlas = {}
 for a, lst in atlases.items():
@@ -198,11 +203,11 @@ for a, lst in atlases.items():
         for tag, trio in (('p', ('px', 'py', 'pz')), ('n', ('nx', 'ny', 'nz'))):
             arr = np.stack([lum[k] for k in trio], -1)
             enc = (np.clip(lin2srgb(np.clip(arr / RANGE, 0, 1)), 0, 1) * 255 + 0.5).astype(np.uint8)
-            p = os.path.join(OUT, f'{a}_on_{tag}.png'); save_png(enc, p); sizes[tag] = os.path.getsize(p)
+            p = os.path.join(OUT, f'{a}_on_{tag}.webp'); save_webp(enc, p); sizes[tag] = os.path.getsize(p)
         maps = {}
     for name, den in maps.items():
         enc = (np.clip(lin2srgb(np.clip(den / RANGE, 0, 1)), 0, 1) * 255 + 0.5).astype(np.uint8)
-        p = os.path.join(OUT, f'{a}_{name}.png'); save_png(enc, p); sizes[name] = os.path.getsize(p)
+        p = os.path.join(OUT, f'{a}_{name}.webp'); save_webp(enc, p); sizes[name] = os.path.getsize(p)
     meta_atlas[a] = {'px': N, 'range': RANGE, 'max': round(vmax, 3), 'p99_99': round(p9999, 3), 'objects': len(lst), 'png_bytes': sizes, 'packed': 'lum3' if STATE == 'on' else None}
     print('[atlas]', a, meta_atlas[a], flush=True)
     lap(f'bake_{a}')
