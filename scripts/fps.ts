@@ -23,7 +23,7 @@ try {
     let key = 'KeyW', dist = 0, prev = pl.feet.clone();
     pl.press(key);
     setInterval(() => { pl.press(key, false); key = key === 'KeyW' ? 'KeyS' : 'KeyW'; pl.press(key); }, 2000);
-    setInterval(() => { dist += pl.feet.distanceTo(prev); prev.copy(pl.feet); (window as any).__walked = dist; g.camera.rotation.y += 0.01; }, 50);
+    setInterval(() => { dist += pl.feet.distanceTo(prev); prev.copy(pl.feet); (window as any).__walked = dist; pl.yaw += 0.01; }, 50);
   });
   const frames: number[] = await page.evaluate(`new Promise((res) => {
     const out = [];
