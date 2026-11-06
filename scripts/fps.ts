@@ -45,6 +45,7 @@ try {
   console.log(`median fps: ${(1000 / median).toFixed(1)}`);
   console.log(`1% low fps: ${(1000 / avgWorst).toFixed(1)}`);
   console.log(`max frame ms: ${sorted[sorted.length - 1].toFixed(1)}`);
+  if (flags.has('walk')) console.log(`walked m: ${(await page.evaluate(() => (window as any).__walked)).toFixed(1)}`);
 } finally {
   await browser.close();
   await dev?.server.close();
