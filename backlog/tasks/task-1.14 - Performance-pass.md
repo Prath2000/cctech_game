@@ -4,7 +4,7 @@ title: Performance pass
 status: To Do
 assignee: []
 created_date: '2026-11-05T10:22:00Z'
-updated_date: '2026-11-06T07:02:00Z'
+updated_date: '2026-11-06T10:40:00Z'
 labels:
   - effort:L
 dependencies:
@@ -31,9 +31,9 @@ Parallel-safe: no. Plan: .team/changes/0001-pantry-poc/plan.md (T14).
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 Median 60 fps and no stutter on the user's Mac, Safari and Chrome, both backends.
-- [ ] #2 Load under about 10 s.
+- [x] #2 Load under about 10 s.
 - [ ] #3 Low setting measurably faster, same default look.
-- [ ] #4 Budget numbers in a short doc.
+- [x] #4 Budget numbers in a short doc.
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -42,4 +42,6 @@ Parallel-safe: no. Plan: .team/changes/0001-pantry-poc/plan.md (T14).
 From spike: KTX2 BC6H/ASTC HDR transcoding for lightmaps; pack ambient-cube axes into fewer textures.
 
 User 2026-11-06: Low setting (AC #3) does not matter for the first pass; defer it.
+
+Load: 4.9 s at 50 Mbps, 10.0 s at 20 Mbps after lossless WebP lightmaps (20.8 MB). Walking measured at 60 fps both backends in Chrome. Numbers in docs/reference/performance-budget.md. AC #1 needs Safari; AC #3 deferred by the user.
 <!-- SECTION:NOTES:END -->
