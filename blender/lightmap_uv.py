@@ -6,6 +6,7 @@ bottom, box undersides on the floor) are collapsed to UV (0,0) so they cost no t
 import math
 import bpy
 from mathutils import Vector
+import layout
 
 # name -> (px size, name prefixes). Everything else static goes to 'props'.
 ATLAS_PX = {"shell": 2048, "props": 2048}
@@ -40,7 +41,9 @@ def _visible_faces(o, room):
         q = c + n * 0.02
         # blender coords: x east, y = -game z, z up
         gz = -q.y
-        ok = (0.0 <= q.x <= W) and (0.0 <= q.z <= H) and (-0.2 <= gz <= D)
+        in_hall = -0.2 <= gz <= D
+        in_bay = layout.BAY["x0"] <= q.x <= layout.BAY["x1"] and D <= gz <= layout.BAY["z1"]
+        ok = (0.0 <= q.x <= W) and (0.0 <= q.z <= H) and (in_hall or in_bay)
         if ok and c.z < 0.005 and n.z < -0.5:  # underside resting on the floor
             ok = False
         keep.append(ok)
