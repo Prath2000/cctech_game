@@ -98,7 +98,7 @@ def materials():
         purple_cap=M("pantry_purple_cap", (0.12, 0.05, 0.4), 0.35),
         glass=M("pantry_clear_glass", (0.9, 0.95, 0.95), 0.03, trans=1.0, ior=1.5),
         frost=M("pantry_frosted_glass", (0.85, 0.87, 0.86), 0.25, trans=0.6, ior=1.5),
-        rubber=M("pantry_grey_rubber", (0.26, 0.27, 0.29), 0.85),
+        rubber=M("pantry_grey_rubber", (0.06, 0.065, 0.07), 0.85),
         hose=M("pantry_grey_hose", (0.2, 0.21, 0.22), 0.6),
         note=M("pantry_sticky_note", (0.88, 0.68, 0.06), 0.85),
         olive=M("pantry_mug_olive", (0.18, 0.2, 0.05), 0.2, coat=0.5),

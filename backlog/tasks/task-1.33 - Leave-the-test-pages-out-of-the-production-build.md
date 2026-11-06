@@ -1,9 +1,10 @@
 ---
 id: TASK-1.33
 title: Leave the test pages out of the production build
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-06T09:50:00Z'
+updated_date: '2026-11-06T10:05:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -21,6 +22,12 @@ dist contains 61 MB of dist/spike plus spike.html and pathtrace.html, none of wh
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Production build contains no spike or pathtrace pages or spike assets
-- [ ] #2 render:pt and the dev-server spike page still work
+- [x] #1 Production build contains no spike or pathtrace pages or spike assets
+- [x] #2 render:pt and the dev-server spike page still work
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+dist 113 -> 52 MB approx (spike assets gone). Dev server still serves spike.html and its assets (200), render:pt works, production preview ran at 59.9 fps median.
+<!-- SECTION:NOTES:END -->
