@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite';
+import { rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-// Multi-page: index.html (game) + spike.html (TASK-1.4 lighting spike).
+// Production build holds the game only. spike.html and pathtrace.html are served by the dev server, which render:pt and the checks use.
 // `three` is aliased to the WebGPU build so examples/jsm loaders (GLTFLoader, EXRLoader) share one class set.
 // pathtrace.html needs the WebGL build of three (WebGLRenderer), which three/webgpu lacks.
 const webglThree = {
@@ -16,9 +17,18 @@ const webglThree = {
   },
 };
 
+// Everything in public/ is copied to dist, so the spike assets are removed after the copy.
+const dropSpikeAssets = {
+  name: 'drop-spike-assets',
+  apply: 'build' as const,
+  closeBundle() {
+    rmSync(resolve(__dirname, 'dist/spike'), { recursive: true, force: true });
+  },
+};
+
 export default defineConfig({
-  plugins: [webglThree],
+  plugins: [webglThree, dropSpikeAssets],
   build: {
-    rollupOptions: { input: { main: resolve(__dirname, 'index.html'), spike: resolve(__dirname, 'spike.html'), pathtrace: resolve(__dirname, 'pathtrace.html') } },
+    rollupOptions: { input: { main: resolve(__dirname, 'index.html') } },
   },
 });
