@@ -83,6 +83,7 @@ const ready = new Promise<void>((r) => (markReady = r));
   player,
   interaction,
   scene,
+  renderer,
   baked,
   lightSwitch,
   camera,

@@ -17,6 +17,14 @@ try {
   console.log(`load ms (page open to game ready): ${Date.now() - started}`);
   page.on('console', (m) => { if (m.text().startsWith('[autores]')) console.log(m.text()); });
   await page.waitForTimeout(2000); // warm-up
+  // --walk: the player walks back and forth (and turns) while frames are sampled. Needs --no-pose.
+  if (flags.has('walk')) await page.evaluate(() => {
+    const g = (window as any).__game, pl = g.player;
+    let key = 'KeyW', dist = 0, prev = pl.feet.clone();
+    pl.press(key);
+    setInterval(() => { pl.press(key, false); key = key === 'KeyW' ? 'KeyS' : 'KeyW'; pl.press(key); }, 2000);
+    setInterval(() => { dist += pl.feet.distanceTo(prev); prev.copy(pl.feet); (window as any).__walked = dist; g.camera.rotation.y += 0.01; }, 50);
+  });
   const frames: number[] = await page.evaluate(`new Promise((res) => {
     const out = [];
     let last = performance.now();

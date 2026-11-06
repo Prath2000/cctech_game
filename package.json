@@ -28,6 +28,7 @@
     "check:match": "tsx scripts/match.ts",
     "check:walk": "tsx scripts/walk.ts",
     "check:fps": "tsx scripts/fps.ts",
+    "check:budget": "tsx scripts/budget.ts",
     "check:glb": "python3 scripts/check_glb.py",
     "check:look": "tsx scripts/look.ts",
     "check:grab": "tsx scripts/grab-stress.ts",
