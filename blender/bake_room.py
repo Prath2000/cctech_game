@@ -79,8 +79,8 @@ for o in scn.objects:
 # Scale: 1 unit of irradiance ~ 1000 lux (the daylit shade of the room is ~0.5-1 unit); LED_ON_STRENGTH is panel radiance
 # (8.5 -> ~2700 nit-equivalent; real panels 2500-4000), measured so the measured desk-height illuminance lands at 300-500 lux (printed as [lux]).
 LUX_PER_UNIT = 1000.0
-LED_ON_STRENGTH = arg('--led', 8.5)
-LED_BAY_BOOST = arg('--led-bay', 5.5)   # bay panels (last 3, x 7.1-7.7, z 8.0-9.3): daylight barely reaches the kitchenette
+LED_ON_STRENGTH = arg('--led', 8.0)
+LED_BAY_BOOST = arg('--led-bay', 6.2)   # bay panels (last 3, x 7.1-7.7, z 8.0-9.3): daylight barely reaches the kitchenette
 BAY_PANELS = ('led_panel_10', 'led_panel_11', 'led_panel_12')
 if STATE == 'on':
     bg.inputs['Strength'].default_value = 0.0; sun.energy = 0.0; por_o.hide_render = True

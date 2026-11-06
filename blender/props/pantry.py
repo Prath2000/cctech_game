@@ -107,7 +107,7 @@ def materials():
         green_led=M("pantry_mw_display", (0.02, 0.05, 0.02), 0.3, emit=(0.2, 1.0, 0.3), emit_k=0.6),
         red_cloth=M("pantry_red_cloth", (0.5, 0.03, 0.04), 0.9),
         granite=M("pantry_granite_dark", (0.07, 0.072, 0.08), 0.22, coat=0.4),
-        sink_steel=M("pantry_sink_steel", (0.42, 0.44, 0.46), 0.5, 1.0),
+        sink_steel=M("pantry_sink_steel", (0.55, 0.57, 0.59), 0.32, 1.0),
         soap_yel=M("pantry_soap_yellow", (0.82, 0.68, 0.06), 0.3),
         soap_grn=M("pantry_soap_green", (0.12, 0.5, 0.18), 0.3),
         pink=M("pantry_pink_bottle", (0.85, 0.2, 0.45), 0.25),
