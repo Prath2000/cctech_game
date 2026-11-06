@@ -18,13 +18,15 @@ try {
   page.on('console', (m) => { if (m.text().startsWith('[autores]')) console.log(m.text()); });
   await page.waitForTimeout(2000); // warm-up
   // --walk: the player walks back and forth (and turns) while frames are sampled. Needs --no-pose.
-  if (flags.has('walk')) await page.evaluate(() => {
+  // --turn N: radians per 50 ms (default 0.01). --delay N: extra seconds before the walk starts.
+  if (opts.delay) await page.waitForTimeout(Number(opts.delay) * 1000);
+  if (flags.has('walk')) await page.evaluate((turn) => {
     const g = (window as any).__game, pl = g.player;
     let key = 'KeyW', dist = 0, prev = pl.feet.clone();
     pl.press(key);
     setInterval(() => { pl.press(key, false); key = key === 'KeyW' ? 'KeyS' : 'KeyW'; pl.press(key); }, 2000);
-    setInterval(() => { dist += pl.feet.distanceTo(prev); prev.copy(pl.feet); (window as any).__walked = dist; pl.yaw += 0.01; }, 50);
-  });
+    setInterval(() => { dist += pl.feet.distanceTo(prev); prev.copy(pl.feet); (window as any).__walked = dist; pl.yaw += turn; }, 50);
+  }, Number(opts.turn ?? 0.01));
   // Also note every frame over 25 ms: when it happened, where the player was, and what the browser says took the time.
   const { frames, slow, loaf }: { frames: number[]; slow: string[]; loaf: string[] } = await page.evaluate(`new Promise((res) => {
     const out = [], slow = [], loaf = [];
@@ -37,8 +39,14 @@ try {
         (e.scripts.map((x) => (x.sourceFunctionName || x.invoker || '?') + ' ' + x.duration.toFixed(0)).join('; ') || 'none')
       ); }).observe({ type: 'long-animation-frame' });
     } catch {}
+    // What the renderer has created so far; a jump on a slow frame points at first-time GPU work.
+    const r = window.__game && window.__game.renderer;
+    const gpu = () => r ? 'textures ' + r.info.memory.textures + ', geometries ' + r.info.memory.geometries + ', pipelines ' + (r._pipelines ? r._pipelines.caches.size : '?') : '';
+    let prevGpu = gpu();
     const f = (t) => {
       out.push(t - last);
+      const nowGpu = gpu();
+      if (nowGpu !== prevGpu) { slow.push('renderer grew, ' + ((t - start) / 1000).toFixed(1) + ' s in, ' + (t - last).toFixed(1) + ' ms: ' + prevGpu + ' -> ' + nowGpu); prevGpu = nowGpu; }
       if (out.length > 1 && t - last > 25) {
         const p = window.__game && window.__game.player;
         slow.push((t - last).toFixed(1) + ' ms, ' + ((t - start) / 1000).toFixed(1) + ' s in' + (p ? ', at ' + p.feet.x.toFixed(1) + ',' + p.feet.z.toFixed(1) + ' yaw ' + p.yaw.toFixed(2) : ''));
