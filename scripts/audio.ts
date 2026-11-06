@@ -48,7 +48,7 @@ try {
     // footsteps: walk ~6 m
     let walked = 0;
     for (const yaw of [-90, 0, 90, 180]) { // try each heading in case something blocks one of them
-      pl.teleport(1.0, 0, 3.3, yaw);
+      pl.teleport(3.0, 0, 5.0, yaw);
       const p0 = pl.feet.clone();
       pl.press('KeyW'); await wait(1500); pl.press('KeyW', false);
       walked += Math.hypot(pl.feet.x - p0.x, pl.feet.z - p0.z);

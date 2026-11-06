@@ -15,8 +15,10 @@ from mathutils import Matrix, Vector
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DECALS = os.path.join(ROOT, "assets", "decals", "pantry")
-CT = 0.9  # counter top height
-# Anchors: props are authored for the 8 x 6 x 3 m blockout (counter x 7.4-8.0, z from 1.4, ceiling 3.0).
+CT = 0.8  # counter top height [scan: counter top 0.79-0.81]
+# TASK-1.17: props are authored in an OLD frame (counter x 7.4-8.0 facing -x, run z 1.4-3.25) then build() maps the
+# counter group onto the scan layout (x'=14.7-x, z'=11.2-z, i.e. wall x=6.7, facing +x, run z 9.8..7.95) and warps the
+# fridge to the scan footprint. Old anchors: the 8 x 6 x 3 m blockout (counter x 7.4-8.0, z from 1.4, ceiling 3.0).
 # Everything is shifted by (DX, DZ) / CEIL so a room resize is a one-line change here
 # (build() also reads the blockout 'counter' / 'ceiling' objects when present).
 ROOM_W, ROOM_H, COUNTER_Z0 = 8.0, 3.0, 1.4
@@ -492,7 +494,7 @@ def counter_items(mt):
     # --- sink (cut into the blockout counter if present) + bowl + faucet
     sx0, sx1, sz0, sz1 = 7.5, 7.9, 1.85, 2.35
     cut = bmesh.new()
-    bm_box(cut, sx0 + 0.01, sx1 - 0.01, CT - 0.19, CT + 0.05, sz0 + 0.01, sz1 - 0.01, 0.0)
+    bm_box(cut, 14.7 - sx1 + 0.01, 14.7 - sx0 - 0.01, CT - 0.19, CT + 0.05, 11.2 - 0.45 - sz1 + 0.01, 11.2 - 0.45 - sz0 - 0.01, 0.0)  # old sink box -> new frame (dz -0.45)
     cm = bpy.data.meshes.new("sink_cutter")
     cut.to_mesh(cm)
     cut.free()
@@ -582,15 +584,7 @@ def mugs(mt):
             meshes[k] = me
         return meshes[k]
     layout = []
-    # front row 11 mugs, back row 3, all on the open shelf (y 1.218), unit z 2.0-3.9, x 7.65-8.0
-    cols = ["brown", "red", "navy", "white", "black", "navy", "cream", "sage", "brown", "cream", "white"]
-    for i, c in enumerate(cols):
-        layout.append((c, 7.8, 1.82 + i * 0.145, (i * 1.7) % 6.28, 1.468))
-    for i, c in enumerate(["teal", "green", "black"]):
-        layout.append((c, 7.9, 2.0 + i * 0.5, (i * 2.1) % 6.28, 1.468))
-    # six more stored inside the closed wall cabinets (on the cabinet floor, y 1.70): reachable once a door is open
-    for i, (c, x, z) in enumerate([("red", 7.84, 1.96), ("sage", 7.9, 2.16), ("navy", 7.84, 2.5), ("cream", 7.9, 2.72), ("teal", 7.84, 3.2), ("brown", 7.9, 3.4)]):
-        layout.append((c, x, z, (i * 1.3) % 6.28, 1.70))
+    # wall cabinets / open shelf are not in the scan, so their mugs are gone; the olive mug below stays
     for i, (c, x, z, rot, my) in enumerate(layout):
         o = bpy.data.objects.new(f"mug_{i + 1:02d}", mug_mesh(c, MUG_COLORS[c]))
         collection().objects.link(o)
@@ -646,25 +640,26 @@ def wall_cabinets(mt):
 
 def base_cabinets(mt):
     out = []
-    n = 5
-    w = 3.1 / n
+    n = 3
+    w = 1.85 / n   # counter run 1.85 m [scan]
+    xo = 0.1       # counter is 0.7 deep [scan]: doors sit 0.1 proud of the old 0.6 front
     for i in range(n):
         za = 1.405 + i * w + 0.002
         zb = 1.405 + (i + 1) * w - 0.002
         left = i % 2 == 0
         bm = bmesh.new()
-        bm_box(bm, 7.378, 7.4, 0.06, 0.87, za, zb, 0.003)
+        bm_box(bm, 7.378 - xo, 7.4 - xo, 0.06, CT - 0.03, za, zb, 0.003)
         hz = za if left else zb
-        d = finish(f"base_cabinet_door_{i + 1:02d}", bm, mt["lam_white"], (7.389, 0.465, hz), static=0,
+        d = finish(f"base_cabinet_door_{i + 1:02d}", bm, mt["lam_white"], (7.389 - xo, (0.06 + CT - 0.03) / 2, hz), static=0,
                    extras={"interact": "use", "use_kind": "cabinet_door", "caption_id": "base_cabinet_door", "collider": "box"})
         hinge(d, "y", 100, -1 if left else 1)
         out.append(d)
         pz = zb - 0.04 if left else za + 0.04
         bm = bmesh.new()
-        bm_box(bm, 7.362, 7.378, 0.72, 0.84, pz - 0.006, pz + 0.006, 0.004)
-        for py in (0.73, 0.83):
-            bm_box(bm, 7.376, 7.38, py - 0.006, py + 0.006, pz - 0.004, pz + 0.004, 0.001)
-        out.append(finish(f"base_cabinet_pull_{i + 1:02d}", bm, mt["chrome"], (7.37, 0.78, pz), parent=d, extras={"interact": "look", "collider": "none"}))
+        bm_box(bm, 7.362 - xo, 7.378 - xo, CT - 0.18, CT - 0.06, pz - 0.006, pz + 0.006, 0.004)
+        for py in (CT - 0.17, CT - 0.07):
+            bm_box(bm, 7.376 - xo, 7.38 - xo, py - 0.006, py + 0.006, pz - 0.004, pz + 0.004, 0.001)
+        out.append(finish(f"base_cabinet_pull_{i + 1:02d}", bm, mt["chrome"], (7.37 - xo, CT - 0.12, pz), parent=d, extras={"interact": "look", "collider": "none"}))
     return out
 
 
@@ -721,13 +716,13 @@ def small_props(mt):
     out[-2].location = G(7.9, CT, 3.08)
     # small steel tumbler near the coffee machine
     bm = bmesh.new()
-    bm_lathe(bm, [(0, 0), (0.032, 0), (0.035, 0.004), (0.036, 0.09), (0.033, 0.09), (0.032, 0.006), (0, 0.006)], 0, 0, 0, 28)
+    bm_lathe(bm, [(0, 0), (0.032, 0), (0.035, 0.004), (0.036, 0.09), (0.033, 0.09), (0.032, 0.006), (0, 0.006)], 7.62, 3.86, CT, 28)
     t = finish("steel_cup_01", bm, mt["steel"], (7.62, CT, 3.86), extras=grab(0.12, "steel_cup"))
     out.append(t)
     # white glass storage jar with steel lid
     bm = bmesh.new()
-    bm_lathe(bm, [(0, 0), (0.047, 0), (0.05, 0.006), (0.05, 0.165), (0.0, 0.165)], 0, 0, 0, 28)
-    bm_lathe(bm, [(0, 0.165), (0.052, 0.165), (0.052, 0.182), (0.0, 0.182)], 0, 0, 0, 28, mi=1)
+    bm_lathe(bm, [(0, 0), (0.047, 0), (0.05, 0.006), (0.05, 0.165), (0.0, 0.165)], 7.72, 3.76, CT, 28)
+    bm_lathe(bm, [(0, 0.165), (0.052, 0.165), (0.052, 0.182), (0.0, 0.182)], 7.72, 3.76, CT, 28, mi=1)
     out.append(finish("glass_jar_01", bm, [mt["frost"], mt["steel"]], (7.72, CT, 3.76), extras=grab(0.6, "glass_jar")))
     # tissue / paper dispenser
     bm = bmesh.new()
@@ -805,51 +800,97 @@ def switch_plate(mt):
 def ceiling(mt):
     out = []
     cy = ROOM_H
-    # 4 x 4 grid of 0.6 m LED panels (~1 per 5.6 m^2, a typical office layout)
-    for i, (x, z) in enumerate((x, z) for x in (1.7, 4.4, 7.2, 10.0) for z in (1.5, 3.0, 4.5, 6.0)):
+    # 3 x 3 grid of 0.6 m LED panels over the 8.7 x 7.35 hall (ceiling fixtures are not measurable in the scan)
+    for i, (x, z) in enumerate((x, z) for x in (1.5, 4.35, 7.2) for z in (1.2, 3.7, 6.2)):  # [not measured] 3 x 3 grid
         bm = bmesh.new()
         bm_box(bm, x - 0.3, x + 0.3, cy - 0.015, cy, z - 0.3, z + 0.3, 0.002)
         bm_box_mi(bm, 1, x - 0.285, x + 0.285, cy - 0.019, cy - 0.014, z - 0.285, z + 0.285, 0.001)
         out.append(finish(f"led_panel_{i + 1:02d}", bm, [mt["fan_white"], mt["led_off"]], (x, cy - 0.01, z), static=1,
                           extras={"interact": "look", "caption_id": "led_panel", "collider": "none", "emissive_on_strength": 6.0}))
-    fx, fz = 6.6, 3.0
-    bm = bmesh.new()
-    bm_lathe(bm, [(0, 0), (0.06, 0), (0.06, 0.04), (0.0, 0.04)], fx, fz, cy - 0.04, 24)
-    bm_lathe(bm, [(0, 0), (0.012, 0), (0.012, 0.3), (0, 0.3)], fx, fz, cy - 0.34, 12)
-    bm_lathe(bm, [(0, 0), (0.07, 0), (0.1, 0.03), (0.1, 0.07), (0.07, 0.085), (0.0, 0.085)], fx, fz, cy - 0.425, 28)
-    for k in range(3):
-        a = k * 2 * math.pi / 3
-        vs = bm_box(bm, fx + 0.1, fx + 0.6, cy - 0.375, cy - 0.37, fz - 0.06, fz + 0.06, 0.003)
-        rotate_bm(bm, list({v for v in vs}), -a, "Z", G(fx, cy, fz))
-    out.append(finish("ceiling_fan_01", bm, mt["fan_white"], (fx, cy - 0.2, fz), static=1,
-                      extras={"interact": "look", "caption_id": "ceiling_fan", "collider": "none"}))
+    # ceiling fans: built by props/seating.py, one over each table
     return out
 
 
 # ---------------------------------------------------------------- entry point
+SHIFT = [  # old-frame (dx, dy, dz) for top-level objects, by name prefix: squeeze the 3.2 m run into the scan's 1.85 m counter
+    (("sink_bowl", "sink_faucet"), (0, 0, -0.45)),
+    (("soap_dispenser",), (0, 0, -0.25)), (("red_cloth",), (0, 0, 0.05)), (("sink_soap_tray",), (0, 0, -0.3)),
+    (("kettle",), (0, 0, 0.40)),
+    (("lg_microwave",), (0, -0.45, -1.25)),
+    (("tata_bistro", "coffee_"), (0, 0, -1.25)), (("bone_board",), (0, 0, -1.37)),
+    (("steel_flask", "steel_tumbler", "glass_bottle", "glass_jar"), (0, 0.25, -0.9)),
+    (("tissue_dispenser",), (0, 0.25, -1.1)),
+    (("steel_cup",), (0, 0, -1.25)),
+    (("water_jug_20l",), (-0.27, -CT, 0.5)),
+    (("drying_mat_01",), (0, 0, -1.25)), (("drying_mat_02",), (0, 0, -0.95)),
+    (("mug_olive",), (0, 0, -0.75)),
+    (("light_switch",), (0, 0, 0.4)),
+]
+FRIDGE_NEW = dict(x0=6.9, z0=7.0, w=0.45, d=0.44, h=1.35)   # layout.FRIDGE [scan]
+
+
+def _place():
+    """Map the old-frame props onto the scan layout (see header)."""
+    from mathutils import Matrix
+    bpy.context.view_layer.update()
+    objs = list(collection().objects)
+    fr = [o for o in objs if o.name.startswith(("lg_fridge", "fridge_sticker"))]
+    # 1) counter group: per-object shift, then 180 deg turn about the vertical onto the x=6.7 wall
+    A = Matrix.Translation((14.7, -11.2, 0)) @ Matrix.Rotation(math.pi, 4, "Z")
+    for o in objs:
+        if o.parent is not None or o in fr or o.name.startswith("led_panel"):
+            continue
+        for names, (dx, dy, dz) in SHIFT:
+            if o.name.startswith(names):
+                o.location += Vector((dx, -dz, dy))
+                bpy.context.view_layer.update()
+        o.matrix_world = A @ o.matrix_world
+        bpy.context.view_layer.update()
+    # 2) fridge: warp meshes + origins to the scan footprint/height (no rotation: door faces -x into the hall)
+    F = FRIDGE_NEW
+    sx, sz, sy = F["w"] / 0.64, F["d"] / 0.555, F["h"] / 1.6
+
+    def warp(p):
+        return Vector((F["x0"] + sx * (p.x - 6.98), -(F["z0"] + sz * (-p.y - 0.2)), sy * p.z))
+    data = []
+    for o in fr:
+        mw = o.matrix_world.copy()
+        data.append((o, warp(mw.translation), [warp(mw @ v.co) for v in o.data.vertices]))
+    for o, nw, vw in data:
+        for v, w in zip(o.data.vertices, vw):
+            v.co = w - nw
+        o.data.update()
+    def depth(o):
+        d = 0
+        while o.parent:
+            o, d = o.parent, d + 1
+        return d
+    for o, nw, _ in sorted(data, key=lambda t: depth(t[0])):
+        o.matrix_world = Matrix.Translation(nw)
+        bpy.context.view_layer.update()
+
+
 def build(context=None):
     global ROOM_W, ROOM_H, COUNTER_Z0, DX, DZ
-    DX = DZ = 0.0
-    bpy.context.view_layer.update()
-    c = bpy.data.objects.get("counter")
-    if c is not None:
-        cs = [c.matrix_world @ Vector(v) for v in c.bound_box]
-        DX = max(v.x for v in cs) - 8.0
-        DZ = -max(v.y for v in cs) + 0.0 - 1.4 if False else (-max(v.y for v in cs)) - 1.4
-        ROOM_W, COUNTER_Z0 = 8.0 + DX, 1.4 + DZ
+    DX = DZ = 0.0   # props are authored in the old frame; _place() maps them (TASK-1.17)
     ce = bpy.data.objects.get("ceiling")
     if ce is not None:
         ROOM_H = min((ce.matrix_world @ Vector(v)).z for v in ce.bound_box)
-    for n in ("fridge", "wall_cabinets"):  # blockout stand-ins replaced by the detailed props
+    for n in ("fridge",):  # blockout stand-ins replaced by the detailed props
         o = bpy.data.objects.get(n)
         if o is not None:
             bpy.data.objects.remove(o)
     mt = materials()
     objs = []
-    for fn in (fridge, microwave, coffee_machine, counter_items, mugs, wall_cabinets, base_cabinets, small_props, ceiling):
+    for fn in (fridge, microwave, coffee_machine, counter_items, mugs, base_cabinets, small_props, ceiling):
         r = fn(mt)
         objs += r
     objs += [kettle(mt), switch_plate(mt)]
+    for o in list(objs):   # not in the scan / no room on the 1.85 m counter
+        if o.name in ("sticky_note_01", "water_jug_hose", "sink_soap_tray"):
+            objs.remove(o)
+            bpy.data.objects.remove(o)
+    _place()
     names = [o.name for o in objs]
     assert len(names) == len(set(names)), "duplicate names"
     tris = 0

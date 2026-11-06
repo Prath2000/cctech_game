@@ -67,11 +67,12 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
 
   // ---- fridge ------------------------------------------------------------------------------------------------------
   const fridgeDoorList = fridgeDoors();
-  const glowFor = (h: Hinge, behind: boolean, color: number, max: number, inset: number) => {
+  // face: -1 = door faces -x (fridge), +1 = faces +x (counter props, TASK-1.17: counter runs along the x=6.7 wall)
+  const glowFor = (h: Hinge, behind: boolean, color: number, max: number, inset: number, face = -1) => {
     const b = new THREE.Box3().setFromObject(h.obj); // closed pose
     const c = b.getCenter(new THREE.Vector3());
-    c.x = behind ? b.max.x + 0.003 : b.min.x - 0.004;
-    return new Glow(scene, c, b.max.z - b.min.z - 2 * inset, b.max.y - b.min.y - 2 * inset, color, max);
+    c.x = face < 0 ? (behind ? b.max.x + 0.003 : b.min.x - 0.004) : (behind ? b.min.x - 0.003 : b.max.x + 0.004);
+    return new Glow(scene, c, b.max.z - b.min.z - 2 * inset, b.max.y - b.min.y - 2 * inset, color, max, face);
   };
   const fridgeGlows = fridgeDoorList.map((h) => glowFor(h, true, 0xdce9ff, 0.9, 0.03));
   const fridgeCenter = fridgeDoorList.length
@@ -83,9 +84,9 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
   const mw = find('lg_microwave');
   const mwDoor = find('lg_microwave_door');
   const mwHinge = mwDoor ? hinges.get(mwDoor) ?? null : null;
-  const mwOpenGlow = mwHinge ? glowFor(mwHinge, true, 0xfff0d0, 0.9, 0.025) : null;
-  const mwRunGlow = mwHinge ? glowFor(mwHinge, false, 0xffd9a0, 0.55, 0.03) : null;
-  const mwLight = new EasedLight(scene, mw ? origin(mw).add(V(-0.25, 0, 0)) : V(0, 0, 0), 0xffd9a0, 1.2, 1.5);
+  const mwOpenGlow = mwHinge ? glowFor(mwHinge, true, 0xfff0d0, 0.9, 0.025, 1) : null;
+  const mwRunGlow = mwHinge ? glowFor(mwHinge, false, 0xffd9a0, 0.55, 0.03, 1) : null;
+  const mwLight = new EasedLight(scene, mw ? origin(mw).add(V(0.25, 0, 0)) : V(0, 0, 0), 0xffd9a0, 1.2, 1.5);
   const canvas = document.createElement('canvas');
   canvas.width = 128; canvas.height = 32;
   const g2 = canvas.getContext('2d')!;
@@ -100,8 +101,8 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
   drawDisplay('');
   if (mw) {
     const d = new THREE.Mesh(new THREE.PlaneGeometry(0.066, 0.0165), new THREE.MeshBasicMaterial({ map: dispTex, transparent: true, depthWrite: false, toneMapped: false }));
-    d.position.copy(origin(mw)).add(V(-0.166, 0.079, 0.1375));
-    d.rotation.y = -Math.PI / 2;
+    d.position.copy(origin(mw)).add(V(0.166, 0.079, -0.1375));
+    d.rotation.y = Math.PI / 2;
     d.renderOrder = 4;
     scene.add(d);
   }
@@ -117,8 +118,8 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
 
   // ---- coffee machine ----------------------------------------------------------------------------------------------
   const machine = find('tata_bistro_machine');
-  const nozzle = machine ? origin(machine).add(V(-0.115, 0.215, -0.07)) : V(0, 0, 0);
-  const mugSpot = machine ? origin(machine).add(V(-0.115, 0.07, -0.07)) : V(0, 0, 0);
+  const nozzle = machine ? origin(machine).add(V(0.115, 0.215, 0.07)) : V(0, 0, 0);
+  const mugSpot = machine ? origin(machine).add(V(0.115, 0.07, 0.07)) : V(0, 0, 0);
   const coffeeStream = new Stream(scene, 0x3a1d0c, 0.95);
   const coffeeSteam = new Steam(scene, 10, 0.07, 0.3, 0.28, 8);
   const mugProto = find('mug_olive_counter')?.clone(true) ?? null; // pristine template for spawning (no coffee disc)
@@ -186,7 +187,7 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
   // ---- kettle ------------------------------------------------------------------------------------------------------
   const kettleObj = find('kettle_01');
   const kettleSteam = new Steam(scene, 8, 0.05, 0.22, 0.22, 6);
-  if (kettleObj) kettleSteam.origin.copy(origin(kettleObj)).add(V(-0.12, 0.2, 0));
+  if (kettleObj) kettleSteam.origin.copy(origin(kettleObj)).add(V(0.12, 0.2, 0));
   const ket = { on: false, t: 0, node: null as AudioBufferSourceNode | null };
   const stopNode = (n: AudioBufferSourceNode | null) => { try { n?.stop(); } catch { /* already stopped */ } };
   const kettleUse = () => {
@@ -200,7 +201,7 @@ export function initPantry({ scene, world, interaction, grab, audio, player }: C
 
   // ---- sink --------------------------------------------------------------------------------------------------------
   const faucet = find('sink_faucet');
-  const tip = faucet ? origin(faucet).add(V(-0.0975, 0.2546, 0)) : V(0, 0, 0);
+  const tip = faucet ? origin(faucet).add(V(0.0975, 0.2546, 0)) : V(0, 0, 0);
   const bowlY = faucet ? origin(faucet).y - 0.17 : 0;
   const water = new Stream(scene, 0xbfe3ff, 0.55);
   const splash = new THREE.Mesh(new THREE.CircleGeometry(1, 16).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xdff2ff, transparent: true, opacity: 0, depthWrite: false }));

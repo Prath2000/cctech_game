@@ -28,61 +28,53 @@ try {
     const state = () => P.state();
     await wait(500);
 
-    await run('fridge', [10.6, 1.2, -90], async () => {
+    await run('fridge', [5.6, 7.2, -90], async () => {
       P.use('lg_fridge_door_main'); await wait(1200);
       const open = door('lg_fridge_door_main');
       P.use('lg_fridge_door_main'); await wait(1200);
       return `open=${open.toFixed(2)} closed=${door('lg_fridge_door_main').toFixed(2)} ${open > 0.95 && door('lg_fridge_door_main') < 0.05 ? '' : 'BAD'}`;
     });
-    await run('microwave door', [10.6, 4.3, -90], async () => {
+    await run('microwave door', [8.2, 8.8, 90], async () => {
       P.use('lg_microwave_door'); await wait(1200);
       const open = door('lg_microwave_door');
       P.use('lg_microwave_door'); await wait(1200);
       return `open=${open.toFixed(2)} closed=${door('lg_microwave_door').toFixed(2)} ${open > 0.95 && door('lg_microwave_door') < 0.05 ? '' : 'BAD'}`;
     });
-    await run('microwave run', [10.6, 4.3, -90], async () => {
+    await run('microwave run', [8.2, 8.8, 90], async () => {
       P.use('lg_microwave'); await wait(5000);
       const mid = state().mw;
       await idle();
       return `running mid=${mid} after=${state().mw} beeps=${g.audio.count.microwave_beep ?? 0} ${mid && !state().mw ? '' : 'BAD'}`;
     });
-    await run('coffee', [10.6, 4.3, -90], async () => {
+    await run('coffee', [8.2, 8.2, 90], async () => {
       P.use('tata_bistro_machine'); await wait(500);
       await idle(); await wait(500);
       const s = state();
       return `filled=${JSON.stringify(s.filled)} phase=${s.coffeePhase} ${s.filled.length === 1 ? '' : 'BAD'}`;
     });
-    await run('kettle', [10.6, 1.6, -90], async () => {
+    await run('kettle', [8.2, 9.2, 90], async () => {
       P.use('kettle_01'); await wait(1500);
       const on = state().kettle;
       P.use('kettle_01'); await wait(500);
       return `on=${on} off=${!state().kettle} ${on && !state().kettle ? '' : 'BAD'}`;
     });
-    await run('sink', [10.6, 2.7, -90], async () => {
+    await run('sink', [8.2, 9.5, 90], async () => {
       P.use('sink_faucet'); await wait(1500);
       const on = state().sink;
       P.use('sink_faucet'); await wait(600);
       return `on=${on} off=${!state().sink} ${on && !state().sink ? '' : 'BAD'}`;
     });
-    await run('cabinet + mug grab', [10.6, 3.0, -90], async () => {
-      const before = state().sleepingMugs;
-      P.use('wall_cabinet_door_02'); await wait(150);
-      const mugs0 = g.grab.items.filter((i: any) => i.obj.position.y > 1.65 && i.obj.name.startsWith('mug') && Math.abs(i.obj.position.z - 3.2) < 0.15);
-      const awake = mugs0.length > 0 && mugs0.every((i: any) => !i.body.isSleeping());
-      await wait(1050);
-      const d = door('wall_cabinet_door_02');
-      const mug = g.grab.items.find((i: any) => i.obj.position.y > 1.65 && i.obj.name.startsWith('mug') && Math.abs(i.obj.position.z - 3.2) < 0.15);
-      const picked = mug ? g.grab.pickItem(mug) : false;
-      await wait(500);
-      g.grab.drop();
-      P.use('wall_cabinet_door_02'); await wait(1200);
-      P.use('base_cabinet_door_01'); await wait(1200); P.use('base_cabinet_door_01'); await wait(1200);
-      return `asleep before=${before} open=${d.toFixed(2)} mugAwake=${awake} picked=${picked} ${d > 0.95 && awake && picked && before >= 6 ? '' : 'BAD'}`;
+    // TASK-1.17: wall cabinets (and their mugs) are not in the scan, so only the base cabinet doors remain.
+    await run('base cabinet', [8.2, 9.0, 90], async () => {
+      P.use('base_cabinet_door_01'); await wait(1200);
+      const d = door('base_cabinet_door_01');
+      P.use('base_cabinet_door_01'); await wait(1200);
+      return `open=${d.toFixed(2)} closed=${door('base_cabinet_door_01').toFixed(2)} ${d > 0.95 && door('base_cabinet_door_01') < 0.05 ? '' : 'BAD'}`;
     });
     // Door must not trap the player: stand where the open fridge door sweeps.
-    pl.teleport(10.6, 0, 0.95, 90); await wait(300);
+    pl.teleport(6.4, 0, 7.0, -90); await wait(300);
     // Repeated coffee use must not grow bodies unbounded: move each mug away so every use would spawn a new one.
-    pl.teleport(10.6, 0, 4.3, -90); await wait(300);
+    pl.teleport(8.2, 0, 8.2, 90); await wait(300);
     const bodies = () => g.grab.world.bodies.len();
     const b0 = bodies();
     for (let i = 0; i < 30; i++) {

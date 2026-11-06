@@ -12,11 +12,11 @@ interface ProbeDef {
   size: [number, number, number];
 }
 
-// Room 12 x 7.5 x 3.2 (blender/layout.py): window wall z=0, counter east x 11.4-12.
+// Room 8.7 x 2.65 hall (z 0-7.35) + kitchenette bay x 6.7-8.7, z 7.35-10 (blender/layout.py, from the scan).
 const PROBES: ProbeDef[] = [
-  { name: 'pantry', pos: [10, 1.6, 3.75], size: [4, 3.2, 7.5] },
-  { name: 'window', pos: [6, 1.6, 1.4], size: [12, 3.2, 2.8] },
-  { name: 'hall', pos: [6, 1.6, 3.75], size: [12, 3.2, 7.5] },
+  { name: 'pantry', pos: [7.7, 1.3, 8.7], size: [2.0, 2.65, 2.7] },
+  { name: 'window', pos: [4.35, 1.3, 1.4], size: [8.7, 2.65, 2.8] },
+  { name: 'hall', pos: [4.35, 1.3, 3.675], size: [8.7, 2.65, 7.35] },
 ];
 
 /** Glossy material name -> env intensity (diffuse irradiance is also scaled, so keep subtle on diffuse-ish ones). */

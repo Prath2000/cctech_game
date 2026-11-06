@@ -53,9 +53,11 @@ SPECS = {
 
 # object name regex -> material (first match wins)
 ASSIGN = [
-    (r"^floor$", "floor_tile"),
-    (r"^ceiling$", "ceiling_tile"),
-    (r"^wall_(west|east|south)$", "wall_plaster"),
+    (r"^floor(_bay)?$", "floor_tile"),
+    (r"^ceiling(_bay)?$", "ceiling_tile"),
+    (r"^wall_(west|east|south|bay_west|bay_south)$", "wall_plaster"),
+    (r"^window_wall_", "wall_plaster"),
+    (r"^low_unit$", "plastic_black"),
     (r"^(chevron_wall|fridge_niche)$", "wall_plaster"),
     (r"^window_(frame|mullion)", "aluminium_black"),
     (r"^window_glass", "glass_clear"),
@@ -218,8 +220,8 @@ def split_counter(o, granite, laminate):
     o.data.materials.append(granite); o.data.materials.append(laminate)
 
 def chevron_span():
-    """Game z range (lo, hi) of the chevron panel: from the room's north corner to 0.35 m before the door."""
-    return 0.1, bounds("door_frame")[4] - 0.35
+    """Game z range (lo, hi) of the chevron panel: the scan's graphic span (layout.CHEVRON_Z0/Z1)."""
+    return bounds("chevron_wall")[4], bounds("chevron_wall")[5]
 
 def fit_chevron_wall():
     """Stretch the chevron panel to chevron_span() so both chevron decals sit on it."""
@@ -335,9 +337,9 @@ def build(context=None):
     lo, hi = chevron_span()
     # small INNOVATION chevron (right-aligned to the panel end, nearest the door), big chevron to its left
     # tops aligned at 3.0 m like photo 08 (3): innovation chevron (1.2 x 1.6) nearest the door, big one (1.5 x 2.1) to its left
-    decal("decal_chevron_innovation", "chevron_innovation", (cw, 3.0 - 0.8, hi - 0.1 - 1.2 / 2), (0, 0, -1), (0, 1, 0), 1.2, 1.6, "innovation_sign", blend=True)
-    decal("decal_chevron_large", "chevron_large", (cw, 3.0 - 1.05, hi - 0.1 - 1.2 - 0.15 - 1.5 / 2), (0, 0, -1), (0, 1, 0), 1.5, 2.1, "chevron_wall", blend=True)
-    decal("decal_mural_circuit_arrow", "mural_circuit_arrow", (x_w + D, 2.03, z_s - 0.75), (0, 0, -1), (0, 1, 0), 1.5, 1.06, "circuit_mural", blend=True)
+    decal("decal_chevron_innovation", "chevron_innovation", (cw, 2.35 - 1.15 / 2, hi - 0.1 - 0.86 / 2), (0, 0, -1), (0, 1, 0), 0.86, 1.15, "innovation_sign", blend=True)
+    decal("decal_chevron_large", "chevron_large", (cw, 2.35 - 1.35 / 2, hi - 0.1 - 0.86 - 0.1 - 0.96 / 2), (0, 0, -1), (0, 1, 0), 0.96, 1.35, "chevron_wall", blend=True)
+    # circuit mural: built by props/seating.py (build_mural) on the partition, x 0.5-1.5
     add_window_backdrop()
     cx0, cx1, cy0, cy1, cz0, cz1 = bounds("counter")
     decal("decal_sticky_note", "sticky_note", (cx0 + 0.3, cy1 + D, (cz0 + cz1) / 2), (0.966, 0, 0.259), (0.259, 0, -0.966), 0.1, 0.1, "sticky_note")

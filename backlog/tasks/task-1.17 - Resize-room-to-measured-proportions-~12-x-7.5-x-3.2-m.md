@@ -1,11 +1,13 @@
 ---
 id: TASK-1.17
-title: Resize room to measured proportions (~12 x 7.5 x 3.2 m)
+title: >-
+  Resize room to the point-cloud scan layout (8.7 x 7.35 m hall + bay, 2.65 m
+  ceiling)
 status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-05T10:34:00Z'
-updated_date: '2026-11-05T10:38:00Z'
+updated_date: '2026-11-06T05:29:00Z'
 labels:
   - effort:M
 dependencies:

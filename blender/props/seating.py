@@ -316,19 +316,20 @@ def mesh_chair(ms, shell, name):
     b.tube((-0.225, 0.64, -0.17), (-0.225, 0.64, 0.17), 0.009, st, 6)
     return b.finish(name)
 
-def mesh_table(ms):
+def mesh_table(ms, TL, TW, name="mesh_cafeteria_table"):
+    """Long along x, TL x TW footprint; placed rotated 90 deg so the long axis runs along z."""
     b = MB()
-    b.box((0, 0.735, 0), (L.TABLE_L, 0.03, L.TABLE_W), ms["lam"], 0.006)
-    b.box((0, 0.718, 0), (L.TABLE_L, 0.004, L.TABLE_W), ms["edge"], 0.001)
+    b.box((0, 0.735, 0), (TL, 0.03, TW), ms["lam"], 0.006)
+    b.box((0, 0.718, 0), (TL, 0.004, TW), ms["edge"], 0.001)
     for sx in (-1, 1):
         for sz in (-1, 1):
-            b.box((sx * (L.TABLE_L / 2 - 0.07), 0.36, sz * (L.TABLE_W / 2 - 0.065)), (0.035, 0.72, 0.035), ms["steel"], 0.004)
-            b.box((sx * (L.TABLE_L / 2 - 0.07), 0.01, sz * (L.TABLE_W / 2 - 0.065)), (0.05, 0.02, 0.05), ms["foot"], 0.004)
+            b.box((sx * (TL / 2 - 0.07), 0.36, sz * (TW / 2 - 0.065)), (0.035, 0.72, 0.035), ms["steel"], 0.004)
+            b.box((sx * (TL / 2 - 0.07), 0.01, sz * (TW / 2 - 0.065)), (0.05, 0.02, 0.05), ms["foot"], 0.004)
     for sz in (-1, 1):
-        b.box((0, 0.68, sz * (L.TABLE_W / 2 - 0.065)), (L.TABLE_L - 0.14, 0.035, 0.03), ms["steel"], 0.003)
+        b.box((0, 0.68, sz * (TW / 2 - 0.065)), (TL - 0.14, 0.035, 0.03), ms["steel"], 0.003)
     for sx in (-1, 1):
-        b.box((sx * (L.TABLE_L / 2 - 0.07), 0.68, 0), (0.03, 0.035, L.TABLE_W - 0.13), ms["steel"], 0.003)
-    return b.finish("mesh_cafeteria_table", lightmap=True)
+        b.box((sx * (TL / 2 - 0.07), 0.68, 0), (0.03, 0.035, TW - 0.13), ms["steel"], 0.003)
+    return b.finish(name, lightmap=True)
 
 def mesh_fan(ms, H=3.0):
     b = MB()
@@ -474,7 +475,7 @@ def build_bin(ms, name, loc, face, front, label):
 
 def build_mural(D):
     me = bpy.data.meshes.new("mesh_mural_circuit_arrow")
-    z0, z1, y0, y1 = D - 1.6, D, 1.2, 2.32
+    z0, z1, y0, y1 = 0.5, 1.5, 1.65, 2.36   # authored on the old west wall; run coordinate = final x (scan: partition x 0.5-1.5)
     vs = [gv(0.004, y0, z1), gv(0.004, y0, z0), gv(0.004, y1, z0), gv(0.004, y1, z1)]
     me.from_pydata(vs, [], [(0, 1, 2, 3)])
     uv = me.uv_layers.new(name="UVMap")
@@ -510,69 +511,76 @@ def build(context=None):
         can=[mesh_can(ms, "can", "mesh_can_silver"), mesh_can(ms, "can_r", "mesh_can_red")],
         sn=[mesh_snack(ms, c, f"mesh_snack_{c}") for c in ("sn1", "sn2", "sn3")],
     )
-    # layout comes from blender/layout.py (shared with the blockout): a resize there moves everything here
+    # layout comes from blender/layout.py (shared with the blockout). The partition props (vending, coolers, socket,
+    # mural) are authored on a wall at x=0 running along z, then rotated onto the partition at z=ROOM_D (run coord z -> x).
     W, D, H = L.ROOM_W, L.ROOM_D, L.ROOM_H
     V, C = L.VENDING, L.COOLERS
     out = []
-    zcs = [C["z0"] + C["each_w"] * (i + 0.5) for i in range(C["n"])]
-    out.append(build_vending(ms, shared, V["z0"] + V["w"] / 2))
+    before = set(bpy.data.objects.keys())
+    zcs = [C["x0"] + C["each_w"] * (i + 0.5) for i in range(C["n"])]
+    out.append(build_vending(ms, shared, V["x0"] + V["w"] / 2))
     for i, zc_ in enumerate(zcs, 1):
         out.append(build_cooler(ms, i, (C["d"] / 2 + 0.03, 0, zc_), None))
     put("steel_tumbler_01", mesh_tumbler_steel(ms), (0.3, 0.405, zcs[0]), props=P(0, "grab", mass=0.2, collider="box", caption_id="steel_tumbler"))
     put("socket_double_01", _socket(ms), (0.0, 1.1, sum(zcs) / len(zcs)), props=P(1, "look", collider="none"))
     out.append(build_mural(D))
-    me_t = mesh_table(ms)
+    put("glass_05", mesh_glass(ms), (0.3, 0.405, zcs[-1]), props=P(0, "grab", mass=0.25, collider="box", caption_id="glass"))
+    # old frame (x, z) -> game (z, D - x): blender rotation +90 deg about Z, then y -= D
+    rot = Matrix.Rotation(math.pi / 2, 4, "Z")
+    bpy.context.view_layer.update()  # new objects' matrix_world is stale until updated (else they land at the origin)
+    for n in set(bpy.data.objects.keys()) - before:
+        o = bpy.data.objects[n]
+        if o.parent is None:
+            o.matrix_world = Matrix.Translation((0, -D, 0)) @ rot @ o.matrix_world
+    # tables: long axis along z (mesh is long along x, rotated 90 deg)
     tables = []
-    for n, (x0, zc) in enumerate(L.table_positions(), 1):
-        o = put(f"table_{n:02d}", me_t, (x0 + L.TABLE_L / 2, 0, zc), props=P(1, "look", collider="box", caption_id="cafeteria_table"))
-        tables.append((o, x0 + L.TABLE_L / 2, zc))
-    cols = L.SEAT_COLS
-    rows_z = sorted({t[2] for t in tables})
-    col_x = [L.SEAT_ORIGIN[0] + c * L.SEAT_SPACING[0] for c in range(cols)]
-    # chairs (two shared meshes: green / blue shells)
+    for n, (xc, zc, xs, zs) in enumerate(L.table_footprints(), 1):
+        me_t = mesh_table(ms, zs, xs, f"mesh_cafeteria_table_{n:02d}")
+        o = put(f"table_{n:02d}", me_t, (xc, 0, zc), (0, 0, math.pi / 2), props=P(1, "look", collider="box", caption_id="cafeteria_table"))
+        tables.append((o, xc, zc, xs, zs))
+    # chairs (two shared meshes: green / blue shells) on the long sides; none on the wall side of a table at x=0
     ch = [mesh_chair(ms, "chair_g", "mesh_chair_green"), mesh_chair(ms, "chair_b", "mesh_chair_blue")]
     rng = random.Random(11)
     ci = 1
-    for (o, xc, zc) in tables:
+    for (o, xc, zc, xs, zs) in tables:
+        n_ch = max(2, int(zs / 0.9))
         for side in (-1, 1):
-            for dx in (-L.TABLE_L / 3, 0.0, L.TABLE_L / 3):
-                x = xc + dx + rng.uniform(-0.06, 0.06)
-                pull = rng.uniform(0.0, 0.06)
-                z = zc + side * (L.TABLE_W / 2 + 0.08 + pull)
-                yaw = rng.uniform(-0.15, 0.15)
-                rot = (0, 0, face_rot(0, -side)[2] + yaw)
+            if xc + side * (xs / 2 + 0.5) < 0.5:
+                continue
+            for k in range(n_ch):
+                z = zc + (k - (n_ch - 1) / 2) * zs / n_ch + rng.uniform(-0.06, 0.06)
+                x = xc + side * (xs / 2 + 0.08 + rng.uniform(0.0, 0.06))
+                rot = (0, 0, face_rot(-side, 0)[2] + rng.uniform(-0.15, 0.15))
                 put(f"chair_{ci:02d}", ch[rng.randrange(2) if ci % 3 else ci % 2], (x, 0, z), rot,
                     props=P(0, "use", use_kind="chair", collider="box", mass=3.5, caption_id="cafeteria_chair"))
                 ci += 1
-    # grab items, relative to tables (clamped to the tables that exist)
-    def tb(i):
-        return tables[min(i, len(tables) - 1)]
+    # grab items on the tables: (table, along z, across x)
+    def ta(i, along, across):
+        t = tables[min(i, len(tables) - 1)]
+        return (t[1] + across, t[2] + along)
     gl = mesh_glass(ms)
-    spots = [(tb(0), -0.4, 0.05), (tb(0), -0.25, -0.15), (tb(2 * cols - 1), 0.3, -0.15),
-             (tb(2 * cols), 0.55, 0.2)]
-    for i, ((_, tx, tz), dx, dz) in enumerate(spots, 1):
-        put(f"glass_{i:02d}", gl, (tx + dx, 0.75, tz + dz), props=P(0, "grab", mass=0.25, collider="box", caption_id="glass"))
-    put("glass_05", gl, (0.3, 0.405, zcs[-1]), props=P(0, "grab", mass=0.25, collider="box", caption_id="glass"))
-    for i, (t_, dx, dz, r) in enumerate([(tb(cols), -0.4, 0.1, 0.3), (tb(2 * cols), 0.2, -0.1, 1.2), (tb(len(tables) - 1), -0.3, 0.1, 2.0)], 1):
-        put(f"snack_packet_{i:02d}", shared["sn"][i - 1], (t_[1] + dx, 0.7525, t_[2] + dz), (0, -math.pi / 2, r), props=P(0, "grab", mass=0.06, collider="box", caption_id="snack_packet"))
-    kt = tb(2 * cols)  # foreground table of the cafeteria photo
+    spots = [ta(0, -0.4, 0.05), ta(0, -0.25, -0.15), ta(1, 0.3, -0.15), ta(1, 0.55, 0.2)]
+    for i, (gx, gz) in enumerate(spots, 1):
+        put(f"glass_{i:02d}", gl, (gx, 0.8, gz), props=P(0, "grab", mass=0.25, collider="box", caption_id="glass"))
+    for i, (t_, along, across, r) in enumerate([(0, 0.4, 0.1, 0.3), (1, 0.2, -0.1, 1.2), (1, -0.3, 0.1, 2.0)], 1):
+        sx, sz = ta(t_, along, across)
+        put(f"snack_packet_{i:02d}", shared["sn"][i - 1], (sx, 0.8, sz), (0, -math.pi / 2, r), props=P(0, "grab", mass=0.06, collider="box", caption_id="snack_packet"))
+    kx, kz = ta(1, -0.2, -0.1)
     kb = MB()
     kb.lathe((0, 0, 0), [(0, 0), (0.03, 0), (0.035, 0.01), (0.035, 0.14), (0.015, 0.17), (0.013, 0.21), (0, 0.21)], ms["ketchup"], 16)
     kb.cyl((0, 0.215, 0), 0.016, 0.02, ms["cap_w"], seg=10)
-    put("ketchup_bottle_01", kb.finish("mesh_ketchup_bottle"), (kt[1] - 0.1, 0.75, kt[2] + 0.2), props=P(0, "grab", mass=0.45, collider="box", caption_id="ketchup_bottle"))
+    put("ketchup_bottle_01", kb.finish("mesh_ketchup_bottle"), (kx, 0.8, kz), props=P(0, "grab", mass=0.45, collider="box", caption_id="ketchup_bottle"))
     sb = MB()
     sb.lathe((0, 0, 0), [(0, 0), (0.024, 0), (0.025, 0.09), (0.0, 0.1)], ms["steel"], 14)
-    put("salt_shaker_01", sb.finish("mesh_salt_shaker"), (kt[1] + 0.15, 0.75, kt[2] + 0.15), props=P(0, "grab", mass=0.15, collider="box", caption_id="salt_shaker"))
-    # bins (window strip, `08 (2)`), just west of the first table column
-    out.append(build_bin(ms, "bin_plastic_01", (col_x[0] + 0.2, 0, 0.32), (0, 1), "bin_green", "PLASTIC"))
-    out.append(build_bin(ms, "bin_nec_01", (col_x[0] + 0.65, 0, 0.32), (0, 1), "red", "NEC"))
-    # ceiling fans (shared mesh): grid over the table block, 2.5 m pitch
+    sx_, sz_ = ta(1, 0.15, 0.15)
+    put("salt_shaker_01", sb.finish("mesh_salt_shaker"), (sx_, 0.8, sz_), props=P(0, "grab", mass=0.15, collider="box", caption_id="salt_shaker"))
+    # bins: on the floor in front of the window sill, east of the first table
+    out.append(build_bin(ms, "bin_plastic_01", (2.2, 0, 0.6), (0, 1), "bin_green", "PLASTIC"))
+    out.append(build_bin(ms, "bin_nec_01", (2.65, 0, 0.6), (0, 1), "red", "NEC"))
+    # ceiling fans (shared mesh): one over each table
     mf = mesh_fan(ms, H)
-    i = 1
-    for zc in rows_z[:-1]:
-        for cx in col_x:
-            put(f"ceiling_fan_{i:02d}", mf, (cx + L.TABLE_L / 2, 0, zc + L.SEAT_SPACING[1] / 2), (0, 0, i), props=P(1, "look", collider="none", caption_id="ceiling_fan"))
-            i += 1
+    for i, (_, xc, zc, _, _) in enumerate(tables, 1):
+        put(f"ceiling_fan_{i:02d}", mf, (xc, 0, zc), (0, 0, i), props=P(1, "look", collider="none", caption_id="ceiling_fan"))
     return out
 
 def _socket(ms):

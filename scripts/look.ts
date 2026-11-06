@@ -7,9 +7,9 @@ let failed = false;
 try {
   const { page } = await openGame(browser, url, 'webgl=1&debug=1', 1280, 720);
   const cases: [string, number, number, number, number, string[]][] = [
-    ['panel', 1.0, 3.0, -90, -0.38, ['Look', 'Test Panel', 'Just look at it.']],
-    ['cube', 1.0, 3.8, -90, -0.5, ['Grab', 'Test Cube']],
-    ['box', 1.4, 4.6, -90, -0.5, ['Use [E]', 'Test Box']],
+    ['panel', 2.4, 4.2, -90, -0.38, ['Look', 'Test Panel', 'Just look at it.']],
+    ['cube', 2.4, 5.0, -90, -0.5, ['Grab', 'Test Cube']],
+    ['box', 2.6, 5.8, -90, -0.5, ['Use [E]', 'Test Box']],
   ];
   for (const [name, x, z, yaw, pitch, want] of cases) {
     const text = await page.evaluate(async ([x, z, yaw, pitch, nm]) => {

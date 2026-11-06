@@ -14,9 +14,9 @@ try {
     const item = g.grab.items.find((i: any) => i.obj === cube);
     const pl = g.player;
     let bad = 0, minY = 9, lo = [9, 9], hi = [-9, -9];
-    const bounds = (x: number, y: number, z: number) => y > 0.05 && x > -1 && x < 13 && z > -1 && z < 8.5; // room 12 x 7.5 (blender/layout.py)
+    const bounds = (x: number, y: number, z: number) => y > 0.05 && x > -1 && x < 9.7 && z > -1 && z < 11; // hall 8.7 x 7.35 + bay to z 10 (blender/layout.py)
     for (let i = 0; i < 200; i++) {
-      pl.teleport(0.7 + Math.random() * 1.1, 0, 2.5 + Math.random() * 2.5, Math.random() * 360);
+      pl.teleport(2.2 + Math.random() * 1.2, 0, 4.0 + Math.random() * 2.0, Math.random() * 360);
       pl.pitch = -1.3 + Math.random() * 1.6; // the blockout is open-topped: no upward tosses over the walls
       pl.update(0.016);
       item.body.setTranslation({ x: pl.feet.x, y: 1.2, z: pl.feet.z }, true);
@@ -41,7 +41,7 @@ try {
     const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
     const pl = g.player;
     pl.enabled = true;
-    pl.teleport(1.0, 0, 3.8, -90);
+    pl.teleport(2.0, 0, 5.0, -90);
     await wait(500);
     const start = g.fpsSamples.length;
     for (let k = 0; k < 6; k++) {

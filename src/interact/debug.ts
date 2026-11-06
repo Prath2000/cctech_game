@@ -16,7 +16,7 @@ export function addDebugObjects(scene: THREE.Scene, world: RAPIER.World) {
     }
     return m;
   };
-  mk('debug_cube', new THREE.BoxGeometry(0.2, 0.2, 0.2), 0xff6b35, [1.6, 1.0, 3.8], { interact: 'grab', mass: 0.3 });
-  mk('debug_box', new THREE.BoxGeometry(0.4, 0.4, 0.4), 0xffd166, [2.0, 0.2, 4.6], { interact: 'use', use_kind: 'debug' });
-  mk('debug_panel', new THREE.BoxGeometry(0.05, 0.6, 0.9), 0x8fd3ff, [2.0, 1.2, 3.0], { interact: 'look' });
+  mk('debug_cube', new THREE.BoxGeometry(0.2, 0.2, 0.2), 0xff6b35, [3.0, 1.0, 5.0], { interact: 'grab', mass: 0.3 });
+  mk('debug_box', new THREE.BoxGeometry(0.4, 0.4, 0.4), 0xffd166, [3.4, 0.2, 5.8], { interact: 'use', use_kind: 'debug' });
+  mk('debug_panel', new THREE.BoxGeometry(0.05, 0.6, 0.9), 0x8fd3ff, [3.4, 1.2, 4.2], { interact: 'look' });
 }

@@ -58,7 +58,7 @@ The earlier table (above) wrote the door as "x_l 0.3-1.3"; the re-measurement ab
  z=4.8|DOOR (glass, to 6.4)                               |
  z=6.4|                                                   |
       |    open hall x0-8.7 by z0-7.35                    |
- z=7.35 +VEND+COOL=== partition (partial: x0-2.5, 5.2-7.6) +
+ z=7.35 +VEND+COOL=== partition (x -0.2-2.5, 4.3-7.4; scan hole 2.5-4.3 closed; bay opening 7.4-8.2) +
       (bay) x6.7-8.7, z7.35-10.0:                    |FR| |
                               wall x=6.7 |counter x6.7-7.4,z7.4-9.5|  low unit at east wall
  z=10 ------------------------ ----------------------------

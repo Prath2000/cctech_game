@@ -92,11 +92,11 @@ export class Glow {
   level = 0;
   target = 0;
   private mat: THREE.MeshBasicMaterial;
-  constructor(scene: THREE.Scene, pos: THREE.Vector3, w: number, h: number, color: number, private max: number) {
+  constructor(scene: THREE.Scene, pos: THREE.Vector3, w: number, h: number, color: number, private max: number, face = -1) {
     this.mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false });
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), this.mat);
     m.position.copy(pos);
-    m.rotation.y = -Math.PI / 2; // normal -x
+    m.rotation.y = face < 0 ? -Math.PI / 2 : Math.PI / 2; // normal -x (face -1) or +x (face 1)
     m.renderOrder = 4;
     scene.add(m);
   }

@@ -17,10 +17,10 @@ sun = bpy.data.objects.new("sun", bpy.data.lights.new("sun", "SUN")); sun.data.e
 sun.rotation_euler = (math.radians(50), 0, math.radians(30)); sc.collection.objects.link(sun)
 sys.path.insert(0, os.path.join(os.path.dirname(HERE)))
 import layout as L
-vz = L.VENDING["z0"] + L.VENDING["w"] / 2   # sheet poses are relative to the old vending/cooler z (4.875 / 5.6)
-cz = L.COOLERS["z0"] + L.COOLERS["each_w"]
-poses = {"cafeteria": (L.ROOM_W - 1.5, 1.3, L.SEAT_ORIGIN[1] + 0.4, 80, -3, 78, 800, 600), "vending": (2.3, 1.3, vz + 0.2, 95, 0, 54, 600, 800),
-         "coolers": (2.2, 1.2, cz, 90, 0, 54, 600, 800)}
+vx = L.VENDING["x0"] + L.VENDING["w"] / 2   # vending + coolers sit on the partition at z=ROOM_D, facing -z
+cx = L.COOLERS["x0"] + L.COOLERS["each_w"]
+poses = {"cafeteria": (3.2, 1.3, 2.0, -90, -3, 78, 800, 600), "vending": (vx + 0.2, 1.3, L.ROOM_D - 2.3, 180, 0, 54, 600, 800),
+         "coolers": (cx, 1.2, L.ROOM_D - 2.2, 180, 0, 54, 600, 800)}
 for k, (x, y, z, yaw, pitch, hf, rx, ry) in poses.items():
     if os.environ.get("ONLY") and k != os.environ["ONLY"]:
         continue

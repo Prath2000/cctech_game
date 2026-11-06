@@ -30,8 +30,8 @@ await loadRoom(physics.world, scene);
 if (new URLSearchParams(location.search).get('debug') === '1') addDebugObjects(scene, physics.world);
 const interaction = new Interaction(scene, camera, physics.world);
 const player = new FirstPersonController(physics.world, camera, renderer.domElement);
-// Start just inside the west-wall door (z 3.2-4.4), facing east into the room.
-player.teleport(1.0, 0, 3.3, -90);
+// Start in the clear middle of the hall (layout.py SPAWN), facing east.
+player.teleport(3.5, 0, 5.0, -90);
 const grab = new GrabSystem(physics.world, camera, interaction, player.collider, renderer.domElement);
 grab.register(scene, scene);
 const audio = new AudioSystem(camera, [...SOUNDS, ...PANTRY_SOUNDS]);

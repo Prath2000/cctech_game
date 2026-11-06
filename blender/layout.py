@@ -1,56 +1,63 @@
 """Single source of truth for room dimensions and anchors (TASK-1.17).
-GAME coords in metres: x east, y up, z south. Window wall is z=0 (north); the
-interior spans x 0..ROOM_W, z 0..ROOM_D. Every blender builder must import this.
-All measurements come from video, so confidence is LOW: tweak here, then run
-`pnpm build:blockout` and re-check poses in src/data/camera-poses.json.
+GAME coords in metres: x along the window wall from the chevron wall (x=0), y up, z out from the
+window wall (z=0). Every blender builder must import this.
+ALL NUMBERS COME FROM THE POINT-CLOUD SCAN (references/photogrammetry/ply/pantry.ply, aligned with
+references/photogrammetry/align.json; tables in docs/reference/scan-measurements.md). The scan is the
+source of truth for layout; video and photos only decide how things look. Items the scan could not
+measure are marked [not measured]. Tweak here, then run `pnpm build:blockout` and re-check poses
+in src/data/camera-poses.json.
+Outline (hall + kitchenette bay): (0,0) (8.7,0) (8.7,10) (6.7,10) (6.7,7.35) (0,7.35).
 """
 
 # --- shell ---------------------------------------------------------------
-ROOM_W = 12.0   # window-wall length. Video estimate 11-13 m [low]
-ROOM_D = 7.5    # window -> back wall. Video estimate 6.5-9 m [low]
-ROOM_H = 3.2    # ceiling. Video estimate ~3.2 m (door 2.1 m + header) [medium]
+ROOM_W = 8.7    # window-wall length [scan]
+ROOM_D = 7.35   # hall depth, window wall -> partition [scan]
+ROOM_H = 2.65   # ceiling, scan spread 2.4-2.7 [scan, uneven]
 WALL_T = 0.2    # wall thickness, built outside the interior [assumed]
+BAY = dict(x0=6.7, x1=8.7, z0=ROOM_D, z1=10.0)  # kitchenette bay behind the partition [scan, holes inside]
+# partition at z=ROOM_D: scan wall points at x 0-2.5 and 4.3-7.4 (z 7.23-7.31). The middle (2.5-4.3) has 0 points
+# at any height and no floor beyond (hall floor is also missing nearby), so it is a scan hole, closed with wall.
+# The bay opens at x 7.4-8.7.
+PARTITION_GAP = (2.5, 4.3)   # scan hole, closed with wall
+BAY_OPEN_X0 = 7.4            # partition ends here, walkable opening up to the east wall [scan: wall ends ~7.4-7.6]
 
 # --- window wall (z=0) -----------------------------------------------------
-WINDOW_PANELS = 12    # video shows ~9-12 panels [low]
-MULLION_W = 0.12      # black mullion width [assumed from photos]
+WINDOW_PANELS = 9     # mullion lines at x = 0.35 + 0.9k, k=0..9 [scan]
+MULLION_W = 0.10
+MULLION_X0, MULLION_PITCH = 0.35, 0.9
 WINDOW_FRAME_H = 0.08  # top/bottom black frame height [assumed]
-SILL_X0 = 0.4         # granite ledge runs along the whole window wall [photo 08 (2)]
-SILL_H, SILL_D = 0.9, 0.45  # sill height/depth [sheet]
+SILL_X0 = 0.0
+SILL_H, SILL_D = 0.61, 0.30   # height [scan]; depth [not measured], 0.3 so it clears the tables at z 0.4
 
-# --- window strip + pillar -------------------------------------------------
-STRIP_W = 2.75        # strip between windows and seating hall, 2.5-3 m [low]
-PILLAR_SIZE = 0.6     # white square column [photo 08 (2), medium]
-PILLAR_CX = 9.9       # near the fridge end of the strip [low]
-PILLAR_CZ = STRIP_W - 0.4  # on the strip/hall boundary
+# --- pillar (full height, in the hall; no window strip) ---------------------
+STRIP_W = 0.0
+PILLAR = dict(x0=6.25, z0=3.25, w=0.45, d=0.9)   # [scan]
 
-# --- west wall: chevron wall + black glass double door --------------------
-CHEVRON_Z0, CHEVRON_Z1 = 1.5, 3.5   # orange chevron graphics span [photo 08 (3), low position]
-DOOR_Z0, DOOR_W, DOOR_H = 4.1, 1.3, 2.1   # black glass double door [low position]
+# --- west wall (x=0): chevron graphic + glass door -----------------------
+CHEVRON_Z0, CHEVRON_Z1 = 2.5, 4.7   # y 1.0-2.35 [scan]
+CHEVRON_Y0, CHEVRON_Y1 = 1.0, 2.35
+DOOR_Z0, DOOR_W, DOOR_H = 4.8, 1.55, 2.1   # [scan]
 DOOR_FRAME_PAD = 0.05
 
-# --- east wall: kitchenette counter (position NOT seen anywhere: guess) ----
-COUNTER = dict(x0=11.4, z0=2.0, length=3.2, depth=0.6, height=0.9)  # sheet proposal scaled; x1=ROOM_W
-WALL_CAB = dict(depth=0.35, y0=1.45, y1=2.15, z0=2.6, z1=4.4)       # above sink, sheet [low]
-FRIDGE = dict(x0=ROOM_W - 1.05, z0=0.05, w=0.7, d=0.7, h=1.7)       # LG fridge, window-strip east end [photo 08 (2), medium]
-FRIDGE_NICHE_D = 0.05  # visual back panel depth: thin plaster strip behind the fridge only (was 0.8 and walled off the windows, TASK-1.25)
+# --- kitchenette bay: counter against the wall at x=6.7, facing +x ---------
+COUNTER = dict(x0=6.7, z0=7.95, length=1.85, depth=0.7, height=0.8)   # [scan, medium]
+WALL_CAB = None   # [not measured] left out
+FRIDGE = dict(x0=6.9, z0=7.0, w=0.45, d=0.44, h=1.35)   # footprint x 6.9-7.35, z 7.0-7.44, top ~1.35 [scan, low: front face missing]
+LOW_UNIT = dict(x0=8.4, x1=8.7, z0=7.06, z1=9.27, h=0.4)   # dark unit on the east wall [scan]
 
-# --- west wall: vending + coolers (sheet: near the door) -------------------
-VENDING = dict(z0=5.6, w=0.85, d=0.8, h=1.85)  # photo 08 (1) [low position]
-COOLERS = dict(z0=6.5, each_w=0.3, n=2, d=0.35, h=1.45)  # photo 08 [low position]
+# --- partition (hall side): vending + coolers + circuit mural, x 0.5-1.5 --
+VENDING = dict(x0=0.5, w=0.7, d=0.8, h=1.85)           # [scan x range; size assumed]
+COOLERS = dict(x0=1.2, each_w=0.25, n=2, d=0.35, h=1.45)  # [scan x range; size assumed]
 
-# --- seating hall: long white tables ---------------------------------------
-SEAT_ROWS, SEAT_COLS = 3, 3   # video: ~3 rows of 2-3 long tables [low]
-SEAT_ORIGIN = (2.2, 3.3)      # (x0 of first table, z centre of first row)
-SEAT_SPACING = (2.3, 1.6)     # (x pitch between tables, z pitch between rows)
-TABLE_L, TABLE_W, TABLE_H = 1.8, 0.8, 0.75  # table top size/height [assumed]
-CHAIRS_PER_TABLE = 6          # video [low]
+# --- hall: 2 white tables, long axis along z --------------------------------
+TABLE_H = 0.80   # [scan]
+# footprints [scan]: x0, x1, z0, z1. Table 2 is cut at z 3.2 so it clears the pillar (x 6.25-6.70, z 3.25-4.15)
+TABLES = [dict(x0=0.0, x1=1.5, z0=0.5, z1=3.7), dict(x0=5.7, x1=6.9, z0=0.4, z1=3.2)]
 
 # --- player ------------------------------------------------------------------
-SPAWN = (1.0, 0.0, 3.3, -90)  # feet x,y,z, yaw deg (-90 faces +x, into the hall)
+SPAWN = (3.5, 0.0, 5.0, -90)  # feet x,y,z, yaw deg (-90 faces +x), clear floor
 
 
-def table_positions():
-    """[(x0, zc)] for every table, row-major."""
-    return [(SEAT_ORIGIN[0] + c * SEAT_SPACING[0], SEAT_ORIGIN[1] + r * SEAT_SPACING[1])
-            for r in range(SEAT_ROWS) for c in range(SEAT_COLS)]
+def table_footprints():
+    """[(xc, zc, x_size, z_size)] per table."""
+    return [((t["x0"] + t["x1"]) / 2, (t["z0"] + t["z1"]) / 2, t["x1"] - t["x0"], t["z1"] - t["z0"]) for t in TABLES]

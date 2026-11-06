@@ -40,9 +40,9 @@ try {
     out.dist = d;
     out.clear = s.isClear(pl.feet.x, pl.feet.z);
     // Push: walk into another chair.
-    const c2 = s.chairs[1].obj;
+    const c2 = s.chairs[s.chairs.length - 1].obj; // end of a row: open floor on its +z side
     const p0 = { x: c2.position.x, z: c2.position.z };
-    pl.teleport(p0.x - 0.9, 0, p0.z, -90);
+    pl.teleport(p0.x, 0, p0.z + 0.9, 0); // walk along the row (-z); across it the table blocks the chair after ~0.1 m
     pl.press('KeyW');
     await wait(900);
     pl.press('KeyW', false);
