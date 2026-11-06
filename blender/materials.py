@@ -335,10 +335,15 @@ def build(context=None):
     z_s = bounds("wall_south")[4]            # south wall inner face
     cw = bounds("chevron_wall")[1] + D       # chevron panel face
     lo, hi = chevron_span()
-    # small INNOVATION chevron (right-aligned to the panel end, nearest the door), big chevron to its left
-    # tops aligned at 3.0 m like photo 08 (3): innovation chevron (1.2 x 1.6) nearest the door, big one (1.5 x 2.1) to its left
-    decal("decal_chevron_innovation", "chevron_innovation", (cw, 2.35 - 1.15 / 2, hi - 0.1 - 0.86 / 2), (0, 0, -1), (0, 1, 0), 0.86, 1.15, "innovation_sign", blend=True)
-    decal("decal_chevron_large", "chevron_large", (cw, 2.35 - 1.35 / 2, hi - 0.1 - 0.86 - 0.1 - 0.96 / 2), (0, 0, -1), (0, 1, 0), 0.96, 1.35, "chevron_wall", blend=True)
+    # INNOVATION chevron pair, orange, west wall only: as tall as the panel allows (1.5 m, y 0.9-2.4) and filling its
+    # whole z span (2.5-4.7). Innovation chevron (520 x 720 px) nearest the door, large chevron (600 x 840 px) to its left.
+    ch = 1.5
+    wi, wl = ch * 520 / 720, ch * 600 / 840
+    yc = 0.9 + ch / 2
+    zi = hi - 0.02 - wi / 2
+    zl = hi - 0.02 - wi - wl / 2
+    decal("decal_chevron_innovation", "chevron_innovation", (cw, yc, zi), (0, 0, -1), (0, 1, 0), wi, ch, "innovation_sign", blend=True)
+    decal("decal_chevron_large", "chevron_large", (cw, yc, zl), (0, 0, -1), (0, 1, 0), wl, ch, "chevron_wall", blend=True)
     # circuit mural: built by props/seating.py (build_mural) on the partition, x 0.5-1.5
     add_window_backdrop()
     cx0, cx1, cy0, cy1, cz0, cz1 = bounds("counter")

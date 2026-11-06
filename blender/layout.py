@@ -41,13 +41,16 @@ DOOR_FRAME_PAD = 0.05
 
 # --- kitchenette bay: counter against the wall at x=6.7, facing +x ---------
 COUNTER = dict(x0=6.7, z0=7.95, length=1.85, depth=0.7, height=0.8)   # [scan, medium]
-WALL_CAB = None   # [not measured] left out
-FRIDGE = dict(x0=6.9, z0=7.0, w=0.45, d=0.44, h=1.35)   # footprint x 6.9-7.35, z 7.0-7.44, top ~1.35 [scan, low: front face missing]
+# wall cabinets (photo-match, [not measured] in the scan): 0.35 deep on the x=6.7 wall above the counter, y 1.45-2.38.
+# Right of the microwave shelf: z 7.95-9.3 holds three grey doors over an open mug shelf; z 9.3-9.8 is the microwave shelf above the sink.
+WALL_CAB = dict(x0=6.7, depth=0.35, z0=7.95, z1=9.3, y0=1.45, y1=2.38, mw_z0=9.3, mw_z1=9.8, mw_y=1.226)
+FRIDGE = dict(x0=6.9, z0=6.9, w=0.45, d=0.44, h=1.35)   # footprint x 6.9-7.35, z 6.9-7.34 (scan said 7.0-7.44, overlapped the partition), top ~1.35 [scan, low: front face missing]; z0 moved 7.0 -> 6.9 so it clears the partition (z 7.35)
 LOW_UNIT = dict(x0=8.4, x1=8.7, z0=7.06, z1=9.27, h=0.4)   # dark unit on the east wall [scan]
 
 # --- partition (hall side): vending + coolers + circuit mural, x 0.5-1.5 --
 VENDING = dict(x0=0.5, w=0.7, d=0.8, h=1.85)           # [scan x range; size assumed]
-COOLERS = dict(x0=1.2, each_w=0.25, n=2, d=0.35, h=1.45)  # [scan x range; size assumed]
+COOLERS = dict(x0=1.4, each_w=0.4, n=2, d=0.35, h=1.465)  # [scan x range 1.2-1.7; size assumed] two Voltas units at pitch 0.4 (x centres 1.6, 2.0), clear of the vending machine
+MURAL = dict(x0=1.3, x1=2.5, y0=1.5, y1=2.36)  # circuit-board mural on the partition, above the coolers
 
 # --- hall: 2 white tables, long axis along z --------------------------------
 TABLE_H = 0.80   # [scan]

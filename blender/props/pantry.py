@@ -107,6 +107,8 @@ def materials():
         green_led=M("pantry_mw_display", (0.02, 0.05, 0.02), 0.3, emit=(0.2, 1.0, 0.3), emit_k=0.6),
         red_cloth=M("pantry_red_cloth", (0.5, 0.03, 0.04), 0.9),
         granite=M("pantry_granite_dark", (0.035, 0.036, 0.04), 0.22, coat=0.4),
+        sink_steel=M("pantry_sink_steel", (0.6, 0.62, 0.64), 0.38, 0.9),
+        pink=M("pantry_pink_bottle", (0.85, 0.2, 0.45), 0.25),
         yellow=M("pantry_dish_yellow", (0.8, 0.65, 0.05), 0.3, trans=0.3),
     )
 
@@ -480,7 +482,7 @@ def coffee_machine(mt):
     bm = bmesh.new()
     bm_box(bm, 7.86, 7.93, by, by + 0.45, z1 + 0.005, z1 + 0.125, 0.004)
     out.append(finish("bone_board", bm, mt["white"], (7.9, by, z1 + 0.065), static=1, extras={"interact": "look", "collider": "none", "caption_id": "bone_board"}))
-    d = decal("bone_board_label", out[-1], "bone_panel.png", 7.8595, z1 + 0.065, by + 0.25, 0.11, 0.311)
+    d = decal("bone_board_label", out[-1], "bone_panel.png", 7.855, z1 + 0.065, by + 0.25, 0.11, 0.311)
     if d:
         out.append(d)
     d = decal("coffee_notice_sheet", body, "coffee_notice_sheet.png", 7.994, 4.05, 1.62, 0.2, 0.185)
@@ -513,14 +515,21 @@ def counter_items(mt):
                 counter.data.uv_layers.remove(l)
         add_lightmap_uv(counter)
     bpy.data.objects.remove(co)
+    # opaque inset steel basin: solid 15 mm walls and floor (the old 2 mm open shell read as a translucent box)
     bm = bmesh.new()
-    bm_open_box(bm, sx0 + 0.012, sx1 - 0.012, CT - 0.18, CT + 0.001, sz0 + 0.012, sz1 - 0.012, 0.0015, 0.02)
+    bx0, bx1, bz0, bz1, wt = sx0 + 0.012, sx1 - 0.012, sz0 + 0.012, sz1 - 0.012, 0.015
+    by0 = CT - 0.18
+    bm_box(bm, bx0, bx1, by0, by0 + wt, bz0, bz1, 0.002)                     # floor
+    bm_box(bm, bx0, bx0 + wt, by0, CT - 0.004, bz0, bz1, 0.002)              # walls
+    bm_box(bm, bx1 - wt, bx1, by0, CT - 0.004, bz0, bz1, 0.002)
+    bm_box(bm, bx0, bx1, by0, CT - 0.004, bz0, bz0 + wt, 0.002)
+    bm_box(bm, bx0, bx1, by0, CT - 0.004, bz1 - wt, bz1, 0.002)
     # rim flange (frame) around the opening
     for (a, b, c, d) in [(sx0, sx1, sz0, sz0 + 0.025), (sx0, sx1, sz1 - 0.025, sz1), (sx0, sx0 + 0.025, sz0, sz1), (sx1 - 0.025, sx1, sz0, sz1)]:
-        bm_box(bm, a, b, CT, CT + 0.004, c, d, 0.001)
+        bm_box(bm, a, b, CT - 0.004, CT + 0.004, c, d, 0.001)
     # drain
-    bm_lathe(bm, [(0, 0), (0.03, 0), (0.03, 0.002), (0, 0.002)], (sx0 + sx1) / 2, (sz0 + sz1) / 2, CT - 0.178, 24)
-    bowl = finish("sink_bowl", bm, mt["steel"], ((sx0 + sx1) / 2, CT, (sz0 + sz1) / 2), static=1,
+    bm_lathe(bm, [(0, 0), (0.03, 0), (0.03, 0.003), (0, 0.003)], (sx0 + sx1) / 2, (sz0 + sz1) / 2, by0 + wt, 24)
+    bowl = finish("sink_bowl", bm, mt["sink_steel"], ((sx0 + sx1) / 2, CT, (sz0 + sz1) / 2), static=1,
                   extras={"interact": "look", "caption_id": "sink", "collider": "none"})
     out.append(bowl)
     fx, fz = 7.93, (sz0 + sz1) / 2
@@ -583,8 +592,13 @@ def mugs(mt):
                 ca.data[i].color = (*c, 1.0)
             meshes[k] = me
         return meshes[k]
+    # ~15 mugs on the open shelf under the wall cabinet (shelf board top y 1.468; old frame x 7.65-8.0, z 1.9-3.25)
+    cols = ["white", "brown", "navy", "red", "cream", "teal", "green", "black", "sage"]
     layout = []
-    # wall cabinets / open shelf are not in the scan, so their mugs are gone; the olive mug below stays
+    for k in range(15):
+        row, col = divmod(k, 8) if k < 8 else (1, k - 8)
+        n_row = 8 if row == 0 else 7
+        layout.append((cols[(k * 4) % len(cols)], 7.78 + 0.1 * row, 1.98 + (col + 0.5) * (1.25 / n_row), 0.35 * k, 1.45 + 0.018))
     for i, (c, x, z, rot, my) in enumerate(layout):
         o = bpy.data.objects.new(f"mug_{i + 1:02d}", mug_mesh(c, MUG_COLORS[c]))
         collection().objects.link(o)
@@ -606,8 +620,9 @@ def mugs(mt):
 
 def wall_cabinets(mt):
     out = []
+    # old frame (see header): z 1.9-3.25 -> scan z 9.3-7.95 (three doors over the open mug shelf); z 1.4-1.9 is the microwave shelf
     x0, x1 = 7.65, 8.0
-    z0, z1 = 1.7, 3.6
+    z0, z1 = 1.9, 3.25
     t = 0.018
     bm = bmesh.new()
     bm_box(bm, x0, x1, 1.45, 1.45 + t, z0, z1, 0.002)       # open-shelf board
@@ -622,11 +637,10 @@ def wall_cabinets(mt):
                               (x0, x1, 1.45, 1.45 + t, z0, z1), (x0, x1, 1.68, 1.70, z0, z1), (x0, x1, 2.38 - t, 2.38, z0, z1),
                               (x1 - 0.012, x1, 1.45, 2.38, z0, z1), (x0, x1, 1.45, 2.38, z0, z0 + t), (x0, x1, 1.45, 2.38, z1 - t, z1)])})
     out.append(body)
-    w = 0.623
+    pitch = (z1 - z0 - 2 * t) / 3
     for i in range(3):
-        za = z0 + 0.0 + i * (w + 0.0)
-        za = z0 + 0.004 + i * 0.63
-        zb = za + 0.62
+        za = z0 + t + i * pitch + 0.002
+        zb = za + pitch - 0.004
         bm = bmesh.new()
         bm_box(bm, x0 - 0.018, x0, 1.682, 2.382, za, zb, 0.003)
         left = i < 2
@@ -635,6 +649,11 @@ def wall_cabinets(mt):
                    extras={"interact": "use", "use_kind": "cabinet_door", "caption_id": "wall_cabinet_door", "collider": "box"})
         hinge(d, "y", 100, -1 if left else 1)
         out.append(d)
+    # shelf for the microwave over the sink end (microwave sits at y 1.25, see SHIFT)
+    bm = bmesh.new()
+    bm_box(bm, x0 + 0.01, x1, 1.22, 1.236, 1.4, z0, 0.002)
+    out.append(finish("microwave_shelf", bm, mt["carcass"], ((x0 + x1) / 2, 1.228, (1.4 + z0) / 2), static=1,
+                      extras={"interact": "look", "caption_id": "wall_cabinet", "collider": "box"}))
     return out
 
 
@@ -724,6 +743,11 @@ def small_props(mt):
     bm_lathe(bm, [(0, 0), (0.047, 0), (0.05, 0.006), (0.05, 0.165), (0.0, 0.165)], 7.72, 3.76, CT, 28)
     bm_lathe(bm, [(0, 0.165), (0.052, 0.165), (0.052, 0.182), (0.0, 0.182)], 7.72, 3.76, CT, 28, mi=1)
     out.append(finish("glass_jar_01", bm, [mt["frost"], mt["steel"]], (7.72, CT, 3.76), extras=grab(0.6, "glass_jar")))
+    # pink hand-wash bottle beside the sink (old frame z 1.97 -> scan z 9.23; sink spans 9.3-9.8)
+    bm = bmesh.new()
+    bm_lathe(bm, [(0, 0), (0.032, 0), (0.036, 0.006), (0.036, 0.15), (0.03, 0.18), (0.014, 0.195), (0.012, 0.205), (0, 0.205)], 7.9, 1.97, CT, 24)
+    bm_lathe(bm, [(0, 0.2), (0.016, 0.2), (0.016, 0.235), (0.0, 0.235)], 7.9, 1.97, CT, 16, mi=1)
+    out.append(finish("pink_bottle_01", bm, [mt["pink"], mt["white"]], (7.9, CT, 1.97), extras=grab(0.35, "bottle")))
     # tissue / paper dispenser
     bm = bmesh.new()
     bm_box(bm, 7.86, 7.98, CT, CT + 0.2, 3.44, 3.74, 0.008)
@@ -816,8 +840,8 @@ SHIFT = [  # old-frame (dx, dy, dz) for top-level objects, by name prefix: squee
     (("sink_bowl", "sink_faucet"), (0, 0, -0.45)),
     (("soap_dispenser",), (0, 0, -0.25)), (("red_cloth",), (0, 0, 0.05)), (("sink_soap_tray",), (0, 0, -0.3)),
     (("kettle",), (0, 0, 0.40)),
-    (("lg_microwave",), (0, -0.45, -1.25)),
-    (("tata_bistro", "coffee_"), (0, 0, -1.25)), (("bone_board",), (0, 0, -1.37)),
+    (("lg_microwave",), (0, 0, -1.985)),   # on the left (high-z) wall shelf above the sink, y 1.25 (wall_cabinets)
+    (("tata_bistro", "coffee_"), (0, 0, -1.25)), (("bone_board",), (0, 0, -1.25)),   # was -1.37: sat inside the coffee machine block and was hidden
     (("steel_flask", "steel_tumbler", "glass_bottle", "glass_jar"), (0, 0.25, -0.9)),
     (("tissue_dispenser",), (0, 0.25, -1.1)),
     (("steel_cup",), (0, 0, -1.25)),
@@ -826,7 +850,7 @@ SHIFT = [  # old-frame (dx, dy, dz) for top-level objects, by name prefix: squee
     (("mug_olive",), (0, 0, -0.75)),
     (("light_switch",), (0, 0, 0.4)),
 ]
-FRIDGE_NEW = dict(x0=6.9, z0=7.0, w=0.45, d=0.44, h=1.35)   # layout.FRIDGE [scan]
+FRIDGE_NEW = dict(x0=6.9, z0=6.9, w=0.45, d=0.44, h=1.35)   # layout.FRIDGE [scan]
 
 
 def _place():
@@ -882,7 +906,7 @@ def build(context=None):
             bpy.data.objects.remove(o)
     mt = materials()
     objs = []
-    for fn in (fridge, microwave, coffee_machine, counter_items, mugs, base_cabinets, small_props, ceiling):
+    for fn in (fridge, microwave, coffee_machine, counter_items, mugs, wall_cabinets, base_cabinets, small_props, ceiling):
         r = fn(mt)
         objs += r
     objs += [kettle(mt), switch_plate(mt)]
