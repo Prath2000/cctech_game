@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-05T11:36:00Z'
-updated_date: '2026-11-06T09:50:00Z'
+updated_date: '2026-11-06T10:10:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -27,4 +27,6 @@ Photo 07 (2): large silver LG fridge close-up with glazed wall left; shot has sm
 WIP: fridge moved to world z 0.2-0.755 beside windows, top 1.6m; niche depth 0.8->0.05 (it walled off windows); window_sill now stops at fridge. Left: rebake lightmaps (layout changed), verify pose framing, final check:pantry.
 
 Pass 3 (119434b), one scout look; see verify.md. Fridge view failed: flat grey box, partly in frame, no windows on the left. Ratio 1.08 is in range. Under investigation.
+
+Pass 4 (12ca175): pose reframed, whole fridge visible, ratio 1.18 (miss, over 1.15). Width about 36% vs photo 58%. Open: user decides keep layout or move fridge (needs re-bake).
 <!-- SECTION:NOTES:END -->

@@ -94,3 +94,14 @@ All shots: chairs passed; no black patches or floating objects. Lighting is cool
 Not checked: baked shadow under the drying mats (mats moved 0.1 m without a re-bake). Pink bottle move is confirmed in room.glb data at (7.32, 0.8, 9.4) but not visually.
 
 Majors still open: fridge view, sink steel, lighting character. User verdict not yet given.
+
+## Photo-match pass 4 (commit 12ca175)
+Ratios, working range 0.8-1.15 (a convention; scripts/match.ts defines none):
+coffee 0.77 MISS, cabinets 0.90, fridge 1.18 MISS, sink 0.81, coolers 0.94, vending 0.89, cafeteria 1.16 MISS, strip 1.14.
+Before the mat change: coffee 0.78, sink 0.82, others the same.
+All checks pass on the final model: typecheck, glb, pantry, grab, walk, seating, switch, audio. Production preview: 59.9 fps median, headless Chromium, not the user's Mac browsers.
+Image reads are one scout look each, downscaled, low to medium confidence:
+- Fridge: whole fridge in frame, about 36% of image width (photo about 58%): the model is narrow. LG logo tiny, stickers unreadable at this distance. Fridge not moved: user decision.
+- Green text: gone from pose views (FPS counter hidden with ?pose=). Players still see it.
+- Pink bottle: upright, base on counter; contact hard to confirm. Cause was stray fixed colliders on child meshes of multi-material grab items.
+- Sink: rim and tap steel-ish; mats now dark grey like the photo. Basin NOT confirmed as steel: mostly hidden in the match shot, and two close looks disagreed (dark stone vs flat grey).

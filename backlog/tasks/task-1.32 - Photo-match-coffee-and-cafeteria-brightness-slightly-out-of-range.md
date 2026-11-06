@@ -4,6 +4,7 @@ title: 'Photo-match: coffee and cafeteria brightness slightly out of range'
 status: To Do
 assignee: []
 created_date: '2026-11-06T09:50:00Z'
+updated_date: '2026-11-06T10:10:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -24,3 +25,9 @@ On 119434b check:match gives coffee 0.78 (target >= 0.8) and cafeteria 1.16 (ove
 - [ ] #1 check:match reports coffee and cafeteria in range
 - [ ] #2 All other check:match ratios stay in range
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Pass 4 (12ca175): coffee 0.77, cafeteria 1.16. Fridge 1.18 is also over range, tracked in TASK-1.25.
+<!-- SECTION:NOTES:END -->
