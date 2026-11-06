@@ -27,9 +27,9 @@ def srgb2lin(c):
 # `mix` 0 keep photo colour .. 1 fully recolour keeping only the luminance pattern, `con` luminance contrast,
 # `rs/ro` roughness scale/offset (texture) or `rough` constant, `metal` constant or "tex".
 SPECS = {
-    "floor_tile": dict(src="polyhaven/large_grey_tiles", px=2048, tile=1.2, tint="#e6e2d8", mix=0.85, con=0.6,
+    "floor_tile": dict(src="polyhaven/large_grey_tiles", px=2048, tile=1.2, tint="#d9cfbc", mix=0.85, con=0.6,
                        rs=0.35, ro=0.04, metal=0.0, coat=0.5),
-    "wall_plaster": dict(src="polyhaven/white_plaster_02", px=1024, tile=1.5, tint="#ece8de", mix=0.9, con=0.7,
+    "wall_plaster": dict(src="polyhaven/white_plaster_02", px=1024, tile=1.5, tint="#f3efe6", mix=0.9, con=0.7,
                          rs=1.0, ro=0.0, metal=0.0),
     "ceiling_tile": dict(src="ambientcg/OfficeCeiling005", px=1024, tile=1.2, tint="#f1f1ef", mix=0.9, con=0.6,
                          rs=1.0, ro=0.0, metal=0.0),

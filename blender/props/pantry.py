@@ -824,8 +824,8 @@ def switch_plate(mt):
 def ceiling(mt):
     out = []
     cy = ROOM_H
-    # 3 x 3 grid of 0.6 m LED panels over the 8.7 x 7.35 hall (ceiling fixtures are not measurable in the scan)
-    for i, (x, z) in enumerate((x, z) for x in (1.5, 4.35, 7.2) for z in (1.2, 3.7, 6.2)):  # [not measured] 3 x 3 grid
+    # 3 x 3 grid of 0.6 m LED panels over the 8.7 x 7.35 hall, plus 2 over the kitchen bay, which daylight barely reaches (ceiling fixtures are not measurable in the scan)
+    for i, (x, z) in enumerate([(x, z) for x in (1.5, 4.35, 7.2) for z in (1.2, 3.7, 6.2)] + [(7.7, 8.0), (7.7, 9.3)]):  # [not measured] 3 x 3 grid + bay
         bm = bmesh.new()
         bm_box(bm, x - 0.3, x + 0.3, cy - 0.015, cy, z - 0.3, z + 0.3, 0.002)
         bm_box_mi(bm, 1, x - 0.285, x + 0.285, cy - 0.019, cy - 0.014, z - 0.285, z + 0.285, 0.001)

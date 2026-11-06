@@ -61,7 +61,7 @@ sky.sun_disc = False; sky.sun_elevation = el; sky.sun_rotation = math.atan2(-sun
 bg = nt.nodes.new('ShaderNodeBackground'); bg.inputs['Strength'].default_value = SKY_STRENGTH
 wo = nt.nodes.new('ShaderNodeOutputWorld')
 nt.links.new(sky.outputs[0], bg.inputs[0]); nt.links.new(bg.outputs[0], wo.inputs[0])
-sun = bpy.data.lights.new('sun', 'SUN'); sun.energy = SUN_STRENGTH; sun.angle = math.radians(0.53)
+sun = bpy.data.lights.new('sun', 'SUN'); sun.energy = SUN_STRENGTH; sun.color = (1.0, 0.86, 0.68); sun.angle = math.radians(0.53)
 sun_o = bpy.data.objects.new('sun', sun); scn.collection.objects.link(sun_o)
 sun_o.rotation_euler = sun_dir.to_track_quat('-Z', 'Y').to_euler()
 # light portal over the window wall (blender y = 0 plane, faces into the room = -y): less noise from the world light

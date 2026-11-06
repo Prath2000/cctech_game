@@ -41,7 +41,7 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
   const base = `${import.meta.env.BASE_URL}lightmaps/`;
   const dir = `${base}off/`;
   const onDir = `${base}on/`;
-  const uLights = uniform(Number(q.get('lights') ?? opts.lights ?? 0));
+  const uLights = uniform(Number(q.get('lights') ?? opts.lights ?? 1));
   let meta: any;
   try {
     const r = await fetch(`${dir}lighting.json`);

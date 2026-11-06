@@ -4,7 +4,7 @@ title: Performance pass
 status: To Do
 assignee: []
 created_date: '2026-11-05T10:22:00Z'
-updated_date: '2026-11-05T11:22:00Z'
+updated_date: '2026-11-06T07:02:00Z'
 labels:
   - effort:L
 dependencies:
@@ -40,4 +40,6 @@ Parallel-safe: no. Plan: .team/changes/0001-pantry-poc/plan.md (T14).
 
 <!-- SECTION:NOTES:BEGIN -->
 From spike: KTX2 BC6H/ASTC HDR transcoding for lightmaps; pack ambient-cube axes into fewer textures.
+
+User 2026-11-06: Low setting (AC #3) does not matter for the first pass; defer it.
 <!-- SECTION:NOTES:END -->

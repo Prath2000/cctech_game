@@ -6,7 +6,7 @@ const pose = opts.pose ?? 'overview';
 const { server, url } = await startServer();
 const browser = await launch(flags.has('headed'));
 try {
-  const q = `pose=${encodeURIComponent(pose)}${flags.has('webgl') ? '&webgl=1' : ''}`;
+  const q = `lights=0&pose=${encodeURIComponent(pose)}${flags.has('webgl') ? '&webgl=1' : ''}`;
   const { page, backend } = await openGame(browser, url, q, 1280, 720, opts.page ?? '');
   await page.waitForTimeout(3000);
   const r: any = await page.evaluate(`new Promise((res) => {
