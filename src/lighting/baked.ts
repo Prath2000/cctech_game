@@ -144,7 +144,7 @@ export async function loadBakedLighting(scene: THREE.Scene, renderer: THREE.WebG
     const nm = (renderer as any).library.fromMaterial(std) as THREE.MeshStandardNodeMaterial;
     nm.name = m.name;
     // ceiling LED panel: the emissive face brightens with the switch (~4500-5000 K neutral white)
-    const panel = m.name === 'pantry_led_panel' ? vec3(1.0, 0.96, 0.9).mul(uLights).mul(LED_PANEL_EMISSIVE) : null;
+    const panel = m.name === 'pantry_led_panel' ? vec3(1.0, 0.96, 0.9).mul(uLights).mul(onMeta ? LED_PANEL_EMISSIVE : 0) : null; // no on-bake: the switch does nothing, so panels stay dark
     const d = diffuseOf(E, std.vertexColors);
     nm.emissiveNode = panel ? d.add(panel) : d.add(materialEmissive);
     return nm;

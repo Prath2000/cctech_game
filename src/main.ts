@@ -1,5 +1,6 @@
 import * as THREE from 'three/webgpu';
 import { createRenderer } from './renderer';
+import { AutoResolution } from './autores';
 import { createPhysics } from './physics';
 import { FpsHud } from './hud/fps';
 import { loadRoom } from './room';
@@ -60,6 +61,10 @@ addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
 });
 
+// Off in pinned poses so comparison screenshots keep full resolution.
+const autoResOff = new URLSearchParams(location.search).get('autores') === '0';
+const autoRes = new AutoResolution(renderer, () => !autoResOff && !currentPose);
+
 const fpsSamples: number[] = [];
 let frames = 0;
 let lastT = performance.now();
@@ -100,6 +105,7 @@ renderer.setAnimationLoop(() => {
   const now = performance.now();
   fpsSamples.push(now - lastT);
   lastT = now;
+  autoRes.tick(fpsSamples[fpsSamples.length - 1], now);
   if (fpsSamples.length > 40000) fpsSamples.splice(0, 20000); // bulk trim: amortised O(1), no per-frame shift()
   if (++frames === 5) markReady();
 

@@ -82,6 +82,8 @@ LUX_PER_UNIT = 1000.0
 LED_ON_STRENGTH = arg('--led', 8.0)
 LED_BAY_BOOST = arg('--led-bay', 6.2)   # bay panels (last 3, x 7.1-7.7, z 8.0-9.3): daylight barely reaches the kitchenette
 BAY_PANELS = ('led_panel_10', 'led_panel_11', 'led_panel_12')
+_bay_found = [o.name for o in scn.objects if o.type == 'MESH' and o.name.startswith(BAY_PANELS)]
+assert len(_bay_found) == 3, f'expected 3 bay panels, found {_bay_found}'
 if STATE == 'on':
     bg.inputs['Strength'].default_value = 0.0; sun.energy = 0.0; por_o.hide_render = True
 for o in scn.objects:
