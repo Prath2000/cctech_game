@@ -4,7 +4,7 @@ title: Occasional single slow frame while walking and turning
 status: In Progress
 assignee: []
 created_date: '2026-11-06T10:48:00Z'
-updated_date: '2026-11-18T05:59:00Z'
+updated_date: '2026-11-18T06:09:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -31,6 +31,8 @@ Headed Chrome, production build, 15 s runs. 3 of 10 walking-and-turning runs had
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-11-18 re-test after final code (try/finally + hidden objects warmed): partway through (19 of 40 runs), 3 slow frames seen: 83.4 ms (WebGPU fast turn, 2.3 s in, at 6.9,4.5), 33.3 ms and 32.4 ms (~11 s in, near 5.0-5.5, 4.8-4.9). No 'renderer grew' lines. AC #3 reopened.
+
+Re-test complete. Headed Chrome (fresh install), 20 runs (5 rounds x WebGPU/WebGL x walk/fast turn): the 3 slow frames (83.4, 33.3, 32.4 ms) were all in round 1, the first runs after Chrome was reinstalled; rounds 2-5 had none (max ~17.8 ms). Likely Chrome warming its own fresh caches, not proven. Remaining 20 runs headless at the user's request (windows kept popping up): max 18.8 ms, no slow frames, no new programs built; headless timing is not representative. check:switch 16.8 ms, check:grab and check:seating pass. Cold load 5.6 s at 50 Mbps, 10.6 s at 20 Mbps (21.0 MB). AC #3 left open until a clean headed set without the fresh-install effect.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

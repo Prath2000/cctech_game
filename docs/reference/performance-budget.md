@@ -27,9 +27,10 @@ Re-measure with `pnpm run check:budget --url http://localhost:4173 [--mbps N]` a
 ## Load (cold, nothing cached, Chrome, throttled)
 | Network | Time | Over the wire |
 |---|---|---|
-| 50 Mbps | 4.9 s | 20.7 MB |
-| 20 Mbps | 10.0 s | 20.8 MB |
+| 50 Mbps | 5.6 s | 21.0 MB |
+| 20 Mbps | 10.6 s | 21.0 MB |
 
+- 2026-11-18, after the warm-up fix: about 0.6 s slower than before (was 4.9 s and 10.0 s), because all GPU programs are now built while loading. 20 Mbps is now just over the "under about 10 s" target.
 - Before lightmaps moved to lossless WebP: 6.6 s and 14.0 s, 30.7 MB. Pixels are identical, so the look did not change.
 - Below 20 Mbps the target is missed. The next saving would be lossy lightmaps or KTX2; both change pixels, so they would need a new photo-match check.
 - The bake now needs `cwebp` (`brew install webp`) and stops at once if it is missing.
