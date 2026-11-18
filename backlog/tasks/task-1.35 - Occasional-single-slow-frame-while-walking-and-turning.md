@@ -1,10 +1,10 @@
 ---
 id: TASK-1.35
 title: Occasional single slow frame while walking and turning
-status: Done
+status: In Progress
 assignee: []
 created_date: '2026-11-06T10:48:00Z'
-updated_date: '2026-11-18T05:48:00Z'
+updated_date: '2026-11-18T05:59:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -24,8 +24,14 @@ Headed Chrome, production build, 15 s runs. 3 of 10 walking-and-turning runs had
 <!-- AC:BEGIN -->
 - [x] #1 fps run reports the time and player position of any frame over 25 ms
 - [x] #2 Cause named from at least 10 runs on each backend, or stated as outside the game
-- [x] #3 If the game is the cause: fixed, and 10 further runs on each backend have no frame over 33 ms
+- [ ] #3 If the game is the cause: fixed, and 10 further runs on each backend have no frame over 33 ms
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-11-18 re-test after final code (try/finally + hidden objects warmed): partway through (19 of 40 runs), 3 slow frames seen: 83.4 ms (WebGPU fast turn, 2.3 s in, at 6.9,4.5), 33.3 ms and 32.4 ms (~11 s in, near 5.0-5.5, 4.8-4.9). No 'renderer grew' lines. AC #3 reopened.
+<!-- SECTION:NOTES:END -->
 
 ## Final Summary
 
