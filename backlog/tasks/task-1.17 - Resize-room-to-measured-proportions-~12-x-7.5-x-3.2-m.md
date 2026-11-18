@@ -3,11 +3,11 @@ id: TASK-1.17
 title: >-
   Resize room to the point-cloud scan layout (8.7 x 7.35 m hall + bay, 2.65 m
   ceiling)
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-05T10:34:00Z'
-updated_date: '2026-11-06T05:29:00Z'
+updated_date: '2026-11-18T05:52:00Z'
 labels:
   - effort:M
 dependencies:
@@ -28,5 +28,11 @@ User: the pantry looks too small. Re-measure from video gave window wall ~11-13 
 <!-- AC:BEGIN -->
 - [x] #1 All room dims and anchors live in blender/layout.py; blockout, materials and props read from it
 - [x] #2 Room rebuilt at the new size; reference sheet and camera poses updated
-- [ ] #3 check:walk passes; user agrees proportions look right
+- [x] #3 check:walk passes; user agrees proportions look right
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Room rebuilt at the scan layout (8.7 x 7.35 m hall + bay, 2.65 m ceiling), all sizes in blender/layout.py. check:walk passes (walls, glass, table, pillar block; free walk moves). User approved the proportions from overview, cafeteria and strip screenshots on 2026-11-18.
+<!-- SECTION:FINAL_SUMMARY:END -->
