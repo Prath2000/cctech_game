@@ -18,8 +18,9 @@ Re-measure with `pnpm run check:budget --url http://localhost:4173 [--mbps N]` a
 | WebGL, standing | 59.9 | 56.6 | 17.8 ms | one run, before the WebP change |
 | WebGPU, standing, 4 earlier runs | 59.9 | 56.5 in three, 29.4 in one | 17.8 ms in three, 100 ms in one | before the WebP change |
 
-- Single slow frames do happen: 3 of 10 walking-and-turning runs had one (32.5, 49.7 and 250.1 ms), and one of 4 earlier standing runs had 100 ms. None is explained. The 250 ms frame did not repeat in 4 further WebGL runs.
-- So the "no stutter" target is not met as a guarantee: usually smooth, with an occasional hitch of unknown cause. Other activity on the Mac has not been ruled out.
+- Before the fix, single slow frames did happen: 3 of 10 walking-and-turning runs had one (32.5, 49.7 and 250.1 ms), and one of 4 earlier standing runs had 100 ms. They followed the view, not the clock: turning twice as fast gave a slow frame in 5 of 5 WebGPU runs, and standing still in 0 of 5, while the renderer built new GPU programs mid-walk (WebGPU 90 -> 102, WebGL 56 -> 58).
+- The fix builds those programs during loading, with culling switched off for that one step (`src/main.ts`). After it, 40 runs (10 normal walk and 10 fast turn, on each of WebGPU and WebGL, 15 s each) had no frame over 18.8 ms and no new programs built (TASK-1.35).
+- Limits of that result: the walk does not press the switch, sit, or grab anything, and hidden objects are not built in advance, so those actions are unmeasured here. The older 100 ms and 250 ms frames were never reproduced, so they are not proven to share this cause. Measured in headed Chrome only; Safari is still TASK-1.34.
 - The light-switch fade stays at 16.8 ms worst frame (`check:switch`).
 - Safari, either backend: not measured (needs "Allow remote automation" or a reading from the user).
 

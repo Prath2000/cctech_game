@@ -10,3 +10,7 @@ assets/raw/
 public/spike/lm_*.exr
 references/photogrammetry/obj/
 references/photogrammetry/ply/
+
+# scratch logs and Python caches stay local
+.team/work/*.log
+__pycache__/

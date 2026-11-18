@@ -102,6 +102,27 @@ const MAX_SUBSTEPS = 4;
 let acc = 0;
 physics.world.timestep = STEP;
 
+// Build every GPU program now, while loading, so nothing has to be built mid-walk the first time it
+// comes into view (that showed up as a 30-50 ms frame, TASK-1.35). compileAsync skips whatever the
+// camera can't see and whatever is hidden, so both are switched off just for this call. Nothing is
+// drawn until the loop below starts, so hidden things never flash on screen. Lights keep their own
+// state, because showing one would build programs for a light setup the game never uses. A failed
+// warm-up only costs a slower first look, so it must not stop the game from starting.
+const culled: THREE.Object3D[] = [];
+const hidden: THREE.Object3D[] = [];
+scene.traverse((o) => {
+  if (o.frustumCulled) { culled.push(o); o.frustumCulled = false; }
+  if (!o.visible && !(o as THREE.Light).isLight) { hidden.push(o); o.visible = true; }
+});
+try {
+  await renderer.compileAsync(scene, camera);
+} catch (err) {
+  console.error('Warm-up failed, carrying on without it:', err);
+} finally {
+  for (const o of culled) o.frustumCulled = true;
+  for (const o of hidden) o.visible = false;
+}
+
 renderer.setAnimationLoop(() => {
   const now = performance.now();
   fpsSamples.push(now - lastT);
