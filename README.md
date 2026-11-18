@@ -1,29 +1,50 @@
-# CCTech Office Game
+# 🎮 CCTech: The Game
 
-> **🚧 Work in progress.** This is an unfinished side project. Things will change, some parts look rough, and help is very welcome.
+**What if you could walk through the CCTech office from anywhere, right in your web browser?**
 
-A 3D copy of the CCTech 4th-floor pantry and seating area that you can walk around in, right in your web browser. The goal is for it to look and feel like the real place, so a colleague says "hey, that's our pantry!" within a minute.
+Grab a coffee at the Tata Bistro machine. Flip the pantry lights. Toss a mug across the room (please don't do that in real life). Get a snack from the vending machine and sit down with it.
 
-There is no score and no mission. You just explore and play with things.
+That's the idea: **turn the whole CCTech office into a game**, built so true to life that colleagues say *"wait, that's our pantry!"* within a minute.
 
-## What works today
+> **🚧 Work in progress.** We're just getting started. Only the **4th-floor pantry and seating area** is built so far. The rest of the office is waiting to be added, and **you can help build it.**
 
-- Walk around the pantry and seating area.
-- Pick things up, carry them, drop them or throw them (mugs, bottles and so on).
-- Flip the light switches.
-- Get a snack from the vending machine and fill a glass at the water cooler.
-- Sit on chairs.
-- Point at things to see their name and a short note.
-- Sounds, with a mute key.
+<p align="center">
+  <img src="docs/images/game-cafeteria.jpg" alt="Vending machine and water coolers in the game" width="800">
+</p>
 
-## Still being worked on
+## Real photo vs the game
 
-- Making each corner match the real photos more closely (coffee machine, sink, cabinets, signs).
-- Smoothness: walking is mostly a steady 60 frames per second, with a rare short hitch.
-- Not yet tested properly in Safari.
-- Only the pantry and seating area exist. Desks, meeting rooms and the rest of the floor come later.
+Every corner is built by matching it against real photos of the office.
 
-The full to-do list lives in the `backlog/` folder.
+<p align="center">
+  <img src="docs/images/photo-vs-game-cabinets.jpg" alt="Real photo on the left, game on the right" width="800">
+  <br><em>Left: real photo. Right: the game.</em>
+</p>
+
+## The big plan
+
+| Stage | What | Status |
+|---|---|---|
+| 1 | 4th-floor pantry and seating area | 🟡 Almost there: fine-tuning the look |
+| 2 | Desks and work areas | ⚪ Not started |
+| 3 | Meeting rooms | ⚪ Not started |
+| 4 | The rest of the 4th floor | ⚪ Not started |
+| 5 | Ride the lift to other floors | ⚪ Not started |
+| 6 | Colleagues walking around, mini-games, playing together | ⚪ Ideas for later |
+
+## What you can do today
+
+- 🚶 Walk around the pantry and seating area
+- ☕ Use the vending machine and fill a glass at the water cooler
+- 💡 Flip the light switches and watch the room change
+- 🫳 Pick things up, carry them around, drop them or throw them
+- 🪑 Sit on the chairs
+- 👀 Point at things to see their name and a little story about them
+- 🔊 Real-sounding sounds as you go
+
+<p align="center">
+  <img src="docs/images/game-overview.jpg" alt="The seating area with big windows" width="800">
+</p>
 
 ## Controls
 
@@ -38,7 +59,7 @@ The full to-do list lives in the `backlog/` folder.
 | M | Sound on / off |
 | Esc | Settings |
 
-## Run it on your computer
+## Play it on your computer
 
 You need [Node.js](https://nodejs.org) and [pnpm](https://pnpm.io).
 
@@ -49,18 +70,29 @@ pnpm dev
 
 Then open http://localhost:5173 in Chrome.
 
-- Chrome works best. Add `?webgl=1` to the address if the game won't start on an older computer.
-- The small box in the top-left corner shows how smoothly it runs.
+- Chrome works best. If the game won't start on an older computer, add `?webgl=1` to the end of the address.
+- The small box in the top-left corner shows how smoothly it's running.
 
-## Want to help?
+## 🙌 Join in
 
-You're welcome to join in, whether you code, make 3D models, take photos of the office, or just spot what looks wrong.
+This is a fun side project, and the office is big. There's room for everyone:
 
-1. Have a look at the open tasks in `backlog/tasks/`.
-2. Pick one, or suggest your own idea.
-3. Work on your own branch and open a pull request (a request to add your changes).
+- **📸 Take photos.** Pictures of corners that aren't built yet, plus close-ups of signs, labels and posters, are the most useful thing of all.
+- **🧱 Build a room.** Pick an area and help recreate it.
+- **🐞 Spot what's wrong.** If something doesn't look like the real office, tell us.
+- **💡 Bring ideas.** Easter eggs, inside jokes, mini-games.
 
-**Office photos are especially useful.** Pictures of corners that aren't built yet, or close-ups of labels and signs, help the game look real.
+How to start:
+
+1. Look at the to-do list in `backlog/tasks/`.
+2. Pick something, or suggest your own idea.
+3. Make your changes on your own branch and open a pull request (a request to add your changes).
+
+## Still being polished
+
+- Making each corner match the photos even more closely (coffee machine, sink, signs).
+- Smoothness: walking is a steady 60 frames per second, with a rare short hitch.
+- Not yet tested properly in Safari.
 
 ## How it's put together (for developers)
 
@@ -68,7 +100,7 @@ You're welcome to join in, whether you code, make 3D models, take photos of the 
 - `blender/`: scripts that build the 3D models and work out the lighting in Blender.
 - `public/`: the finished models, lighting, textures and sounds the game loads.
 - `references/`: real office photos and video used to match the look.
-- `scripts/`: automatic checks (screenshots next to the real photos, smoothness tests, walking tests).
+- `scripts/`: automatic checks (screenshots next to real photos, smoothness and walking tests).
 - `docs/`: notes, decisions and research.
 
 Handy check commands:
