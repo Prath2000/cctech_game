@@ -4,7 +4,7 @@ title: Performance pass
 status: To Do
 assignee: []
 created_date: '2026-11-05T10:22:00Z'
-updated_date: '2026-11-06T10:40:00Z'
+updated_date: '2026-11-18T06:20:00Z'
 labels:
   - effort:L
 dependencies:
@@ -44,4 +44,6 @@ From spike: KTX2 BC6H/ASTC HDR transcoding for lightmaps; pack ambient-cube axes
 User 2026-11-06: Low setting (AC #3) does not matter for the first pass; defer it.
 
 Load: 4.9 s at 50 Mbps, 10.0 s at 20 Mbps after lossless WebP lightmaps (20.8 MB). Walking measured at 60 fps both backends in Chrome. Numbers in docs/reference/performance-budget.md. AC #1 needs Safari; AC #3 deferred by the user.
+
+2026-11-18: user accepted 10.6 s cold load at 20 Mbps (5.6 s at 50 Mbps) after the warm-up fix.
 <!-- SECTION:NOTES:END -->

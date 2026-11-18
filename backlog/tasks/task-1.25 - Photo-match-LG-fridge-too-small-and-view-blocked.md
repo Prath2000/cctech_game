@@ -1,11 +1,11 @@
 ---
 id: TASK-1.25
 title: 'Photo-match: LG fridge too small and view blocked'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-05T11:36:00Z'
-updated_date: '2026-11-06T10:10:00Z'
+updated_date: '2026-11-18T06:20:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -30,3 +30,9 @@ Pass 3 (119434b), one scout look; see verify.md. Fridge view failed: flat grey b
 
 Pass 4 (12ca175): pose reframed, whole fridge visible, ratio 1.18 (miss, over 1.15). Width about 36% vs photo 58%. Open: user decides keep layout or move fridge (needs re-bake).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+User chose to keep the fridge where it is (2026-11-18). Photo 07-2 cannot match exactly with this layout (fridge width 36% vs 58% of frame); accepted.
+<!-- SECTION:FINAL_SUMMARY:END -->

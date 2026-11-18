@@ -1,10 +1,10 @@
 ---
 id: TASK-1.32
 title: 'Photo-match: coffee and cafeteria brightness slightly out of range'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-06T09:50:00Z'
-updated_date: '2026-11-06T10:28:00Z'
+updated_date: '2026-11-18T06:20:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -35,3 +35,9 @@ ec25efa: coffee shows 0.80 but is 101/127 = 0.795, under the 0.8 target, so reop
 
 2026-11-06: counter and sill now share one texture, tint #2d2d31, contrast 1.8 (room.glb 8.2 -> 7.0 MB). Checks pass. Scout: at this tint the coffee-shot counter still reads too light, the sink one slightly too dark, flecks fainter than the photo; so the coffee-shot gap is not the tint (possibly glare or baked light, not confirmed). check:match coffee 0.77 (miss), sink 0.81, cafeteria 1.14. AC #1 left unchecked: coffee needs a bake or the user's call.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+User accepted coffee 0.77 and cafeteria brightness as is on 2026-11-18; no re-bake.
+<!-- SECTION:FINAL_SUMMARY:END -->
