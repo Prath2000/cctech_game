@@ -1,9 +1,10 @@
 ---
 id: TASK-1.35
 title: Occasional single slow frame while walking and turning
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-06T10:48:00Z'
+updated_date: '2026-11-18T05:48:00Z'
 labels:
   - effort:S
 dependencies: []
@@ -21,7 +22,13 @@ Headed Chrome, production build, 15 s runs. 3 of 10 walking-and-turning runs had
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 fps run reports the time and player position of any frame over 25 ms
-- [ ] #2 Cause named from at least 10 runs on each backend, or stated as outside the game
-- [ ] #3 If the game is the cause: fixed, and 10 further runs on each backend have no frame over 33 ms
+- [x] #1 fps run reports the time and player position of any frame over 25 ms
+- [x] #2 Cause named from at least 10 runs on each backend, or stated as outside the game
+- [x] #3 If the game is the cause: fixed, and 10 further runs on each backend have no frame over 33 ms
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Cause: the renderer built new GPU programs the first time parts of the room came into view while walking (WebGPU pipelines 90->102, WebGL 56->58); turning faster reproduced it 5/5, standing still 0/5. Fix (src/main.ts): build all programs during loading with culling and hidden objects switched on just for that step. Measured in the earlier session: 40 headed-Chrome runs (normal walk + fast turn, both backends, 15 s each), no frame over 18.8 ms, no new programs built. fps.ts reports each frame over 25 ms with time, position and yaw. Reviewer: no bugs, typecheck passes. Not re-measured this session: Google Chrome is no longer installed. Not covered: switch/sit/grab actions; older 100/250 ms frames never reproduced; Safari is TASK-1.34.
+<!-- SECTION:FINAL_SUMMARY:END -->
